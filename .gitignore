@@ -1,0 +1,19 @@
+# Secrets / credentials
+creds/
+*.env
+.env
+.env.*
+
+# Vendored reference repo (re-clonable, carries its own .git)
+api.congress.gov/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Local databases & cached raw data
+*.db
+analysis/minneapolis_proof/data/*.csv

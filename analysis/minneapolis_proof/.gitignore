@@ -1,0 +1,5 @@
+# raw-zone cache + derived artifacts (re-creatable via run.sh)
+data/*.csv
+data/*.db
+data/results.json
+ANSWER.md
