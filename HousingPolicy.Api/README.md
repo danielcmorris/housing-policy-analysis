@@ -13,7 +13,7 @@ the Angular front end and later endpoints will grow on this same app.
 
 | Path | Role |
 |------|------|
-| `schema.sql` | Postgres DDL (source of truth): `sources`, `bills`, `bill_text_versions`, `raw_payloads`. Copied to output; applied on startup. |
+| `schema.sql` | Postgres DDL (source of truth): `sources`, `bills`, `bill_text_versions`, sub-resource tables (`bill_sponsors`, `bill_cosponsors`, `bill_amendments`, `bill_actions`, `bill_committees`, `bill_subjects`, `bill_summaries`, `bill_titles`, `bill_related_bills`), `raw_payloads`. Copied to output; applied on startup. |
 | `Program.cs` | Wiring: Dapper underscore mapping + DateOnly handlers, config layering (appsettings → `creds/config.json` → env), DI, CORS, Swagger, schema init on boot. |
 | `Options/CongressOptions.cs` | `Congress` config section (BaseUrl, ApiKey, DataDir, timeout, retries). |
 | `Modules/DataLayerBase.cs` | Npgsql + Dapper access base (house pattern from DCElectricWebAPI). |
@@ -80,14 +80,22 @@ On a DB/cache hit the endpoint serves stored data without calling congress.gov.
 
 ## What gets stored
 
-- **Bill metadata** → `bills` (title, chamber, latest action, `updateDate`, provenance).
+- **Bill metadata** → `bills` (title, chamber, sponsor, `introducedDate`,
+  `policyArea`, latest action, `updateDate`, provenance).
 - **One text version** → `bill_text_versions`: only the *most recent* raw text,
   meaning the latest legislative stage. congress.gov lists text versions
   newest-first, so the client takes the first version that offers a "Formatted
   Text" format (Enrolled for a passed bill, otherwise the newest stage). Older
   stages (introduced, engrossed, …) are not downloaded or stored.
+- **Sub-resource metadata**, each from its own endpoint (~1 small paged call
+  per import) → its own table, replaced wholesale on refresh:
+  `bill_sponsors`, `bill_cosponsors`, `bill_amendments`, `bill_actions`,
+  `bill_committees` (activities as JSONB), `bill_subjects`, `bill_summaries`
+  (CRS summary HTML), `bill_titles`, `bill_related_bills`.
 - **Raw upstream JSON** → `raw_payloads` (the full `/bill` and `/text`
   responses, JSONB) for audit / re-parse.
+
+The endpoint returns all of the above nested under the `Bill` JSON.
 
 ## Notes
 

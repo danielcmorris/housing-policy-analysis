@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using HousingPolicy.Api.Options;
 using Microsoft.Extensions.Options;
@@ -62,18 +63,54 @@ public sealed class CongressClient
 
     // --- public fetch surface ------------------------------------------------
 
+    private static readonly (string, string)[] JsonOnly = { ("format", "json") };
+
     public Task<string> FetchBillAsync(int congress, string billType, int billNumber, bool refresh, CancellationToken ct)
     {
         var url = $"{_baseUrl}/bill/{congress}/{billType}/{billNumber}";
         var cache = Path.Combine(_dataDir, $"bill_{congress}_{billType}_{billNumber}.json");
-        return GetJsonAsync(url, cache, refresh, ct);
+        return GetJsonAsync(url, JsonOnly, cache, refresh, ct);
     }
 
     public Task<string> FetchBillTextAsync(int congress, string billType, int billNumber, bool refresh, CancellationToken ct)
     {
         var url = $"{_baseUrl}/bill/{congress}/{billType}/{billNumber}/text";
         var cache = Path.Combine(_dataDir, $"bill_{congress}_{billType}_{billNumber}_text.json");
-        return GetJsonAsync(url, cache, refresh, ct);
+        return GetJsonAsync(url, JsonOnly, cache, refresh, ct);
+    }
+
+    /// <summary>
+    /// Fetch all pages of a bill sub-resource (cosponsors, amendments, actions,
+    /// committees, summaries, subjects, titles, relatedbills). Returns the raw
+    /// JSON of each page; congress.gov paginates via ?offset/&limit and reports
+    /// the total in pagination.count. One page covers most bills (limit 250).
+    /// </summary>
+    public async Task<List<string>> FetchSubResourcePagesAsync(
+        int congress, string billType, int billNumber, string resource, bool refresh, CancellationToken ct)
+    {
+        const int limit = 250;
+        var pages = new List<string>();
+        var offset = 0;
+        for (var guard = 0; guard < 40; guard++)   // hard cap against runaway pagination
+        {
+            var url = $"{_baseUrl}/bill/{congress}/{billType}/{billNumber}/{resource}";
+            var cache = Path.Combine(_dataDir,
+                $"bill_{congress}_{billType}_{billNumber}_{resource}_{offset}.json");
+            var body = await GetJsonAsync(url,
+                new[] { ("format", "json"), ("limit", limit.ToString()), ("offset", offset.ToString()) },
+                cache, refresh, ct);
+            pages.Add(body);
+
+            int total;
+            using (var doc = JsonDocument.Parse(body))
+                total = doc.RootElement.TryGetProperty("pagination", out var p) &&
+                        p.TryGetProperty("count", out var c) && c.ValueKind == JsonValueKind.Number
+                        ? c.GetInt32() : 0;
+
+            offset += limit;
+            if (offset >= total) break;
+        }
+        return pages;
     }
 
     /// <summary>Fetch a text-version body (public congress.gov/govinfo URL, no api_key).</summary>
@@ -85,12 +122,14 @@ public sealed class CongressClient
 
     // --- JSON endpoints with raw-zone disk cache -----------------------------
 
-    private async Task<string> GetJsonAsync(string url, string cachePath, bool refresh, CancellationToken ct)
+    private async Task<string> GetJsonAsync(
+        string url, IReadOnlyList<(string Key, string Value)> query, string cachePath, bool refresh, CancellationToken ct)
     {
         if (!refresh && File.Exists(cachePath))
             return await File.ReadAllTextAsync(cachePath, ct);
 
-        var full = $"{url}?format=json&api_key={Uri.EscapeDataString(_opt.ApiKey)}";
+        var qs = string.Join("&", query.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"));
+        var full = $"{url}?{qs}&api_key={Uri.EscapeDataString(_opt.ApiKey)}";
         using var resp = await RequestAsync(full, ct);
         var body = await resp.Content.ReadAsStringAsync(ct);
 

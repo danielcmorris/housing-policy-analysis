@@ -60,7 +60,14 @@ public sealed class BillsController : ControllerBase
             if (latest is not null && !string.IsNullOrEmpty(latest.Url))
                 body = await _congress.FetchTextBodyAsync(latest.Url, ct);
 
-            await _repo.StoreLawAsync(congress, billType, billNumber, billJson, textJson, latest, body, ct);
+            // Sub-resources (cosponsors, amendments, actions, ...): ~1 small call each.
+            var subResources = new Dictionary<string, List<string>>();
+            foreach (var res in BillRepository.SubResources)
+                subResources[res] = await _congress.FetchSubResourcePagesAsync(congress, billType, billNumber, res, refresh, ct);
+
+            var import = new BillRepository.BillImport(
+                congress, billType, billNumber, billJson, textJson, latest, body, subResources);
+            await _repo.StoreLawAsync(import, ct);
         }
         catch (BillNotFoundException)
         {

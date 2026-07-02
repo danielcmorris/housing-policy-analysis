@@ -54,3 +54,118 @@ CREATE TABLE IF NOT EXISTS raw_payloads (
 
 CREATE INDEX IF NOT EXISTS idx_bills_update ON bills (update_date);
 CREATE INDEX IF NOT EXISTS idx_raw_bill ON raw_payloads (bill_id, endpoint);
+
+-- ---------------------------------------------------------------------------
+-- Bill metadata sub-resources (congress.gov: /cosponsors, /amendments, ...).
+-- Each is fetched from its own endpoint and replaced wholesale on refresh.
+-- Two extra inline fields on `bills` come free with the /bill payload:
+ALTER TABLE bills ADD COLUMN IF NOT EXISTS introduced_date DATE;
+ALTER TABLE bills ADD COLUMN IF NOT EXISTS policy_area     TEXT;
+
+-- Bill sponsor(s) — inline in the /bill payload (usually one).
+CREATE TABLE IF NOT EXISTS bill_sponsors (
+    bill_id       TEXT NOT NULL REFERENCES bills(bill_id) ON DELETE CASCADE,
+    bioguide_id   TEXT NOT NULL,
+    full_name     TEXT,
+    first_name    TEXT,
+    last_name     TEXT,
+    party         TEXT,
+    state         TEXT,
+    district      INTEGER,
+    is_by_request TEXT,
+    url           TEXT,
+    PRIMARY KEY (bill_id, bioguide_id)
+);
+
+CREATE TABLE IF NOT EXISTS bill_cosponsors (
+    bill_id               TEXT NOT NULL REFERENCES bills(bill_id) ON DELETE CASCADE,
+    bioguide_id           TEXT NOT NULL,
+    full_name             TEXT,
+    party                 TEXT,
+    state                 TEXT,
+    district              INTEGER,
+    is_original_cosponsor BOOLEAN,
+    sponsorship_date      DATE,
+    url                   TEXT,
+    PRIMARY KEY (bill_id, bioguide_id)
+);
+
+CREATE TABLE IF NOT EXISTS bill_amendments (
+    bill_id            TEXT NOT NULL REFERENCES bills(bill_id) ON DELETE CASCADE,
+    amendment_congress INTEGER,
+    amendment_type     TEXT NOT NULL,        -- 'HAMDT','SAMDT'
+    amendment_number   TEXT NOT NULL,
+    update_date        TIMESTAMPTZ,
+    url                TEXT,
+    PRIMARY KEY (bill_id, amendment_type, amendment_number)
+);
+
+-- Actions carry no natural key; keep source order via `ordinal`.
+CREATE TABLE IF NOT EXISTS bill_actions (
+    bill_id            TEXT NOT NULL REFERENCES bills(bill_id) ON DELETE CASCADE,
+    ordinal            INTEGER NOT NULL,
+    action_date        DATE,
+    action_code        TEXT,
+    action_type        TEXT,
+    source_system_code INTEGER,
+    source_system_name TEXT,
+    text               TEXT,
+    PRIMARY KEY (bill_id, ordinal)
+);
+
+CREATE TABLE IF NOT EXISTS bill_committees (
+    bill_id     TEXT NOT NULL REFERENCES bills(bill_id) ON DELETE CASCADE,
+    system_code TEXT NOT NULL,
+    chamber     TEXT,
+    name        TEXT,
+    type        TEXT,
+    url         TEXT,
+    activities  JSONB,                        -- [{date,name}, ...]
+    PRIMARY KEY (bill_id, system_code)
+);
+
+CREATE TABLE IF NOT EXISTS bill_subjects (
+    bill_id     TEXT NOT NULL REFERENCES bills(bill_id) ON DELETE CASCADE,
+    name        TEXT NOT NULL,               -- legislative subject term
+    update_date TIMESTAMPTZ,
+    PRIMARY KEY (bill_id, name)
+);
+
+CREATE TABLE IF NOT EXISTS bill_summaries (
+    bill_id      TEXT NOT NULL REFERENCES bills(bill_id) ON DELETE CASCADE,
+    version_code TEXT NOT NULL,              -- CRS summary version, e.g. '00','07'
+    action_date  DATE,
+    action_desc  TEXT,
+    update_date  TIMESTAMPTZ,
+    text         TEXT,                       -- HTML summary body
+    PRIMARY KEY (bill_id, version_code)
+);
+
+CREATE TABLE IF NOT EXISTS bill_titles (
+    bill_id                TEXT NOT NULL REFERENCES bills(bill_id) ON DELETE CASCADE,
+    ordinal                INTEGER NOT NULL,
+    title                  TEXT,
+    title_type             TEXT,
+    title_type_code        INTEGER,
+    bill_text_version_code TEXT,
+    chamber_code           TEXT,
+    chamber_name           TEXT,
+    update_date            TIMESTAMPTZ,
+    PRIMARY KEY (bill_id, ordinal)
+);
+
+CREATE TABLE IF NOT EXISTS bill_related_bills (
+    bill_id             TEXT NOT NULL REFERENCES bills(bill_id) ON DELETE CASCADE,
+    related_congress    INTEGER NOT NULL,
+    related_type        TEXT NOT NULL,       -- 'HR','S',...
+    related_number      INTEGER NOT NULL,
+    title               TEXT,
+    latest_action_date  DATE,
+    latest_action_text  TEXT,
+    relationship_details JSONB,              -- [{identifiedBy,type}, ...]
+    url                 TEXT,
+    PRIMARY KEY (bill_id, related_congress, related_type, related_number)
+);
+
+CREATE INDEX IF NOT EXISTS idx_cosponsors_member ON bill_cosponsors (bioguide_id);
+CREATE INDEX IF NOT EXISTS idx_subjects_name ON bill_subjects (name);
