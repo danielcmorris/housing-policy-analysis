@@ -1,0 +1,13 @@
+{
+  "textVersions": [
+    {
+      "type": "Enrolled Bill",
+      "date": "2026-01-14T05:00:00Z",
+      "formats": [
+        {"type": "Formatted Text", "url": "https://www.congress.gov/119/bills/hr6644/BILLS-119hr6644enr.htm"},
+        {"type": "PDF", "url": "https://www.congress.gov/119/bills/hr6644/BILLS-119hr6644enr.pdf"}
+      ]
+    }
+  ],
+  "request": {"congress": "119", "billNumber": "6644", "billType": "hr"}
+}
