@@ -1,8 +1,9 @@
 # HousingPolicy.Api — Law Retrieval API (C#)
 
 ASP.NET Core Web API + Postgres service that pulls an individual federal law
-from [api.congress.gov](https://api.congress.gov) — metadata **and full text
-body** — persists it, and serves it back. This is the C# port of the original
+from [api.congress.gov](https://api.congress.gov) — metadata **and the most
+recent raw text** (the latest legislative stage, e.g. Enrolled) — persists it,
+and serves it back. This is the C# port of the original
 `api/` FastAPI prototype, rebuilt in the house stack (Controllers / Services /
 Modules, **Dapper + Npgsql, raw SQL**, no ORM) to match the other Morris Dev
 Web APIs. Step 1 of the Housing Policy Analysis Website (see `../CLAUDE.md`);
@@ -17,7 +18,7 @@ the Angular front end and later endpoints will grow on this same app.
 | `Options/CongressOptions.cs` | `Congress` config section (BaseUrl, ApiKey, DataDir, timeout, retries). |
 | `Modules/DataLayerBase.cs` | Npgsql + Dapper access base (house pattern from DCElectricWebAPI). |
 | `Services/CongressClient.cs` | Typed `HttpClient`: fetch bill / text / body, retry+backoff (honors Retry-After), api_key redaction, raw-zone disk cache, typed exceptions. |
-| `Services/BillRepository.cs` | Normalize congress.gov JSON → schema, upsert in a transaction, read back. |
+| `Services/BillRepository.cs` | Normalize congress.gov JSON → schema, select the most recent text version, upsert in a transaction, read back. |
 | `Services/SchemaInitializer.cs` | Applies `schema.sql` + ensures the `congress_gov` source row on startup. |
 | `Json/DateOnlyHandler.cs` | Dapper ↔ Npgsql `date` handlers (house pattern from pfsa-api). |
 | `Models/Bill.cs`, `Models/TextVersion.cs` | DB projection + JSON response DTOs. |
@@ -77,10 +78,22 @@ On a DB/cache hit the endpoint serves stored data without calling congress.gov.
 - Errors: `400` bad bill type, `404` unknown bill, `429` upstream rate limit,
   `502` other upstream failure.
 
+## What gets stored
+
+- **Bill metadata** → `bills` (title, chamber, latest action, `updateDate`, provenance).
+- **One text version** → `bill_text_versions`: only the *most recent* raw text,
+  meaning the latest legislative stage. congress.gov lists text versions
+  newest-first, so the client takes the first version that offers a "Formatted
+  Text" format (Enrolled for a passed bill, otherwise the newest stage). Older
+  stages (introduced, engrossed, …) are not downloaded or stored.
+- **Raw upstream JSON** → `raw_payloads` (the full `/bill` and `/text`
+  responses, JSONB) for audit / re-parse.
+
 ## Notes
 
-- **Upstream throttling:** congress.gov sits behind Cloudflare and will
-  throttle/hold connections after a burst of rapid requests (a single bill's
-  refresh fetches ~8 text bodies). The client retries timeouts/429/5xx up to 3×
-  with backoff; if you see requests stalling, you are likely being rate-shaped —
-  back off and retry. A future sync job should serialize/space these fetches.
+- **Upstream throttling:** congress.gov sits behind Cloudflare and can
+  throttle/hold connections after a burst of rapid requests. Because each import
+  now fetches only a single text body, this is largely a non-issue for one-off
+  imports; a future bulk/backfill job should still space out its calls.
+- The client retries timeouts/429/5xx up to 3× with backoff (honoring
+  Retry-After). Persistent stalls usually mean you are being rate-shaped.

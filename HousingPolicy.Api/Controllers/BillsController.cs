@@ -54,14 +54,13 @@ public sealed class BillsController : ControllerBase
             var billJson = await _congress.FetchBillAsync(congress, billType, billNumber, refresh, ct);
             var textJson = await _congress.FetchBillTextAsync(congress, billType, billNumber, refresh, ct);
 
-            var bodies = new Dictionary<string, string>();
-            foreach (var v in BillRepository.ParseTextVersions(textJson))
-            {
-                if (v.FormatType == "Formatted Text" && !string.IsNullOrEmpty(v.Url))
-                    bodies[v.Url] = await _congress.FetchTextBodyAsync(v.Url, ct);
-            }
+            // Metadata + the single most-recent raw text (one body fetch, not all versions).
+            var latest = BillRepository.SelectLatestFormattedText(textJson);
+            string? body = null;
+            if (latest is not null && !string.IsNullOrEmpty(latest.Url))
+                body = await _congress.FetchTextBodyAsync(latest.Url, ct);
 
-            await _repo.StoreLawAsync(congress, billType, billNumber, billJson, textJson, bodies, ct);
+            await _repo.StoreLawAsync(congress, billType, billNumber, billJson, textJson, latest, body, ct);
         }
         catch (BillNotFoundException)
         {

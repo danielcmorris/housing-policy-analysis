@@ -56,45 +56,52 @@ public sealed class BillRepository
             UpdateDate: GetTimestamp(b, "updateDate") ?? GetTimestamp(b, "updateDateIncludingText"));
     }
 
-    /// <summary>Flatten /bill/.../text into one record per (version, format).</summary>
-    public static List<ParsedTextVersion> ParseTextVersions(string textJson)
+    /// <summary>
+    /// Pick the single most recent raw text: congress.gov lists textVersions
+    /// newest-first (latest legislative stage — Enrolled if the bill passed),
+    /// so we take the first version that offers a "Formatted Text" format.
+    /// Returns null if the bill has no formatted-text version. (We keep only
+    /// the latest version's text, not every stage — see StoreLawAsync.)
+    /// </summary>
+    public static ParsedTextVersion? SelectLatestFormattedText(string textJson)
     {
-        var outList = new List<ParsedTextVersion>();
         using var doc = JsonDocument.Parse(textJson);
         if (!doc.RootElement.TryGetProperty("textVersions", out var versions) ||
             versions.ValueKind != JsonValueKind.Array)
-            return outList;
+            return null;
 
         foreach (var v in versions.EnumerateArray())
         {
-            var name = GetString(v, "type");
-            var vdate = GetTimestamp(v, "date");
             if (!v.TryGetProperty("formats", out var formats) || formats.ValueKind != JsonValueKind.Array)
                 continue;
             foreach (var fmt in formats.EnumerateArray())
             {
+                if (GetString(fmt, "type") != "Formatted Text")
+                    continue;
+                var name = GetString(v, "type");
                 var url = GetString(fmt, "url");
-                outList.Add(new ParsedTextVersion(
+                return new ParsedTextVersion(
                     VersionCode: CongressClient.VersionCode(name, url),
                     VersionName: name,
-                    VersionDate: vdate,
-                    FormatType: GetString(fmt, "type") ?? "unknown",
-                    Url: url));
+                    VersionDate: GetTimestamp(v, "date"),
+                    FormatType: "Formatted Text",
+                    Url: url);
             }
         }
-        return outList;
+        return null;
     }
 
     // --- SQL -----------------------------------------------------------------
 
     /// <summary>
-    /// Upsert a bill + its text versions (+ raw payloads) in one transaction.
-    /// <paramref name="bodies"/> maps a text-version URL -> fetched body text.
-    /// Returns the bill_id slug.
+    /// Upsert a bill + its single most-recent text version (+ raw payloads) in
+    /// one transaction. <paramref name="latest"/>/<paramref name="body"/> come
+    /// from <see cref="SelectLatestFormattedText"/>; pass null to store metadata
+    /// only. Returns the bill_id slug.
     /// </summary>
     public async Task<string> StoreLawAsync(
         int congress, string billType, int billNumber,
-        string billJson, string textJson, IReadOnlyDictionary<string, string> bodies,
+        string billJson, string textJson, ParsedTextVersion? latest, string? body,
         CancellationToken ct = default)
     {
         var slug = BillSlug(congress, billType, billNumber);
@@ -135,14 +142,15 @@ public sealed class BillRepository
             },
             transaction: tx, cancellationToken: ct));
 
-        // Replace text versions wholesale so stale rows never linger.
+        // Keep only the most recent version's raw text: clear any prior rows
+        // (e.g. a bill first stored under the old multi-version scheme) and
+        // insert just the latest.
         await con.ExecuteAsync(new CommandDefinition(
             "DELETE FROM bill_text_versions WHERE bill_id = @BillId",
             new { BillId = slug }, transaction: tx, cancellationToken: ct));
 
-        foreach (var v in ParseTextVersions(textJson))
+        if (latest is not null)
         {
-            var body = v.Url is not null && bodies.TryGetValue(v.Url, out var t) ? t : null;
             await con.ExecuteAsync(new CommandDefinition(
                 """
                 INSERT INTO bill_text_versions
@@ -157,11 +165,11 @@ public sealed class BillRepository
                 new
                 {
                     BillId = slug,
-                    v.VersionCode,
-                    v.VersionName,
-                    v.VersionDate,
-                    v.FormatType,
-                    v.Url,
+                    latest.VersionCode,
+                    latest.VersionName,
+                    latest.VersionDate,
+                    latest.FormatType,
+                    latest.Url,
                     TextContent = body,
                 },
                 transaction: tx, cancellationToken: ct));
