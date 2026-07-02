@@ -1,0 +1,15 @@
+{
+  "bill": {
+    "congress": 119,
+    "type": "HR",
+    "number": "6644",
+    "title": "21st Century ROAD to Housing Act",
+    "originChamber": "House",
+    "updateDate": "2026-01-20T00:00:00Z",
+    "latestAction": {
+      "actionDate": "2026-01-15",
+      "text": "Became Public Law."
+    }
+  },
+  "request": {"congress": "119", "billNumber": "6644", "billType": "hr"}
+}

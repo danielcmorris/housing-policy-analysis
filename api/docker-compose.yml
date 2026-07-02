@@ -1,0 +1,21 @@
+# Local Postgres for dev / verification of the law-retrieval API.
+# Matches the DATABASE_URL default in app/config.py.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: housing
+      POSTGRES_PASSWORD: housing
+      POSTGRES_DB: housing
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U housing -d housing"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
