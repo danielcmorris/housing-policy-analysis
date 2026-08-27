@@ -6,7 +6,7 @@ import { CONGRESS_BILLS } from './congress.data';
    which serves the housing bills maintained in Postgres by the congress.gov
    sync. Falls back to the static demo tiles if the API is unreachable. */
 
-const API_BASE = 'http://localhost:8000';
+export const API_BASE = 'http://localhost:8000';
 
 export interface TrackerBill {
   bill_id: string;

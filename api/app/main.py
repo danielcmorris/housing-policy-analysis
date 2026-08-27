@@ -13,7 +13,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .db import init_schema, make_pool
-from .routers import admin, bills, legislation
+from .routers import admin, bills, legislation, reviews
 
 
 @asynccontextmanager
@@ -32,6 +32,7 @@ app = FastAPI(title="Housing Policy — Law Retrieval API", version="0.1.0", lif
 app.include_router(bills.router)
 app.include_router(legislation.router)
 app.include_router(admin.router)
+app.include_router(reviews.router)
 
 # The Angular dev server (ng serve) runs on :4200; the /admin pages POST.
 app.add_middleware(

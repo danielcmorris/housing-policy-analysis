@@ -1,9 +1,11 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { API_BASE } from './legislation.service';
 
 /* Bill-review data per prototype/data/bill-review.schema.json.
-   Served from public/data/bills.json today; production swaps this for
-   GET /api/bills/{id} on the same shapes. */
+   Served by GET /reviews from the law-retrieval API (stored in Postgres,
+   with live legislative status merged in). Falls back to the static
+   public/data/bills.json seed when the API is unreachable. */
 
 export interface Vote { yea: number; nay: number; }
 export interface LegStage { stage: string; state: 'complete' | 'in_progress' | 'pending'; date?: string; vote?: Vote; }
@@ -32,15 +34,28 @@ export class BillsService {
   readonly featuredBillId = signal<string>('hr6644-119');
 
   constructor(private http: HttpClient) {
-    this.http.get<BillStore>('data/bills.json').subscribe({
+    this.http.get<BillStore>(`${API_BASE}/reviews`).subscribe({
       next: (d) => {
-        if (d && d.bills) {
-          this.store.set(d);
-          if (d.featuredBillId) this.featuredBillId.set(d.featuredBillId);
+        if (d && d.bills && Object.keys(d.bills).length) {
+          this.apply(d);
+        } else {
+          this.loadFallback();
         }
       },
+      error: () => this.loadFallback(),
+    });
+  }
+
+  private loadFallback(): void {
+    this.http.get<BillStore>('data/bills.json').subscribe({
+      next: (d) => { if (d && d.bills) this.apply(d); },
       error: () => {},
     });
+  }
+
+  private apply(d: BillStore): void {
+    this.store.set(d);
+    if (d.featuredBillId) this.featuredBillId.set(d.featuredBillId);
   }
 
   bill(id: string): Bill | null {

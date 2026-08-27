@@ -118,3 +118,16 @@ CREATE TABLE IF NOT EXISTS sync_state (
     value      TEXT,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- The Center's authored bill reviews (the four-stage analysis rendered at
+-- /bills/{review_id}). The document is JSONB shaped by
+-- ui/design_handoff_policy_platform/prototype/data/bill-review.schema.json.
+-- Live legislative status is merged in from `bills` at read time, so the
+-- editorial document never goes stale on status.
+CREATE TABLE IF NOT EXISTS bill_reviews (
+    review_id  TEXT PRIMARY KEY,          -- front-end route id, e.g. 'hr6644-119'
+    bill_id    TEXT UNIQUE REFERENCES bills(bill_id) ON DELETE CASCADE,
+    review     JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
