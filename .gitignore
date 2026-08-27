@@ -17,4 +17,9 @@ venv/
 # Local databases & cached raw data
 *.db
 analysis/minneapolis_proof/data/*.csv
-api/data/
+HousingPolicy.Api/Data/
+
+# .NET build output
+[Bb]in/
+[Oo]bj/
+*.user
