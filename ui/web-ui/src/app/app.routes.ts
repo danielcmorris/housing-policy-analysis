@@ -6,6 +6,7 @@ export const routes: Routes = [
   { path: 'studies/:ref', loadComponent: () => import('./pages/study/study').then(m => m.StudyPage) },
   { path: 'bills/:id', loadComponent: () => import('./pages/bill-review/bill-review').then(m => m.BillReviewPage) },
   { path: 'assistant', loadComponent: () => import('./pages/assistant/assistant').then(m => m.AssistantPage) },
+  { path: 'assistant/how-it-works', loadComponent: () => import('./pages/assistant-about/assistant-about').then(m => m.AssistantAboutPage) },
   { path: 'commons', loadComponent: () => import('./pages/commons/commons').then(m => m.CommonsPage) },
   { path: 'congress', loadComponent: () => import('./pages/congress/congress').then(m => m.CongressPage) },
   { path: 'experts', loadComponent: () => import('./pages/experts/experts').then(m => m.ExpertsPage) },

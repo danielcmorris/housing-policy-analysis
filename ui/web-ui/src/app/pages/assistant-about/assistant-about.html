@@ -1,0 +1,59 @@
+<div>
+  <!-- HEADER -->
+  <div class="bg-surface border-b border-border">
+    <div class="wrap pt-[30px] pb-11">
+      <div routerLink="/assistant" class="text-[13px] text-text-3 mb-[22px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-base">chevron_left</span>Research Assistant</div>
+      <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-3">Methodology</div>
+      <h1 class="font-serif font-bold text-[38px] leading-[1.12] m-0 mb-3 tracking-[-.01em] text-ink">About the Research Assistant</h1>
+      <p class="text-base leading-[1.65] text-text-2 m-0 max-w-[760px]">How a small, locally run tool helps make complex legislation searchable — and where, if anywhere, larger AI models enter the picture.</p>
+    </div>
+  </div>
+
+  <div class="wrap pt-12 pb-16 grid grid-cols-[1fr_320px] gap-14 items-start">
+    <!-- ARTICLE -->
+    <div class="text-base leading-[1.7] text-text">
+      <p class="m-0 mb-6 text-[17px] leading-[1.7]">To help people understand and compare policy for the betterment of all, the Research Assistant is built on a vector database. We compile the full text of housing-related policies and bills into this database so that searching it helps us understand and evaluate complex legal documents — and surfaces related measures that may bear on whatever is under review.</p>
+      <p class="m-0 mb-9">A language model is involved, but it is a small, locally run application that uses very little power — you could run it on a laptop. This architecture is called <strong>retrieval-augmented generation (RAG)</strong>, and it is among the most efficient ways to put a language model to work.</p>
+
+      <!-- STAGES -->
+      @for (st of stages; track st.num) {
+        <div class="flex items-baseline gap-3 border-b-2 border-ink pb-3 mb-5">
+          <span class="font-mono text-[13px] text-gold">{{ st.num }}</span>
+          <h2 class="font-serif font-bold text-[23px] m-0 text-ink">{{ st.title }}</h2>
+        </div>
+        @for (p of st.paras; track $index) {
+          <p class="m-0 mb-6 text-[15px] leading-[1.7] text-text-2">{{ p }}</p>
+        }
+        <div class="mb-4"></div>
+      }
+
+      <!-- TRANSPARENCY CALLOUT -->
+      <div class="bg-surface-2 border border-border border-l-[3px] border-l-gold rounded-[2px] py-[22px] px-6">
+        <div class="flex items-center gap-[9px] mb-3"><span class="material-icons text-[19px] text-gold">balance</span><span class="text-xs font-bold tracking-[.08em] uppercase text-gold">Our Commitment</span></div>
+        <p class="m-0 text-[14.5px] leading-[1.65] text-text-2">Search, retrieval, and summarization run entirely on local, low-power tools. Larger models are never invoked silently — they appear only as a clearly labeled additional step, so you can decide for yourself whether to use them.</p>
+      </div>
+    </div>
+
+    <!-- RAIL -->
+    <div class="sticky top-[90px] flex flex-col gap-[18px]">
+      <div class="border border-border bg-surface rounded-[2px] p-[22px]">
+        <div class="text-[11px] font-bold tracking-[.08em] uppercase text-ink mb-4">At a Glance</div>
+        <div class="text-[13px] leading-[2] text-text-2">
+          <div class="flex justify-between gap-3"><span class="text-text-4">Architecture</span><span class="font-semibold text-right">RAG</span></div>
+          <div class="flex justify-between gap-3"><span class="text-text-4">Embeddings</span><span class="font-semibold text-right">Local model</span></div>
+          <div class="flex justify-between gap-3"><span class="text-text-4">Search</span><span class="font-semibold text-right">Vector similarity</span></div>
+          <div class="flex justify-between gap-3"><span class="text-text-4">Granularity</span><span class="font-semibold text-right">Page &amp; paragraph</span></div>
+          <div class="flex justify-between gap-3"><span class="text-text-4">Larger models</span><span class="font-semibold text-right">Opt-in only</span></div>
+        </div>
+      </div>
+      <div class="border border-border bg-surface rounded-[2px] p-[22px]">
+        <div class="text-[11px] font-bold tracking-[.08em] uppercase text-ink mb-4">Why it Matters</div>
+        <p class="m-0 text-[12.5px] leading-[1.55] text-text-3">Retrieval over a curated corpus keeps answers grounded in the actual documents, keeps energy use minimal, and keeps every citation traceable to a page and paragraph.</p>
+      </div>
+      <div routerLink="/assistant" class="hover-border-accent border border-border bg-surface rounded-[2px] p-[18px] cursor-pointer flex items-center justify-between gap-3">
+        <span class="text-[13.5px] font-semibold text-accent">Try the Research Assistant</span>
+        <span class="material-icons text-base text-accent">arrow_forward</span>
+      </div>
+    </div>
+  </div>
+</div>
