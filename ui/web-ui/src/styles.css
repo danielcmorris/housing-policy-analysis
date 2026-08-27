@@ -105,6 +105,38 @@ input[type=range] { accent-color: var(--accent-fill); }
   @apply text-accent border-accent;
 }
 
+/* Rendered-markdown chat bubbles (assistant replies) */
+.chat-md p { margin: 0 0 10px; }
+.chat-md p:last-child { margin-bottom: 0; }
+.chat-md ul, .chat-md ol { margin: 0 0 10px; padding-left: 20px; }
+.chat-md ul { list-style: disc; }
+.chat-md ol { list-style: decimal; }
+.chat-md li { margin-bottom: 4px; }
+.chat-md strong { font-weight: 700; color: var(--ink); }
+.chat-md em { font-style: italic; }
+.chat-md h1, .chat-md h2, .chat-md h3, .chat-md h4 {
+  font-family: 'Spectral', serif; font-weight: 600; font-size: 15.5px;
+  margin: 12px 0 6px; color: var(--ink);
+}
+.chat-md code {
+  font-family: 'Roboto Mono', monospace; font-size: 12.5px;
+  background: var(--neutral-bg); padding: 1px 5px; border-radius: 2px;
+}
+.chat-md pre {
+  background: var(--neutral-bg); border: 1px solid var(--border);
+  border-radius: 2px; padding: 10px 12px; overflow-x: auto; margin: 0 0 10px;
+}
+.chat-md pre code { background: none; padding: 0; }
+.chat-md blockquote {
+  border-left: 3px solid var(--accent); padding-left: 12px; margin: 0 0 10px;
+  color: var(--text-3); font-style: italic;
+}
+.chat-md a { color: var(--accent); font-weight: 600; }
+.chat-md table { border-collapse: collapse; margin: 0 0 10px; font-size: 13px; }
+.chat-md th, .chat-md td { border: 1px solid var(--border); padding: 4px 9px; text-align: left; }
+.chat-md th { background: var(--surface-2); font-weight: 600; }
+.chat-md hr { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+
 /* Filter chips (Commons / Experts) — chipStyle() from the prototype */
 .chip {
   @apply text-[13px] font-semibold px-4 py-2 rounded-[20px] cursor-pointer whitespace-nowrap border border-border-2 bg-surface text-text-2;

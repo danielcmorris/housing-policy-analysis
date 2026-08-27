@@ -1,7 +1,10 @@
 import { Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { marked } from 'marked';
 import { AI_CAPABILITIES, ChatMessage, INITIAL_MESSAGES, aiReply } from '../../core/site.data';
 import { AssistantDocContext, AssistantService } from '../../core/assistant.service';
+
+marked.use({ gfm: true, breaks: true });
 
 /* The Research Assistant. Two modes:
    - Document-scoped (?type=…&id=…): the full text of that bill/study/matter
@@ -44,6 +47,12 @@ export class AssistantPage {
         this.messages.set([...INITIAL_MESSAGES]);
       }
     });
+  }
+
+  /** Assistant replies arrive as markdown; render them to HTML (Angular
+      sanitizes [innerHTML] bindings, so scripts/handlers are stripped). */
+  renderMd(text: string): string {
+    return marked.parse(text, { async: false }) as string;
   }
 
   /** First ~10 words of the document title, with an ellipsis. */
