@@ -306,11 +306,34 @@ CREATE TABLE IF NOT EXISTS document_chunks (
     chunk_index     INTEGER NOT NULL,
     content         TEXT NOT NULL,
     token_estimate  INTEGER,                 -- rough length/4 heuristic
-    embedding       vector,                  -- NULL until the embedding pass runs
+    embedding       vector(768),             -- nomic-embed-text (Ollama); NULL until embedded
     embedding_model TEXT,
     UNIQUE (document_id, chunk_index)
 );
 CREATE INDEX IF NOT EXISTS idx_document_chunks_doc ON document_chunks (document_id);
+
+-- Upgrade a pre-typed (dimensionless) embedding column in place, then index.
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns
+               WHERE table_name = 'document_chunks' AND column_name = 'embedding')
+       AND (SELECT atttypmod FROM pg_attribute
+            WHERE attrelid = 'document_chunks'::regclass AND attname = 'embedding') = -1 THEN
+        ALTER TABLE document_chunks ALTER COLUMN embedding TYPE vector(768);
+    END IF;
+END $$;
+CREATE INDEX IF NOT EXISTS idx_document_chunks_embedding
+    ON document_chunks USING hnsw (embedding vector_cosine_ops);
+
+-- Usage ledger for every metered AI call (token tracking per project rules).
+CREATE TABLE IF NOT EXISTS ai_usage (
+    id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    called_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    provider      TEXT NOT NULL,             -- 'vertex_gemini' | 'ollama' | ...
+    model         TEXT NOT NULL,
+    purpose       TEXT,                      -- 'search_synthesis' | ...
+    input_tokens  INTEGER,
+    output_tokens INTEGER
+);
 
 -- ---------------------------------------------------------------------------
 -- Experts / reviewers (see Services/ExpertService.cs). The vetted people who

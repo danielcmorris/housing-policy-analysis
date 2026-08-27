@@ -29,6 +29,8 @@ builder.Services.Configure<CongressOptions>(builder.Configuration.GetSection(Con
 builder.Services.Configure<TrackerOptions>(builder.Configuration.GetSection(TrackerOptions.SectionName));
 builder.Services.Configure<StudiesOptions>(builder.Configuration.GetSection(StudiesOptions.SectionName));
 builder.Services.Configure<CityOptions>(builder.Configuration.GetSection(CityOptions.SectionName));
+builder.Services.Configure<OllamaOptions>(builder.Configuration.GetSection(OllamaOptions.SectionName));
+builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection(GeminiOptions.SectionName));
 
 builder.Services.AddScoped<DataLayerBase>();
 builder.Services.AddScoped<BillRepository>();
@@ -54,6 +56,13 @@ builder.Services.AddHttpClient<LegistarClient>(c =>
     c.Timeout = TimeSpan.FromSeconds(congressOpt.HttpTimeoutSeconds);
     c.DefaultRequestHeaders.UserAgent.ParseAdd("housing-policy-laws/0.1");
 });
+
+// RAG: local Ollama embeddings + Vertex Gemini synthesis.
+var ollamaOpt = builder.Configuration.GetSection(OllamaOptions.SectionName).Get<OllamaOptions>() ?? new OllamaOptions();
+builder.Services.AddHttpClient<OllamaEmbedClient>(c =>
+    c.Timeout = TimeSpan.FromSeconds(ollamaOpt.TimeoutSeconds));
+builder.Services.AddHttpClient<GeminiClient>(c => c.Timeout = TimeSpan.FromSeconds(120));
+builder.Services.AddScoped<SearchService>();
 
 // Angular front end (dev + house origins).
 builder.Services.AddCors(options =>
