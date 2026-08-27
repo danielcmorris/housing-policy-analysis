@@ -28,6 +28,7 @@ if (credsPath is not null)
 builder.Services.Configure<CongressOptions>(builder.Configuration.GetSection(CongressOptions.SectionName));
 builder.Services.Configure<TrackerOptions>(builder.Configuration.GetSection(TrackerOptions.SectionName));
 builder.Services.Configure<StudiesOptions>(builder.Configuration.GetSection(StudiesOptions.SectionName));
+builder.Services.Configure<CityOptions>(builder.Configuration.GetSection(CityOptions.SectionName));
 
 builder.Services.AddScoped<DataLayerBase>();
 builder.Services.AddScoped<BillRepository>();
@@ -36,10 +37,19 @@ builder.Services.AddScoped<TrackerService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<StudyService>();
 builder.Services.AddScoped<ExpertService>();
+builder.Services.AddScoped<CityService>();
+builder.Services.AddScoped<DocumentRegistryService>();
 
 // Typed congress.gov client over HttpClientFactory-managed handlers.
 var congressOpt = builder.Configuration.GetSection(CongressOptions.SectionName).Get<CongressOptions>() ?? new CongressOptions();
 builder.Services.AddHttpClient<CongressClient>(c =>
+{
+    c.Timeout = TimeSpan.FromSeconds(congressOpt.HttpTimeoutSeconds);
+    c.DefaultRequestHeaders.UserAgent.ParseAdd("housing-policy-laws/0.1");
+});
+
+// Typed Legistar client for the city-legislation sync.
+builder.Services.AddHttpClient<LegistarClient>(c =>
 {
     c.Timeout = TimeSpan.FromSeconds(congressOpt.HttpTimeoutSeconds);
     c.DefaultRequestHeaders.UserAgent.ParseAdd("housing-policy-laws/0.1");

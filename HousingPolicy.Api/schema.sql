@@ -6,6 +6,9 @@
 -- so any record is self-citing. Raw upstream JSON is mirrored verbatim in
 -- `raw_payloads` (the raw-zone) so we can re-parse without re-fetching.
 
+-- pgvector for the RAG chunk embeddings (document_chunks.embedding).
+CREATE EXTENSION IF NOT EXISTS vector;
+
 CREATE TABLE IF NOT EXISTS sources (
     source_id TEXT PRIMARY KEY,          -- 'congress_gov'
     name      TEXT NOT NULL,
@@ -224,6 +227,90 @@ CREATE TABLE IF NOT EXISTS studies (
     updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_studies_display ON studies (display_date, year);
+
+-- ---------------------------------------------------------------------------
+-- City legislation (see Services/CityService.cs), synced from Granicus
+-- Legistar (webapi.legistar.com/v1/{client}) the same way federal bills sync
+-- from congress.gov. Legistar's shape differs enough from the federal bill
+-- record to warrant its own table; curation columns (tracking/display/pin/
+-- tags) mirror `bills` exactly.
+CREATE TABLE IF NOT EXISTS city_matters (
+    city_matter_id  TEXT PRIMARY KEY,        -- '{client}-{matter_id}', e.g. 'sfgov-34028'
+    client          TEXT NOT NULL,           -- legistar client key ('sfgov')
+    city_name       TEXT,                    -- display name ('San Francisco')
+    matter_id       INTEGER NOT NULL,        -- Legistar MatterId (internal key)
+    matter_file     TEXT,                    -- human file number ('181159')
+    matter_type     TEXT,                    -- Ordinance | Resolution | ...
+    title           TEXT,                    -- MatterTitle (long descriptive title)
+    matter_name     TEXT,                    -- MatterName (short name, often null)
+    status          TEXT,                    -- Legistar status text ('Pending Committee Action')
+    body_name       TEXT,                    -- current body ('Land Use and Transportation Committee')
+    intro_date      DATE,
+    agenda_date     DATE,
+    passed_date     DATE,
+    enactment_number TEXT,
+    last_modified   TIMESTAMPTZ,             -- MatterLastModifiedUtc; drives staleness
+    text_content    TEXT,                    -- current matter text (plain)
+    tracking_status TEXT NOT NULL DEFAULT 'tracked',
+    tags            TEXT[] NOT NULL DEFAULT '{}',
+    tags_source     TEXT,
+    display_date    TIMESTAMPTZ,
+    pinned          BOOLEAN NOT NULL DEFAULT FALSE,
+    data_vintage    TIMESTAMPTZ NOT NULL,
+    UNIQUE (client, matter_id)
+);
+CREATE INDEX IF NOT EXISTS idx_city_matters_client ON city_matters (client, last_modified);
+CREATE INDEX IF NOT EXISTS idx_city_matters_display ON city_matters (display_date, intro_date);
+
+-- ---------------------------------------------------------------------------
+-- Unified document registry + RAG layer (see Services/DocumentRegistryService.cs).
+--
+-- `documents` is the polymorphic anchor: one row per logical document across
+-- every corpus — federal bills, city matters, studies, and future state
+-- bills. source_type + source_key point at the native table.
+CREATE TABLE IF NOT EXISTS documents (
+    document_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    source_type TEXT NOT NULL,               -- 'federal_bill' | 'city_matter' | 'study' | 'state_bill'
+    source_key  TEXT NOT NULL,               -- bills.bill_id / city_matters.city_matter_id / studies.ref
+    title       TEXT,
+    jurisdiction TEXT,                       -- 'US' | 'San Francisco, CA' | publisher for studies
+    doc_year    INTEGER,
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (source_type, source_key)
+);
+
+-- Canonical tags, shared across every corpus, linked many-to-many.
+-- (bills.tags / city_matters.tags stay as denormalized copies for the
+-- tracker UI; document_tags is the canonical relation going forward.)
+CREATE TABLE IF NOT EXISTS tags (
+    tag_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name   TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS document_tags (
+    document_id BIGINT NOT NULL REFERENCES documents(document_id) ON DELETE CASCADE,
+    tag_id      BIGINT NOT NULL REFERENCES tags(tag_id) ON DELETE CASCADE,
+    PRIMARY KEY (document_id, tag_id)
+);
+CREATE INDEX IF NOT EXISTS idx_document_tags_tag ON document_tags (tag_id);
+
+-- Chunked text of every document, one row per chunk, with a pgvector
+-- embedding column for RAG. Embeddings are populated by a later embedding
+-- pass (embedding_model records which model produced them); the dimensionless
+-- `vector` type is intentional until the model is chosen — an ANN index is
+-- added then. Filterable RAG = join documents (source_type/jurisdiction/year)
+-- and document_tags before the vector distance.
+CREATE TABLE IF NOT EXISTS document_chunks (
+    chunk_id        BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    document_id     BIGINT NOT NULL REFERENCES documents(document_id) ON DELETE CASCADE,
+    chunk_index     INTEGER NOT NULL,
+    content         TEXT NOT NULL,
+    token_estimate  INTEGER,                 -- rough length/4 heuristic
+    embedding       vector,                  -- NULL until the embedding pass runs
+    embedding_model TEXT,
+    UNIQUE (document_id, chunk_index)
+);
+CREATE INDEX IF NOT EXISTS idx_document_chunks_doc ON document_chunks (document_id);
 
 -- ---------------------------------------------------------------------------
 -- Experts / reviewers (see Services/ExpertService.cs). The vetted people who

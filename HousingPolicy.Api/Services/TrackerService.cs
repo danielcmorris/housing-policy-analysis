@@ -20,14 +20,17 @@ public sealed class TrackerService
 {
     private readonly DataLayerBase _dl;
     private readonly CongressClient _congress;
+    private readonly DocumentRegistryService _registry;
     private readonly TrackerOptions _opt;
     private readonly ILogger<TrackerService> _log;
 
     public TrackerService(DataLayerBase dl, CongressClient congress,
+                          DocumentRegistryService registry,
                           IOptions<TrackerOptions> options, ILogger<TrackerService> log)
     {
         _dl = dl;
         _congress = congress;
+        _registry = registry;
         _opt = options.Value;
         _log = log;
     }
@@ -174,6 +177,7 @@ public sealed class TrackerService
             new { BillId = slug, FetchedAt = vintage, Payload = billJson });
 
         await tx.CommitAsync(ct);
+        await _registry.UpsertFederalBillAsync(slug, ct);
         return slug;
     }
 
@@ -213,6 +217,7 @@ public sealed class TrackerService
             "UPDATE bills SET data_vintage = @Now WHERE bill_id = @BillId",
             new { Now = DateTime.UtcNow, BillId = billId }, transaction: tx, cancellationToken: ct));
         await tx.CommitAsync(ct);
+        await _registry.UpsertFederalBillAsync(billId, ct);
     }
 
     // --- admin operations ----------------------------------------------------

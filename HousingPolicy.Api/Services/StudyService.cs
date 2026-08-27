@@ -14,14 +14,17 @@ namespace HousingPolicy.Api.Services;
 public sealed class StudyService
 {
     private readonly DataLayerBase _dl;
+    private readonly DocumentRegistryService _registry;
     private readonly StudiesOptions _opt;
     private readonly string _docsDir;
 
     private static readonly Regex RefPattern = new(@"^[A-Z]{2,10}-\d{4}-\d{1,6}$", RegexOptions.Compiled);
 
-    public StudyService(DataLayerBase dl, IOptions<StudiesOptions> options, IHostEnvironment env)
+    public StudyService(DataLayerBase dl, DocumentRegistryService registry,
+                        IOptions<StudiesOptions> options, IHostEnvironment env)
     {
         _dl = dl;
+        _registry = registry;
         _opt = options.Value;
         _docsDir = Path.IsPathRooted(_opt.DocumentsDir)
             ? _opt.DocumentsDir
@@ -126,5 +129,6 @@ public sealed class StudyService
                 s.Clarity, s.Summary, s.KeyFindings, s.Methodology, s.TextContent,
                 PdfPath = pdfPath, s.Display,
             });
+        await _registry.UpsertStudyAsync(s.Ref);
     }
 }
