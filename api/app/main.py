@@ -10,9 +10,10 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from .db import init_schema, make_pool
-from .routers import bills
+from .routers import admin, bills, legislation
 
 
 @asynccontextmanager
@@ -29,6 +30,16 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Housing Policy — Law Retrieval API", version="0.1.0", lifespan=lifespan)
 app.include_router(bills.router)
+app.include_router(legislation.router)
+app.include_router(admin.router)
+
+# The Angular dev server (ng serve) runs on :4200; the /admin pages POST.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200", "http://127.0.0.1:4200"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/health")

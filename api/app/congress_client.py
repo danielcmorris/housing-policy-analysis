@@ -158,3 +158,38 @@ class CongressClient:
         """Fetch a text-version body (public govinfo/congress.gov URL, no api_key)."""
         resp = await self._request(url, params={})
         return resp.text
+
+    # --- list / satellite endpoints for the legislation sync ----------------
+    # These are not disk-cached: list pages change continuously and the sync
+    # already decides freshness from congress.gov's updateDate.
+
+    async def _get_json_live(self, url: str, extra_params: dict) -> dict:
+        params = {"format": "json", "api_key": self.api_key, **extra_params}
+        resp = await self._request(url, params)
+        try:
+            return resp.json()
+        except ValueError as exc:
+            raise CongressAPIError(f"non-JSON response from {redact(str(resp.request.url))}") from exc
+
+    async def fetch_bill_list(self, congress: int, *, offset: int = 0, limit: int = 250,
+                              from_dt: str | None = None, to_dt: str | None = None) -> dict:
+        """One page of /bill/{congress}, newest updates first."""
+        url = config.BILL_LIST_ENDPOINT.format(base=self.base_url, congress=congress)
+        params: dict = {"offset": offset, "limit": limit, "sort": "updateDate desc"}
+        if from_dt:
+            params["fromDateTime"] = from_dt
+        if to_dt:
+            params["toDateTime"] = to_dt
+        return await self._get_json_live(url, params)
+
+    async def fetch_bill_summaries(self, congress: int, bill_type: str, bill_number: int) -> dict:
+        url = config.BILL_SUMMARIES_ENDPOINT.format(
+            base=self.base_url, congress=congress, bill_type=bill_type, bill_number=bill_number
+        )
+        return await self._get_json_live(url, {"limit": 25})
+
+    async def fetch_related_bills(self, congress: int, bill_type: str, bill_number: int) -> dict:
+        url = config.BILL_RELATED_ENDPOINT.format(
+            base=self.base_url, congress=congress, bill_type=bill_type, bill_number=bill_number
+        )
+        return await self._get_json_live(url, {"limit": 100})
