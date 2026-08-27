@@ -99,6 +99,7 @@ export class AssistantPage {
         error: (e) => {
           this.typing.set(false);
           this.chatError.set(e?.error?.detail || 'The assistant could not answer — is the API running?');
+          this.scrollChat();
         },
       });
     } else {
@@ -125,10 +126,15 @@ export class AssistantPage {
     }
   }
 
+  /** Pin the chat to the bottom. Runs several passes because rendered
+      markdown (and font loading) changes the height after the first frame. */
   private scrollChat(): void {
-    requestAnimationFrame(() => {
+    const scroll = () => {
       const el = this.chatBox?.nativeElement;
       if (el) el.scrollTop = el.scrollHeight;
-    });
+    };
+    requestAnimationFrame(scroll);
+    setTimeout(scroll, 80);
+    setTimeout(scroll, 300);
   }
 }
