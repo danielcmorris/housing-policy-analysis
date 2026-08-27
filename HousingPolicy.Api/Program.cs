@@ -31,6 +31,7 @@ builder.Services.Configure<StudiesOptions>(builder.Configuration.GetSection(Stud
 builder.Services.Configure<CityOptions>(builder.Configuration.GetSection(CityOptions.SectionName));
 builder.Services.Configure<OllamaOptions>(builder.Configuration.GetSection(OllamaOptions.SectionName));
 builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection(GeminiOptions.SectionName));
+builder.Services.Configure<EmbeddingOptions>(builder.Configuration.GetSection(EmbeddingOptions.SectionName));
 
 builder.Services.AddScoped<DataLayerBase>();
 builder.Services.AddScoped<BillRepository>();
@@ -62,7 +63,9 @@ var ollamaOpt = builder.Configuration.GetSection(OllamaOptions.SectionName).Get<
 builder.Services.AddHttpClient<OllamaEmbedClient>(c =>
     c.Timeout = TimeSpan.FromSeconds(ollamaOpt.TimeoutSeconds));
 builder.Services.AddHttpClient<GeminiClient>(c => c.Timeout = TimeSpan.FromSeconds(120));
+builder.Services.AddHttpClient<VertexEmbedClient>(c => c.Timeout = TimeSpan.FromSeconds(120));
 builder.Services.AddScoped<SearchService>();
+builder.Services.AddScoped<EmbeddingService>();
 
 // Angular front end (dev + house origins).
 builder.Services.AddCors(options =>

@@ -16,6 +16,28 @@ public sealed class OllamaOptions
 }
 
 /// <summary>
+/// Embedding provider selection + Vertex embedding settings. Documents and
+/// queries MUST embed with the same model; the provider/model here governs
+/// both sides. Vertex text-embedding-004 emits 768 dims, matching the
+/// document_chunks.embedding column.
+/// </summary>
+public sealed class EmbeddingOptions
+{
+    public const string SectionName = "Embeddings";
+
+    /// <summary>'vertex' (Gemini) or 'ollama' (local).</summary>
+    public string Provider { get; set; } = "vertex";
+
+    public string VertexModel { get; set; } = "text-embedding-004";
+
+    /// <summary>Texts per Vertex predict call.</summary>
+    public int BatchSize { get; set; } = 20;
+
+    /// <summary>Hard cap on chunks embedded in one admin run.</summary>
+    public int MaxChunksPerRun { get; set; } = 2000;
+}
+
+/// <summary>
 /// Vertex AI Gemini (answer synthesis). Service-account auth only, per
 /// project rules — the key file lives in the gitignored creds/ folder. Hard
 /// token limits are enforced BEFORE every call (token assessment), and every

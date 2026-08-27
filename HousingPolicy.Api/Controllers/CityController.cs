@@ -61,6 +61,23 @@ public sealed class CityController : ControllerBase
     [HttpGet("api/admin/registry/stats")]
     public async Task<IActionResult> RegistryStats() => Ok(await _registry.StatsAsync());
 
+    public sealed record EmbedForm(string? SourceType = null, string? SourceKey = null, int? Limit = null);
+
+    /// <summary>Embed pending chunks (optionally one document) with the configured provider.</summary>
+    [HttpPost("api/admin/registry/embed")]
+    public async Task<IActionResult> Embed(
+        [FromBody] EmbedForm form, [FromServices] EmbeddingService embeddings, CancellationToken ct)
+    {
+        try
+        {
+            return Ok(await embeddings.EmbedPendingAsync(form.SourceType, form.SourceKey, form.Limit, ct));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return StatusCode(StatusCodes.Status502BadGateway, new { detail = ex.Message });
+        }
+    }
+
     [HttpPost("api/admin/registry/rebuild")]
     public async Task<IActionResult> RegistryRebuild(CancellationToken ct = default) =>
         Ok(await _registry.RebuildAsync(ct));

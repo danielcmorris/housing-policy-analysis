@@ -22,17 +22,29 @@ public sealed class SearchService
 {
     private readonly DataLayerBase _dl;
     private readonly OllamaEmbedClient _ollama;
+    private readonly VertexEmbedClient _vertex;
     private readonly GeminiClient _gemini;
     private readonly GeminiOptions _geminiOpt;
+    private readonly EmbeddingOptions _embedOpt;
 
-    public SearchService(DataLayerBase dl, OllamaEmbedClient ollama, GeminiClient gemini,
-                         IOptions<GeminiOptions> geminiOpt)
+    public SearchService(DataLayerBase dl, OllamaEmbedClient ollama, VertexEmbedClient vertex,
+                         GeminiClient gemini, IOptions<GeminiOptions> geminiOpt,
+                         IOptions<EmbeddingOptions> embedOpt)
     {
         _dl = dl;
         _ollama = ollama;
+        _vertex = vertex;
         _gemini = gemini;
         _geminiOpt = geminiOpt.Value;
+        _embedOpt = embedOpt.Value;
     }
+
+    /// <summary>Query embedding via the configured provider (must match the chunk model).</summary>
+    private Task<float[]?> EmbedQueryAsync(string query, CancellationToken ct) =>
+        _embedOpt.Provider == "ollama" ? _ollama.EmbedAsync(query, ct) : _vertex.EmbedQueryAsync(query, ct);
+
+    private string ActiveEmbedModel =>
+        _embedOpt.Provider == "ollama" ? "nomic-embed-text" : _vertex.Model;
 
     public sealed record SearchRequest(
         string Query, string[]? SourceTypes, string[]? Tags, string? Jurisdiction,
@@ -54,7 +66,7 @@ public sealed class SearchService
     public async Task<object> SearchAsync(SearchRequest req, CancellationToken ct)
     {
         var topK = Math.Clamp(req.TopK, 1, 25);
-        var vector = await _ollama.EmbedAsync(req.Query, ct);
+        var vector = await EmbedQueryAsync(req.Query, ct);
         var (hits, mode) = vector is not null
             ? (await VectorSearchAsync(req, vector, topK), "vector")
             : (await KeywordSearchAsync(req, topK), "keyword");
@@ -133,10 +145,11 @@ public sealed class SearchService
             SELECT {HitColumns}, 1 - (c.embedding <=> @Query::vector) AS score
             FROM document_chunks c
             JOIN documents d ON d.document_id = c.document_id
-            WHERE c.embedding IS NOT NULL
+            WHERE c.embedding IS NOT NULL AND c.embedding_model = @EmbedModel
             """ + Filters(req, p) +
             " ORDER BY c.embedding <=> @Query::vector LIMIT @TopK";
         p.Add("TopK", topK);
+        p.Add("EmbedModel", ActiveEmbedModel);
         var hits = (await _dl.QueryAsync<Hit>(sql, p)).ToList();
         return hits;
     }
