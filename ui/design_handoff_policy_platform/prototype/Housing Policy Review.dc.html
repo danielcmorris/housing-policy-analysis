@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/dash-support-design-system-2d6f9a5a-6bc9-45bd-803d-f7670ed08d2a/tokens/colors.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&amp;family=Public+Sans:wght@400;500;600;700&amp;family=Roboto+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  :root {
+    --bg:#f7f4ee; --surface:#ffffff; --surface-2:#faf8f3;
+    --ink:#1c1814; --text:#2c2720; --text-2:#4a4339; --text-3:#6f665a; --text-4:#9a8e7a;
+    --border:#e2dccf; --border-2:#d8d2c4; --border-3:#f0ebe1;
+    --accent:#7b1113; --accent-fill:#7b1113; --accent-soft:#faf0f0;
+    --gold:#9a7b2e; --dot:#bcae97; --check-border:#c4bdac;
+    --inverse:#1c1814; --inverse-2:#14110f; --on-inverse:#ffffff; --on-inverse-2:#cfc7b8; --on-inverse-3:#8a8270;
+    --inverse-border:#3a342b; --inverse-border-2:#2a2520;
+    --ok:#2e7d4f; --ok-bg:#e6f0ea; --warn:#b5751d; --warn-bg:#fbf0dd;
+    --alert:#c0561f; --alert-bg:#fbe7dc; --reject:#c0392b; --neutral:#6f665a; --neutral-bg:#efece4;
+  }
+  [data-theme="dark"] {
+    --bg:#141109; --surface:#211d15; --surface-2:#1a1710;
+    --ink:#f1ebdd; --text:#e7e0d1; --text-2:#c9bfac; --text-3:#a89e8a; --text-4:#857c69;
+    --border:#322c22; --border-2:#3d362a; --border-3:#272219;
+    --accent:#e8766c; --accent-fill:#8c1618; --accent-soft:#37191a;
+    --gold:#cda85a; --dot:#4a4234; --check-border:#4a4234;
+    --inverse:#27221a; --inverse-2:#0f0d08; --on-inverse:#f1ebdd; --on-inverse-2:#c9bfac; --on-inverse-3:#9a9079;
+    --inverse-border:#3d362a; --inverse-border-2:#272219;
+    --ok:#5cc488; --ok-bg:rgba(46,125,79,.2); --warn:#e3ad55; --warn-bg:rgba(181,117,29,.22);
+    --alert:#e8916a; --alert-bg:rgba(192,86,31,.22); --reject:#e8766c; --neutral:#a89e8a; --neutral-bg:rgba(120,112,99,.24);
+  }
+  body { font-family: 'Public Sans', system-ui, sans-serif; color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
+  ::selection { background: var(--accent-fill); color: #fff; }
+  @keyframes scrFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes dotPulse { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
+  input[type=range] { accent-color: var(--accent-fill); }
+</style>
+</helmet>
+
+<div data-theme="{{ themeAttr }}" style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);">
+
+  <!-- UTILITY BAR -->
+  <sc-if value="{{ showUtilityBar }}" hint-placeholder-val="{{ true }}">
+  <div style="background:var(--inverse);color:var(--on-inverse-2);font-size:12px;letter-spacing:.02em;">
+    <div style="max-width:1240px;margin:0 auto;padding:0 32px;height:34px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="material-icons" style="font-size:14px;color:var(--gold);">account_balance</span>
+        <span style="font-weight:600;color:var(--on-inverse);">An independent 501(c)(3) research institute</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:20px;">
+        <span style="cursor:pointer;">Newsroom</span>
+        <span style="cursor:pointer;">Events</span>
+        <span onClick="{{ goExperts }}" style="cursor:pointer;">Experts</span>
+        <span style="width:1px;height:15px;background:var(--inverse-border);"></span>
+        <span style="cursor:pointer;font-weight:600;color:#fff;background:var(--accent-fill);padding:5px 15px;border-radius:2px;letter-spacing:.02em;">My Dashboard</span>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- MASTHEAD -->
+  <div style="background:var(--surface);border-bottom:1px solid var(--border);">
+    <div style="max-width:1240px;margin:0 auto;padding:22px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;">
+      <div onClick="{{ goHome }}" style="display:flex;align-items:center;gap:16px;cursor:pointer;">
+        <div style="width:54px;height:54px;border:2px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;">
+          <div style="position:absolute;inset:4px;border:1px solid var(--accent);border-radius:50%;"></div>
+          <span style="font-family:'Spectral',serif;font-weight:700;font-size:22px;color:var(--accent);letter-spacing:-.02em;">CR</span>
+        </div>
+        <div>
+          <div style="font-family:'Spectral',serif;font-weight:700;font-size:23px;line-height:1.05;color:var(--ink);letter-spacing:-.01em;">Center for Urban<br>Policy Analysis</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div onClick="{{ toggleTheme }}" title="Toggle light / dark" style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border-2);border-radius:2px;cursor:pointer;"><span class="material-icons" style="font-size:19px;color:var(--ink);">{{ themeIcon }}</span></div>
+        <div style="display:flex;align-items:center;gap:8px;border:1px solid var(--border-2);border-radius:2px;padding:9px 14px;background:var(--surface-2);min-width:240px;">
+          <span class="material-icons" style="font-size:18px;color:var(--text-4);">search</span>
+          <span style="font-size:13px;color:var(--text-4);">Search studies, authors, topics…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIMARY NAV -->
+  <div style="background:var(--surface);border-bottom:3px solid var(--accent);position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(28,24,20,.05);">
+    <div style="max-width:1240px;margin:0 auto;padding:0 32px;display:flex;align-items:stretch;gap:34px;">
+      <sc-for list="{{ navItems }}" as="nav" hint-placeholder-count="5">
+        <div onClick="{{ nav.onClick }}" style="{{ nav.style }}">{{ nav.label }}</div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- SCREEN AREA -->
+  <div style="flex:1;">
+
+    <!-- ============ HOME ============ -->
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+    <div style="">
+      <!-- HERO -->
+      <div style="background:var(--surface);border-bottom:1px solid var(--border);">
+        <div style="max-width:1240px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:1fr 1fr;">
+          <div style="padding:64px 48px 64px 0;border-right:1px solid var(--border);">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;">Independent · Evidence-Based · Peer-Reviewed</div>
+            <h1 style="font-family:'Spectral',serif;font-weight:700;font-size:50px;line-height:1.08;letter-spacing:-.015em;margin:0 0 24px;color:var(--ink);">Rigorous research on housing supply, affordability, and the rules that shape our cities.</h1>
+            <p style="font-size:18px;line-height:1.6;color:var(--text-2);margin:0 0 32px;max-width:560px;">We assemble the most consequential studies on housing policy — then subject each to AI-assisted analysis and structured, multi-reviewer evaluation, so decision-makers can act on findings they can trust.</p>
+            <div style="display:flex;gap:14px;">
+              
+              
+            </div>
+          </div>
+          <div style="padding:64px 0 64px 48px;display:flex;flex-direction:column;justify-content:center;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-4);margin-bottom:16px;">Featured Bill</div>
+            <div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">{{ brCategory }}</div>
+              <h3 onClick="{{ goBillReview }}" style="font-family:'Spectral',serif;font-weight:600;font-size:26px;line-height:1.18;margin:0 0 14px;color:var(--ink);cursor:pointer;" style-hover="color:var(--accent);">{{ brTitle }}</h3>
+              <p style="font-size:14px;line-height:1.6;color:var(--text-2);margin:0 0 18px;">{{ brExcerpt }}</p>
+              <div style="display:flex;align-items:center;gap:14px;font-size:13px;color:var(--text-3);margin-bottom:18px;">
+                <span style="font-weight:600;color:var(--ink);">{{ brCongress }}</span>
+                <span style="width:3px;height:3px;border-radius:50%;background:var(--dot);"></span>
+                <span style="font-family:'Roboto Mono',monospace;">{{ brBillNumber }}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:22px;flex-wrap:wrap;">
+                <span onClick="{{ goBillReview }}" style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--accent);cursor:pointer;">Read our full review<span class="material-icons" style="font-size:16px;">arrow_forward</span></span>
+                <a href="{{ brSourceUrl }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text-3);text-decoration:none;">Congress.gov<span class="material-icons" style="font-size:14px;">north_east</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOPIC STRIP -->
+      <div style="background:var(--inverse);">
+        <div style="max-width:1240px;margin:0 auto;padding:18px 32px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-right:8px;">Research Programs</span>
+          <sc-for list="{{ topics }}" as="t" hint-placeholder-count="7">
+            <div onClick="{{ goLibrary }}" style="font-size:13px;font-weight:500;color:var(--on-inverse);padding:6px 14px;border:1px solid var(--inverse-border);border-radius:2px;cursor:pointer;">{{ t }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- LATEST RESEARCH -->
+      <div style="max-width:1240px;margin:0 auto;padding:64px 32px;">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:36px;">
+          <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:30px;margin:0;letter-spacing:-.01em;">Studies Under Review</h2>
+          <div onClick="{{ goLibrary }}" style="font-size:14px;font-weight:600;color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:6px;">View all 10 studies<span class="material-icons" style="font-size:16px;">arrow_forward</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--border);">
+          <sc-for list="{{ featured }}" as="s" hint-placeholder-count="6">
+            <div onClick="{{ s.open }}" style="{{ s.cardStyle }}">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;">{{ s.category }}</div>
+              <h3 style="font-family:'Spectral',serif;font-weight:600;font-size:20px;line-height:1.22;margin:0 0 12px;color:var(--ink);">{{ s.title }}</h3>
+              <p style="font-size:13.5px;line-height:1.55;color:var(--text-2);margin:0 0 18px;">{{ s.excerpt }}</p>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;">
+                <span style="font-size:12.5px;font-weight:600;color:var(--ink);">{{ s.authors }}</span>
+                <span style="font-size:12px;color:var(--text-4);font-family:'Roboto Mono',monospace;">{{ s.year }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- HOW IT WORKS -->
+      <div style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <div style="max-width:1240px;margin:0 auto;padding:64px 32px;">
+          <div style="text-align:center;margin-bottom:48px;">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Our Analytical Method</div>
+            <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:32px;margin:0 auto;letter-spacing:-.01em;max-width:760px;">From proposed bill to evidence-based forecast, in four disciplined stages</h2>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:36px;">
+            <sc-for list="{{ steps }}" as="st" hint-placeholder-count="4">
+              <div style="text-align:center;">
+                <div style="width:56px;height:56px;margin:0 auto 18px;border:2px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                  <span class="material-icons" style="font-size:25px;color:var(--accent);">{{ st.icon }}</span>
+                </div>
+                <div style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:7px;">{{ st.num }}</div>
+                <h3 style="font-family:'Spectral',serif;font-weight:600;font-size:17px;line-height:1.2;margin:0 0 9px;">{{ st.title }}</h3>
+                <p style="font-size:13px;line-height:1.55;color:var(--text-2);margin:0;">{{ st.body }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- TECHNOLOGY -->
+      <div style="background:var(--inverse);color:var(--on-inverse);">
+        <div style="max-width:1240px;margin:0 auto;padding:72px 32px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;margin-bottom:52px;">
+            <div>
+              <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Technology</div>
+              <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:34px;line-height:1.12;margin:0;letter-spacing:-.01em;color:var(--on-inverse);">The evidence engine behind every review</h2>
+            </div>
+            <div style="padding-top:6px;">
+              <p style="font-size:16.5px;line-height:1.7;color:var(--on-inverse-2);margin:0;">We maintain a database of thousands of bills and policy proposals — federal, state, and municipal — held in a cross-referenced vector system, alongside the economic record of each region for the corresponding period. When a new policy comes under review, we can match it accurately to comparable measures already enacted and to how they actually fared.</p>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:44px;">
+            <sc-for list="{{ techPillars }}" as="tp" hint-placeholder-count="3">
+              <div style="border:1px solid var(--inverse-border);border-radius:2px;padding:28px 26px;">
+                <span class="material-icons" style="font-size:26px;color:var(--gold);">{{ tp.icon }}</span>
+                <h3 style="font-family:'Spectral',serif;font-weight:600;font-size:19px;margin:16px 0 10px;color:var(--on-inverse);">{{ tp.title }}</h3>
+                <p style="font-size:14px;line-height:1.6;color:var(--on-inverse-2);margin:0;">{{ tp.body }}</p>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border-left:3px solid var(--gold);padding:6px 0 6px 22px;max-width:860px;">
+            <p style="font-size:14.5px;line-height:1.7;color:var(--on-inverse-3);margin:0;font-style:italic;">This is not a perfect system, and we do not claim it to be. No model can fully predict how a policy will behave. But by grounding every assessment in the largest available record of comparable legislation and its measured outcomes, it offers the most accurate, scientific approach to understanding what a policy is and how it is likely to affect the regions it touches.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS BAND -->
+      <sc-if value="{{ showStatsBand }}" hint-placeholder-val="{{ true }}">
+      <div style="background:var(--accent-fill);color:var(--on-inverse);">
+        
+      </div>
+      </sc-if>
+
+      <!-- COMMENTARY -->
+      <div style="max-width:1240px;margin:0 auto;padding:64px 32px;display:grid;grid-template-columns:1.6fr 1fr;gap:56px;">
+        <div>
+          <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:28px;margin:0 0 28px;border-bottom:2px solid var(--ink);padding-bottom:14px;">Commentary &amp; Analysis</h2>
+          <sc-for list="{{ commentary }}" as="c" hint-placeholder-count="3">
+            <div style="display:flex;gap:20px;padding:22px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+              <div style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text-4);white-space:nowrap;padding-top:4px;">{{ c.date }}</div>
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:7px;">{{ c.tag }}</div>
+                <h3 style="font-family:'Spectral',serif;font-weight:600;font-size:19px;line-height:1.25;margin:0 0 6px;">{{ c.title }}</h3>
+                <div style="font-size:13px;color:var(--text-3);">By {{ c.author }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div>
+          <div style="background:var(--inverse);color:var(--on-inverse);padding:34px;border-radius:2px;">
+            <span class="material-icons" style="font-size:30px;color:var(--gold);">smart_toy</span>
+            <h3 style="font-family:'Spectral',serif;font-weight:600;font-size:23px;margin:16px 0 12px;">Query the evidence directly</h3>
+            <p style="font-size:14px;line-height:1.6;color:var(--on-inverse-2);margin:0 0 22px;">Our research assistant reads the full text of all ten studies under review. Ask it to summarize findings, critique a methodology, or surface cross-cutting evidence.</p>
+            <div onClick="{{ goAI }}" style="background:var(--accent-fill);color:var(--on-inverse);font-size:14px;font-weight:600;padding:13px 0;text-align:center;border-radius:2px;cursor:pointer;">Open the Research Assistant</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ============ LIBRARY ============ -->
+    <sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ true }}">
+    <div style="">
+      <div style="background:var(--surface);border-bottom:1px solid var(--border);">
+        <div style="max-width:1240px;margin:0 auto;padding:44px 32px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;">Research Library</div>
+          <h1 style="font-family:'Spectral',serif;font-weight:700;font-size:38px;margin:0 0 10px;letter-spacing:-.01em;">Studies Under Review</h1>
+          <p style="font-size:16px;color:var(--text-2);margin:0;max-width:720px;">Ten landmark studies on housing policy — from federal agencies and leading research institutions — each under structured, multi-reviewer assessment. Filter by topic and review status.</p>
+        </div>
+      </div>
+      <div style="background:var(--surface-2);border-bottom:1px solid var(--border);">
+        <div style="max-width:1240px;margin:0 auto;padding:20px 32px;display:flex;gap:14px;align-items:flex-start;">
+          <span class="material-icons" style="font-size:20px;color:var(--gold);flex-shrink:0;margin-top:1px;">workspaces</span>
+          <p style="margin:0;font-size:14px;line-height:1.6;color:var(--text-2);max-width:960px;">These studies are submitted by our members and sent to our experts for peer review. We then merge the peer reviews back into each study — enabling extended AI analysis and cross-referencing against datasets in our <span onClick="{{ goData }}" style="color:var(--accent);font-weight:600;cursor:pointer;">Data Commons</span>.</p>
+        </div>
+      </div>
+      <div style="max-width:1240px;margin:0 auto;padding:36px 32px;display:grid;grid-template-columns:248px 1fr;gap:40px;align-items:start;">
+        <!-- FILTERS -->
+        <div style="position:sticky;top:90px;">
+          <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;">
+            <div style="padding:16px 18px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);display:flex;align-items:center;justify-content:space-between;">Filters<span onClick="{{ clearFilters }}" style="font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;text-transform:none;letter-spacing:0;">Clear</span></div>
+            <div style="padding:18px;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-4);margin-bottom:12px;">Topic</div>
+              <sc-for list="{{ topicFilters }}" as="tf" hint-placeholder-count="7">
+                <div onClick="{{ tf.toggle }}" style="display:flex;align-items:center;gap:10px;padding:6px 0;cursor:pointer;font-size:13.5px;color:var(--ink);">
+                  <div style="{{ tf.boxStyle }}"><span class="material-icons" style="font-size:14px;color:var(--on-inverse);">{{ tf.check }}</span></div>
+                  <span style="flex:1;">{{ tf.label }}</span>
+                  <span style="font-size:12px;color:var(--text-4);font-family:'Roboto Mono',monospace;">{{ tf.count }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="padding:0 18px 18px;border-top:1px solid var(--border-3);">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-4);margin:18px 0 12px;">Review Status</div>
+              <sc-for list="{{ statusFilters }}" as="sf" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:9px;padding:5px 0;font-size:13.5px;color:var(--text-2);">
+                  <span style="width:9px;height:9px;border-radius:50%;background:{{ sf.color }};"></span>{{ sf.label }}
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <!-- RESULTS -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:2px solid var(--ink);margin-bottom:4px;">
+            <div style="font-size:14px;color:var(--text-3);"><span style="font-weight:700;color:var(--ink);font-family:'Roboto Mono',monospace;">{{ resultCount }}</span> studies</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-3);">Sort by <span style="font-weight:600;color:var(--ink);border-bottom:1px solid var(--ink);cursor:pointer;">Most recent</span></div>
+          </div>
+          <sc-for list="{{ libraryStudies }}" as="s" hint-placeholder-count="8">
+            <div onClick="{{ s.open }}" style="padding:26px 0;border-bottom:1px solid var(--border);cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:28px;">
+              <div>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:9px;">
+                  <span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">{{ s.category }}</span>
+                  <span style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text-4);">{{ s.ref }}</span>
+                </div>
+                <h3 style="font-family:'Spectral',serif;font-weight:600;font-size:22px;line-height:1.2;margin:0 0 9px;color:var(--ink);">{{ s.title }}</h3>
+                <p style="font-size:14px;line-height:1.55;color:var(--text-2);margin:0 0 12px;max-width:680px;">{{ s.excerpt }}</p>
+                <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text-3);flex-wrap:wrap;">
+                  <span style="font-weight:600;color:var(--ink);">{{ s.authors }}</span>
+                  <span style="width:3px;height:3px;border-radius:50%;background:var(--dot);"></span>
+                  <span style="font-family:'Roboto Mono',monospace;font-size:12px;">{{ s.pages }} pp</span>
+                  <span style="width:3px;height:3px;border-radius:50%;background:var(--dot);"></span>
+                  <span>{{ s.year }}</span>
+                  <span style="display:inline-flex;align-items:center;gap:5px;color:var(--accent);font-weight:600;"><span class="material-icons" style="font-size:15px;">rate_review</span>{{ s.reviews }} reviews</span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:2px;font-size:11px;font-weight:600;background:{{ s.statusBg }};color:{{ s.statusColor }};">{{ s.status }}</span>
+                </div>
+              </div>
+              <sc-if value="{{ showClarityScores }}" hint-placeholder-val="{{ true }}">
+              <div style="text-align:center;border:1px solid var(--border);border-radius:2px;padding:14px 18px;height:fit-content;min-width:96px;">
+                <div style="font-family:'Spectral',serif;font-weight:700;font-size:30px;color:{{ s.clarityColor }};line-height:1;">{{ s.clarity }}</div>
+                <div style="font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-4);margin-top:6px;">Clarity<br>Score</div>
+              </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <div style="text-align:center;padding:30px 0 8px;font-size:13px;color:var(--text-4);">Showing all 10 studies currently under review.</div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ============ STUDY DETAIL ============ -->
+    <sc-if value="{{ isStudy }}" hint-placeholder-val="{{ true }}">
+    <div style="">
+      <div style="background:var(--surface);border-bottom:1px solid var(--border);">
+        <div style="max-width:1240px;margin:0 auto;padding:30px 32px 40px;">
+          <div onClick="{{ goLibrary }}" style="font-size:13px;color:var(--text-3);margin-bottom:22px;cursor:pointer;display:flex;align-items:center;gap:6px;"><span class="material-icons" style="font-size:16px;">chevron_left</span>Studies Library / Supply-Side Economics</div>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+            <span style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">Supply-Side Economics</span>
+            <span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text-4);">CUHPR-2026-0142</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:2px;font-size:11px;font-weight:600;background:var(--ok-bg);color:var(--ok);">Peer Reviewed</span>
+          </div>
+          <h1 style="font-family:'Spectral',serif;font-weight:700;font-size:38px;line-height:1.12;margin:0 0 18px;max-width:880px;letter-spacing:-.01em;">The Supply Response to Zoning Reform: Evidence from Minneapolis 2040</h1>
+          <div style="display:flex;align-items:center;gap:18px;font-size:14px;color:var(--text-2);flex-wrap:wrap;">
+            <span><span style="color:var(--text-4);">Authors</span> &nbsp;<strong>Elena Hargrove</strong>, Univ. of Chicago · <strong>Paul Nakamura</strong>, MIT</span>
+            <span style="width:3px;height:3px;border-radius:50%;background:var(--dot);"></span>
+            <span style="font-family:'Roboto Mono',monospace;color:var(--text-3);">Published Mar 2026</span>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:26px;">
+            <div style="background:var(--accent-fill);color:var(--on-inverse);font-size:14px;font-weight:600;padding:11px 20px;border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:7px;"><span class="material-icons" style="font-size:17px;">download</span>Download PDF</div>
+            <div onClick="{{ goAI }}" style="background:var(--surface);color:var(--ink);font-size:14px;font-weight:600;padding:11px 20px;border:1px solid var(--ink);border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:7px;"><span class="material-icons" style="font-size:17px;">smart_toy</span>Ask the AI about this study</div>
+            <div onClick="{{ goData }}" style="background:var(--surface);color:var(--ink);font-size:14px;font-weight:600;padding:11px 20px;border:1px solid var(--border-2);border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:7px;"><span class="material-icons" style="font-size:17px;">database</span>Source Data</div>
+          </div>
+        </div>
+      </div>
+      <div style="max-width:1240px;margin:0 auto;padding:48px 32px;display:grid;grid-template-columns:1fr 320px;gap:56px;align-items:start;">
+        <!-- ARTICLE -->
+        <div style="font-size:16px;line-height:1.7;color:var(--text);">
+          <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 14px;">Abstract</h2>
+          <p style="margin:0 0 28px;font-size:17px;line-height:1.7;color:var(--text);font-style:italic;border-left:3px solid var(--accent);padding-left:22px;">We exploit Minneapolis's 2019 elimination of single-family-only zoning as a natural experiment, comparing permitting outcomes against a synthetic control of 14 comparable metros. Four years post-reform, permitted units rose an estimated 12.4% (95% CI: 7.1–17.6), with effects concentrated in higher-amenity census tracts and muted in low-income peripheries.</p>
+          <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:24px;margin:0 0 14px;color:var(--ink);">Key Findings</h2>
+          <ul style="margin:0 0 28px;padding-left:22px;">
+            <li style="margin-bottom:10px;">Zoning liberalization produced a measurable supply response, but with a multi-year lag tied to financing and entitlement timelines.</li>
+            <li style="margin-bottom:10px;">Gains were spatially uneven — triplex and fourplex conversions clustered where land values supported redevelopment.</li>
+            <li style="margin-bottom:10px;">No statistically significant short-run effect on median rents was detected within the four-year window.</li>
+          </ul>
+          <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:24px;margin:0 0 14px;color:var(--ink);">Methodology</h2>
+          <p style="margin:0 0 18px;">The authors employ a synthetic control method paired with a staggered difference-in-differences specification to address the timing of complementary reforms. Permitting microdata were sourced from municipal records spanning 2014–2025, deflated to constant 2025 dollars.</p>
+          <p style="margin:0 0 28px;">Robustness checks include placebo tests on pre-reform trends and alternative donor-pool constructions. The identifying assumption — parallel pre-trends between Minneapolis and its synthetic counterpart — is supported but, as the AI analysis notes below, sensitive to the inclusion of two high-growth Sun Belt metros.</p>
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-left:3px solid #9a7b2e;border-radius:2px;padding:22px 24px;margin-bottom:28px;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;"><span class="material-icons" style="font-size:19px;color:var(--gold);">smart_toy</span><span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);">AI Methodology Note</span></div>
+            <p style="margin:0;font-size:14.5px;line-height:1.65;color:var(--text-2);">The donor pool's sensitivity to two Sun Belt metros warrants a leave-one-out robustness panel. The four-year window may also be too short to capture the full rent response; consider extending the post-period or modeling expected future supply. <span onClick="{{ goAI }}" style="color:var(--accent);font-weight:600;cursor:pointer;">Continue this analysis →</span></p>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:12px;margin:8px 0 24px;">
+            <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:24px;margin:0;color:var(--ink);">Peer Reviews</h2>
+            <span style="font-size:13px;color:var(--text-3);font-family:'Roboto Mono',monospace;">5 reviews · 2 recommend acceptance</span>
+          </div>
+          <sc-for list="{{ studyReviews }}" as="rv" hint-placeholder-count="3">
+            <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:22px 24px;margin-bottom:16px;">
+              <div style="display:flex;align-items:center;gap:13px;margin-bottom:14px;">
+                <div style="width:40px;height:40px;border-radius:50%;background:var(--inverse);color:var(--on-inverse);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;font-family:'Spectral',serif;flex-shrink:0;">{{ rv.initials }}</div>
+                <div style="flex:1;">
+                  <div style="font-size:14.5px;font-weight:600;color:var(--ink);">{{ rv.name }}</div>
+                  <div style="font-size:12.5px;color:var(--text-4);">{{ rv.affil }} · {{ rv.date }}</div>
+                </div>
+                <span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:.03em;background:{{ rv.recBg }};color:{{ rv.recColor }};">{{ rv.rec }}</span>
+                <span style="font-family:'Roboto Mono',monospace;font-size:14px;font-weight:600;color:var(--ink);">{{ rv.score }}</span>
+              </div>
+              <p style="margin:0;font-size:14.5px;line-height:1.65;color:var(--text);">{{ rv.text }}</p>
+            </div>
+          </sc-for>
+        </div>
+        <!-- RAIL -->
+        <div style="position:sticky;top:90px;display:flex;flex-direction:column;gap:18px;">
+          <sc-if value="{{ showClarityScores }}" hint-placeholder-val="{{ true }}">
+          <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:22px;text-align:center;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-4);margin-bottom:12px;">Clarity Score</div>
+            <div style="font-family:'Spectral',serif;font-weight:700;font-size:52px;color:var(--ok);line-height:1;">9.2</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:6px;">AI-assessed completeness &amp; rigor</div>
+          </div>
+          </sc-if>
+          <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:22px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:16px;">Review Status</div>
+            <sc-for list="{{ reviewTimeline }}" as="r" hint-placeholder-count="4">
+              <div style="display:flex;gap:12px;margin-bottom:14px;">
+                <span class="material-icons" style="font-size:18px;color:{{ r.color }};">{{ r.icon }}</span>
+                <div><div style="font-size:13.5px;font-weight:600;color:var(--ink);">{{ r.label }}</div><div style="font-size:12px;color:var(--text-4);">{{ r.date }}</div></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:22px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:14px;">Metadata</div>
+            <div style="font-size:13px;line-height:2;color:var(--text-2);">
+              <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-4);">Methodology</span><span style="font-weight:600;">Synthetic control</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-4);">Sample</span><span style="font-weight:600;">15 metros</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-4);">Period</span><span style="font-weight:600;">2014–2025</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-4);">Citations</span><span style="font-weight:600;">38</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ============ BILL REVIEW ============ -->
+    <sc-if value="{{ isBillReview }}" hint-placeholder-val="{{ true }}">
+    <div style="">
+      <div style="background:var(--surface);border-bottom:1px solid var(--border);">
+        <div style="max-width:1240px;margin:0 auto;padding:30px 32px 40px;">
+          <div onClick="{{ goHome }}" style="font-size:13px;color:var(--text-3);margin-bottom:22px;cursor:pointer;display:flex;align-items:center;gap:6px;"><span class="material-icons" style="font-size:16px;">chevron_left</span>Bills Under Review / Federal Legislation</div>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap;">
+            <span style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">{{ brCategory }}</span>
+            <span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text-4);">{{ brBillNumber }}</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:2px;font-size:11px;font-weight:600;background:{{ brStatusBg }};color:{{ brStatusColor }};">{{ brStatusLabel }}</span>
+          </div>
+          <h1 style="font-family:'Spectral',serif;font-weight:700;font-size:38px;line-height:1.12;margin:0 0 18px;max-width:880px;letter-spacing:-.01em;color:var(--ink);">{{ brTitle }}</h1>
+          <div style="display:flex;align-items:center;gap:14px;font-size:14px;color:var(--text-2);flex-wrap:wrap;">
+            <span style="font-weight:600;color:var(--ink);">{{ brCongress }}</span>
+            <span style="width:3px;height:3px;border-radius:50%;background:var(--dot);"></span>
+            <span>{{ brIntroduced }}</span>
+            <span style="width:3px;height:3px;border-radius:50%;background:var(--dot);"></span>
+            <span>{{ brSponsor }}</span>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;">
+            <a href="{{ brSourceUrl }}" target="_blank" rel="noopener" style="background:var(--accent-fill);color:#fff;font-size:14px;font-weight:600;padding:11px 20px;border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:7px;text-decoration:none;"><span class="material-icons" style="font-size:17px;">north_east</span>View full text on Congress.gov</a>
+            <div onClick="{{ goAI }}" style="background:var(--surface);color:var(--ink);font-size:14px;font-weight:600;padding:11px 20px;border:1px solid var(--ink);border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:7px;"><span class="material-icons" style="font-size:17px;">smart_toy</span>Ask the AI about this bill</div>
+            <div onClick="{{ goData }}" style="background:var(--surface);color:var(--ink);font-size:14px;font-weight:600;padding:11px 20px;border:1px solid var(--border-2);border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:7px;"><span class="material-icons" style="font-size:17px;">database</span>Source Data</div>
+          </div>
+        </div>
+      </div>
+      <div style="max-width:1240px;margin:0 auto;padding:48px 32px;display:grid;grid-template-columns:1fr 320px;gap:56px;align-items:start;">
+        <!-- ARTICLE -->
+        <div style="font-size:16px;line-height:1.7;color:var(--text);">
+          <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 14px;">Summary</h2>
+          <p style="margin:0 0 26px;font-size:17px;line-height:1.7;color:var(--text);">{{ brSummary }}</p>
+          <p style="margin:0 0 36px;font-size:14px;line-height:1.6;color:var(--text-3);border-left:3px solid var(--border-2);padding-left:18px;">{{ brMethodNote }}</p>
+
+          <!-- STAGE 1 -->
+          <div style="display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:20px;">
+            <span style="font-family:'Roboto Mono',monospace;font-size:13px;color:var(--gold);">01</span>
+            <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:23px;margin:0;color:var(--ink);">Primary Provisions</h2>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:40px;">
+            <sc-for list="{{ billProvisions }}" as="pv" hint-placeholder-count="6">
+              <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:18px 20px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">{{ pv.tag }}</div>
+                <div style="font-family:'Spectral',serif;font-size:16px;font-weight:600;color:var(--ink);margin-bottom:6px;">{{ pv.title }}</div>
+                <div style="font-size:13px;line-height:1.55;color:var(--text-2);">{{ pv.body }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- STAGE 2 -->
+          <div style="display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:18px;">
+            <span style="font-family:'Roboto Mono',monospace;font-size:13px;color:var(--gold);">02</span>
+            <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:23px;margin:0;color:var(--ink);">Historical Precedent</h2>
+          </div>
+          <p style="margin:0 0 18px;font-size:14.5px;color:var(--text-2);">Comparable enacted policies drawn from our reviewed evidence base, matched by mechanism:</p>
+          <div style="margin-bottom:40px;">
+            <sc-for list="{{ billPrecedents }}" as="pr" hint-placeholder-count="4">
+              <div onClick="{{ goStudy }}" style="border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:18px 22px;margin-bottom:12px;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;">
+                <div>
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Matches · {{ pr.match }}</div>
+                  <div style="font-family:'Spectral',serif;font-size:16px;font-weight:600;color:var(--ink);margin-bottom:5px;">{{ pr.title }}</div>
+                  <div style="font-size:13.5px;line-height:1.55;color:var(--text-2);">{{ pr.finding }}</div>
+                  <div style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text-4);margin-top:7px;">{{ pr.ref }}</div>
+                </div>
+                <div style="text-align:center;border-left:1px solid var(--border);padding-left:20px;min-width:92px;">
+                  <div style="font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-4);margin-bottom:5px;">Evidence</div>
+                  <div style="font-size:14px;font-weight:700;color:{{ pr.confColor }};">{{ pr.confidence }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- STAGE 3 -->
+          <div style="display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:20px;">
+            <span style="font-family:'Roboto Mono',monospace;font-size:13px;color:var(--gold);">03</span>
+            <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:23px;margin:0;color:var(--ink);">Realized Effects of Precedent</h2>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:2px;overflow:hidden;margin-bottom:40px;">
+            <sc-for list="{{ billEffects }}" as="ef" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:150px 1fr;gap:18px;padding:16px 22px;border-bottom:1px solid var(--border-3);background:var(--surface);">
+                <div style="font-size:13px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.05em;">{{ ef.label }}</div>
+                <div style="font-size:13.5px;line-height:1.55;color:var(--text-2);">{{ ef.body }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- STAGE 4 -->
+          <div style="display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:20px;">
+            <span style="font-family:'Roboto Mono',monospace;font-size:13px;color:var(--gold);">04</span>
+            <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:23px;margin:0;color:var(--ink);">Projected Outcome</h2>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:2px;overflow:hidden;margin-bottom:32px;">
+            <div style="display:grid;grid-template-columns:1.5fr 1.1fr .7fr .8fr;gap:12px;padding:12px 22px;background:var(--surface-2);border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-4);">
+              <span>Provision</span><span>Expected Effect</span><span>Horizon</span><span>Confidence</span>
+            </div>
+            <sc-for list="{{ billProjections }}" as="pj" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:1.5fr 1.1fr .7fr .8fr;gap:12px;padding:14px 22px;border-bottom:1px solid var(--border-3);background:var(--surface);align-items:center;">
+                <span style="font-size:13.5px;font-weight:600;color:var(--ink);">{{ pj.provision }}</span>
+                <span style="font-size:13px;color:var(--text-2);">{{ pj.effect }}</span>
+                <span style="font-family:'Roboto Mono',monospace;font-size:12.5px;color:var(--text-3);">{{ pj.horizon }}</span>
+                <span style="font-size:12px;font-weight:700;color:{{ pj.confColor }};">{{ pj.confidence }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- AI NOTE -->
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:2px;padding:22px 24px;margin-bottom:40px;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;"><span class="material-icons" style="font-size:19px;color:var(--gold);">smart_toy</span><span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);">AI Analysis Note</span></div>
+            <p style="margin:0;font-size:14.5px;line-height:1.65;color:var(--text-2);">{{ brAiNote }} <span onClick="{{ goAI }}" style="color:var(--accent);font-weight:600;cursor:pointer;">Continue this analysis →</span></p>
+          </div>
+
+          <!-- PEER REVIEWS -->
+          <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:12px;margin:0 0 24px;">
+            <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:23px;margin:0;color:var(--ink);">Peer Reviews</h2>
+            <span style="font-size:13px;color:var(--text-3);font-family:'Roboto Mono',monospace;">3 reviews · 2 endorse</span>
+          </div>
+          <sc-for list="{{ billReviews }}" as="rv" hint-placeholder-count="3">
+            <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:22px 24px;margin-bottom:16px;">
+              <div style="display:flex;align-items:center;gap:13px;margin-bottom:14px;">
+                <div style="width:40px;height:40px;border-radius:50%;background:var(--inverse);color:var(--on-inverse);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;font-family:'Spectral',serif;flex-shrink:0;">{{ rv.initials }}</div>
+                <div style="flex:1;">
+                  <div style="font-size:14.5px;font-weight:600;color:var(--ink);">{{ rv.name }}</div>
+                  <div style="font-size:12.5px;color:var(--text-4);">{{ rv.affil }} · {{ rv.date }}</div>
+                </div>
+                <span style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:.03em;background:{{ rv.recBg }};color:{{ rv.recColor }};">{{ rv.rec }}</span>
+                <span style="font-family:'Roboto Mono',monospace;font-size:14px;font-weight:600;color:var(--ink);">{{ rv.score }}</span>
+              </div>
+              <p style="margin:0;font-size:14.5px;line-height:1.65;color:var(--text);">{{ rv.text }}</p>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- RAIL -->
+        <div style="position:sticky;top:90px;display:flex;flex-direction:column;gap:18px;">
+          <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:22px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-4);margin-bottom:12px;">Overall Outlook</div>
+            <div style="font-family:'Spectral',serif;font-weight:700;font-size:21px;line-height:1.2;color:var(--ink);margin-bottom:10px;">{{ brOutlookHead }}</div>
+            <div style="font-size:13px;line-height:1.55;color:var(--text-2);">{{ brOutlookBody }} Overall confidence: <strong style="color:{{ brOverallConfColor }};">{{ brOutlookConf }}</strong>.</div>
+          </div>
+          <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:22px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:16px;">Legislative Status</div>
+            <sc-for list="{{ billStatus }}" as="bs" hint-placeholder-count="4">
+              <div style="display:flex;gap:12px;margin-bottom:14px;">
+                <span class="material-icons" style="font-size:18px;color:{{ bs.color }};">{{ bs.icon }}</span>
+                <div><div style="font-size:13.5px;font-weight:600;color:var(--ink);">{{ bs.label }}</div><div style="font-size:12px;color:var(--text-4);">{{ bs.date }}</div></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:22px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:14px;">Key Facts</div>
+            <div style="font-size:13px;line-height:1.4;color:var(--text-2);">
+              <sc-for list="{{ billFacts }}" as="bf" hint-placeholder-count="6">
+                <div style="display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--border-3);"><span style="color:var(--text-4);">{{ bf.k }}</span><span style="font-weight:600;text-align:right;color:var(--ink);">{{ bf.v }}</span></div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ============ AI ASSISTANT ============ -->
+    <sc-if value="{{ isAI }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:1240px;margin:0 auto;padding:32px;display:grid;grid-template-columns:1fr 300px;gap:32px;align-items:start;height:calc(100vh - 220px);min-height:560px;">
+      <!-- CHAT -->
+      <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;display:flex;flex-direction:column;height:100%;overflow:hidden;">
+        <div style="padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--inverse);">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--accent-fill);display:flex;align-items:center;justify-content:center;"><span class="material-icons" style="font-size:20px;color:var(--on-inverse);">smart_toy</span></div>
+          <div><div style="font-size:15px;font-weight:600;color:var(--on-inverse);font-family:'Spectral',serif;">Research Assistant</div><div style="font-size:12px;color:var(--text-4);">Reading the full text of 10 studies</div></div>
+        </div>
+        <div ref="{{ chatRef }}" style="flex:1;overflow-y:auto;padding:26px 24px;display:flex;flex-direction:column;gap:20px;">
+          <sc-for list="{{ messages }}" as="m" hint-placeholder-count="2">
+            <div style="{{ m.rowStyle }}">
+              <div style="{{ m.bubbleStyle }}">
+                <div style="white-space:pre-wrap;font-size:14.5px;line-height:1.62;">{{ m.text }}</div>
+                <sc-if value="{{ m.hasCites }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border-3);display:flex;flex-direction:column;gap:7px;">
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-4);">Sources</div>
+                  <sc-for list="{{ m.cites }}" as="ct" hint-placeholder-count="2">
+                    <div onClick="{{ goStudy }}" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;color:var(--accent);font-weight:500;"><span class="material-icons" style="font-size:14px;">description</span><span style="font-family:'Roboto Mono',monospace;color:var(--text-4);">{{ ct.ref }}</span> {{ ct.title }}</div>
+                  </sc-for>
+                </div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ aiTyping }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:5px;padding:14px 18px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;width:fit-content;">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--accent-fill);animation:dotPulse 1.2s infinite;"></span>
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--accent-fill);animation:dotPulse 1.2s infinite .2s;"></span>
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--accent-fill);animation:dotPulse 1.2s infinite .4s;"></span>
+          </div>
+          </sc-if>
+        </div>
+        <div style="padding:16px 24px;border-top:1px solid var(--border);">
+          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+            <sc-for list="{{ prompts }}" as="p" hint-placeholder-count="3">
+              <div onClick="{{ p.send }}" style="font-size:12px;color:var(--text-2);border:1px solid var(--border-2);background:var(--surface-2);padding:7px 13px;border-radius:2px;cursor:pointer;">{{ p.label }}</div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-end;border:1px solid var(--border-2);border-radius:2px;padding:8px 8px 8px 16px;background:var(--surface);">
+            <textarea ref="{{ inputRef }}" onKeyDown="{{ onKey }}" placeholder="Ask about a study, methodology, or cross-cutting evidence…" rows="1" style="flex:1;border:none;outline:none;resize:none;font-family:'Public Sans',sans-serif;font-size:14.5px;color:var(--ink);line-height:1.5;padding:6px 0;max-height:120px;background:transparent;"></textarea>
+            <div onClick="{{ sendTyped }}" style="width:40px;height:40px;flex-shrink:0;background:var(--accent-fill);border-radius:2px;display:flex;align-items:center;justify-content:center;cursor:pointer;"><span class="material-icons" style="font-size:20px;color:var(--on-inverse);">arrow_upward</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- CAPABILITIES RAIL -->
+      <div style="position:sticky;top:90px;display:flex;flex-direction:column;gap:16px;">
+        <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:22px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:16px;">What it can do</div>
+          <sc-for list="{{ capabilities }}" as="cap" hint-placeholder-count="4">
+            <div style="display:flex;gap:12px;margin-bottom:16px;">
+              <span class="material-icons" style="font-size:18px;color:var(--accent);">{{ cap.icon }}</span>
+              <div><div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:2px;">{{ cap.title }}</div><div style="font-size:12.5px;color:var(--text-3);line-height:1.45;">{{ cap.body }}</div></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:2px;padding:18px;font-size:12.5px;line-height:1.55;color:var(--text-3);">
+          <span class="material-icons" style="font-size:16px;color:var(--gold);vertical-align:-3px;">info</span> Assistant responses cite source studies and are flagged for reviewer verification. They do not constitute peer-reviewed conclusions.
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ============ DATA COMMONS ============ -->
+    <sc-if value="{{ isData }}" hint-placeholder-val="{{ true }}">
+    <div style="">
+      <!-- HERO -->
+      <div style="background:var(--inverse);color:var(--on-inverse);">
+        <div style="max-width:1240px;margin:0 auto;padding:64px 32px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;">Research Infrastructure</div>
+          <h1 style="font-family:'Spectral',serif;font-weight:700;font-size:46px;line-height:1.08;margin:0 0 22px;max-width:840px;letter-spacing:-.015em;">The Policy Data Commons</h1>
+          <p style="font-size:18px;line-height:1.65;color:var(--on-inverse-2);margin:0;max-width:720px;">A continuously growing repository of legislation, regulation, and economic evidence — past and present, across every level of government. It is the empirical foundation beneath every review we publish: the means by which a new proposal can be measured against what has actually been tried before, and what resulted.</p>
+          <div style="display:flex;gap:12px;margin-top:30px;flex-wrap:wrap;">
+            <div onClick="{{ goLibrary }}" style="background:var(--on-inverse);color:var(--inverse);font-size:14px;font-weight:600;padding:12px 22px;border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:8px;"><span class="material-icons" style="font-size:17px;">travel_explore</span>Explore the catalog</div>
+            <div onClick="{{ goData }}" style="border:1px solid var(--inverse-border);color:var(--on-inverse);font-size:14px;font-weight:600;padding:12px 22px;border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:8px;"><span class="material-icons" style="font-size:17px;">upload_file</span>Contribute a dataset</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div style="background:var(--accent-fill);color:#fff;">
+        <div style="max-width:1240px;margin:0 auto;padding:40px 32px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+          <sc-for list="{{ dcStats }}" as="x" hint-placeholder-count="4">
+            <div style="text-align:center;border-right:1px solid rgba(255,255,255,.18);padding:0 16px;">
+              <div style="font-family:'Spectral',serif;font-weight:700;font-size:40px;line-height:1;margin-bottom:8px;">{{ x.value }}</div>
+              <div style="font-size:12.5px;letter-spacing:.04em;color:#f1d9d9;text-transform:uppercase;font-weight:500;">{{ x.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- SEARCH & ASK -->
+      <div style="background:var(--bg);border-bottom:1px solid var(--border);">
+        <div style="max-width:1240px;margin:0 auto;padding:56px 32px;">
+          <div style="max-width:720px;margin-bottom:26px;">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Search &amp; Ask</div>
+            <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:30px;margin:0 0 12px;letter-spacing:-.01em;color:var(--ink);">Query bills from every level of government</h2>
+            <p style="font-size:16px;line-height:1.65;color:var(--text-2);margin:0;">Search federal, state, and city legislation — both enacted and failed — or ask a question in plain language. Narrow by level, outcome, and category.</p>
+          </div>
+
+          <!-- ASK BAR -->
+          <div style="display:flex;gap:10px;align-items:stretch;margin-bottom:16px;">
+            <div style="flex:1;display:flex;align-items:center;gap:12px;border:1px solid var(--border-2);border-radius:2px;padding:4px 6px 4px 18px;background:var(--surface);">
+              <span class="material-icons" style="font-size:20px;color:var(--text-4);">search</span>
+              <input ref="{{ dcQueryRef }}" onInput="{{ dcOnQueryInput }}" onKeyDown="{{ dcOnQueryKey }}" placeholder="Search bills, places, and tags — or ask a question…" style="flex:1;border:none;outline:none;background:transparent;font-family:'Public Sans',sans-serif;font-size:15px;color:var(--ink);padding:12px 0;">
+              <div onClick="{{ dcRunSearch }}" style="background:var(--accent-fill);color:#fff;font-size:14px;font-weight:600;padding:11px 22px;border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;"><span class="material-icons" style="font-size:17px;">smart_toy</span>Ask</div>
+            </div>
+          </div>
+
+          <!-- SUGGESTIONS -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px;">
+            <span style="font-size:12.5px;color:var(--text-4);align-self:center;">Try:</span>
+            <sc-for list="{{ dcSuggestions }}" as="sg" hint-placeholder-count="3">
+              <div onClick="{{ sg.ask }}" style="font-size:12.5px;color:var(--text-2);border:1px solid var(--border-2);background:var(--surface-2);padding:7px 13px;border-radius:2px;cursor:pointer;">{{ sg.label }}</div>
+            </sc-for>
+          </div>
+
+          <!-- AI ANSWER -->
+          <sc-if value="{{ dcHasAnswer }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px solid var(--border);background:var(--surface-2);border-left:3px solid var(--gold);border-radius:2px;padding:22px 24px;margin-bottom:30px;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;"><span class="material-icons" style="font-size:19px;color:var(--gold);">smart_toy</span><span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);">Commons Answer</span></div>
+            <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:var(--text);">{{ dcAnswer.lead }}</p>
+            <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-4);margin-bottom:10px;">Drawn from</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <sc-for list="{{ dcAnswerHits }}" as="h" hint-placeholder-count="3">
+                <div onClick="{{ h.open }}" style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:var(--text-2);">
+                  <span class="material-icons" style="font-size:15px;color:var(--accent);">description</span>
+                  <span style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text-4);">{{ h.ref }}</span>
+                  <span style="font-weight:600;color:var(--ink);">{{ h.title }}</span>
+                  <span style="color:var(--text-4);">· {{ h.place }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          </sc-if>
+
+          <!-- FILTERS -->
+          <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <sc-for list="{{ dcLevelChips }}" as="c" hint-placeholder-count="4"><div onClick="{{ c.set }}" style="{{ c.style }}">{{ c.label }}</div></sc-for>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <sc-for list="{{ dcStatusChips }}" as="c" hint-placeholder-count="3"><div onClick="{{ c.set }}" style="{{ c.style }}">{{ c.label }}</div></sc-for>
+              <span style="width:1px;background:var(--border);margin:0 6px;"></span>
+              <sc-for list="{{ dcCategoryChips }}" as="c" hint-placeholder-count="5"><div onClick="{{ c.set }}" style="{{ c.style }}">{{ c.label }}</div></sc-for>
+            </div>
+          </div>
+
+          <!-- RESULTS -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:2px solid var(--ink);margin-bottom:4px;">
+            <div style="font-size:14px;color:var(--text-3);"><span style="font-weight:700;color:var(--ink);font-family:'Roboto Mono',monospace;">{{ dcResultCount }}</span> measures</div>
+            <div style="font-size:12.5px;color:var(--text-4);">Federal · State · City — enacted &amp; failed</div>
+          </div>
+          <div style="border-top:1px solid var(--border);">
+            <sc-for list="{{ dcResults }}" as="b" hint-placeholder-count="6">
+              <div onClick="{{ b.open }}" style="padding:20px 0;border-bottom:1px solid var(--border);cursor:pointer;display:grid;grid-template-columns:120px 1fr auto;gap:24px;align-items:start;">
+                <div style="padding-top:2px;">
+                  <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:{{ b.levelColor }};">{{ b.levelLabel }}</div>
+                  <div style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text-4);margin-top:4px;">{{ b.year }}</div>
+                </div>
+                <div>
+                  <div style="font-family:'Spectral',serif;font-weight:600;font-size:18px;line-height:1.25;color:var(--ink);margin-bottom:5px;">{{ b.title }}</div>
+                  <div style="font-size:13.5px;line-height:1.5;color:var(--text-2);margin-bottom:10px;">{{ b.place }} — {{ b.summary }}</div>
+                  <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">
+                    <span style="font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:3px 10px;border-radius:12px;">{{ b.category }}</span>
+                    <sc-for list="{{ b.tags }}" as="tg" hint-placeholder-count="2">
+                      <span style="font-size:11px;color:var(--text-3);background:var(--surface-2);border:1px solid var(--border);padding:3px 9px;border-radius:12px;">{{ tg }}</span>
+                    </sc-for>
+                  </div>
+                </div>
+                <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:2px;font-size:11px;font-weight:700;background:{{ b.statusBg }};color:{{ b.statusColor }};white-space:nowrap;">{{ b.statusLabel }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- WHAT IT IS -->
+      <div style="max-width:1240px;margin:0 auto;padding:64px 32px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;">
+        <div>
+          <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:30px;margin:0 0 18px;letter-spacing:-.01em;color:var(--ink);">One repository, every level of government</h2>
+          <p style="font-size:16px;line-height:1.7;color:var(--text-2);margin:0 0 16px;">The Commons brings federal statutes, state legislation, and municipal ordinances into a single structured archive — alongside the economic conditions of each jurisdiction at the time each policy took effect. Bills, enacted laws, regulatory text, administrative data, and the published empirical literature are all held together and linked.</p>
+          <p style="font-size:16px;line-height:1.7;color:var(--text-2);margin:0;">Because the record reaches back roughly fifty years, a proposal introduced today can be set beside comparable measures from other decades and other places — and against what actually happened after they passed.</p>
+        </div>
+        <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:8px;">
+          <sc-for list="{{ dcCoverage }}" as="cv" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:16px;padding:18px 16px;border-bottom:1px solid var(--border-3);">
+              <span class="material-icons" style="font-size:24px;color:var(--accent);">{{ cv.icon }}</span>
+              <div style="flex:1;">
+                <div style="font-size:14.5px;font-weight:600;color:var(--ink);">{{ cv.label }}</div>
+                <div style="font-size:12.5px;color:var(--text-3);">{{ cv.detail }}</div>
+              </div>
+              <span style="font-family:'Roboto Mono',monospace;font-size:13px;font-weight:600;color:var(--text-2);">{{ cv.count }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- CROSS-REFERENCED -->
+      <div style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+        <div style="max-width:1240px;margin:0 auto;padding:64px 32px;">
+          <div style="margin-bottom:40px;max-width:680px;">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Cross-Referenced</div>
+            <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:30px;margin:0 0 14px;letter-spacing:-.01em;color:var(--ink);">The same record, indexed many ways</h2>
+            <p style="font-size:16px;line-height:1.65;color:var(--text-2);margin:0;">Every entry is linked along multiple axes at once, so a question can be approached from whichever direction the evidence demands. These cross-references are what make valid comparison possible.</p>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);">
+            <sc-for list="{{ dcAxes }}" as="ax" hint-placeholder-count="6">
+              <div style="background:var(--surface);padding:26px 24px;">
+                <span class="material-icons" style="font-size:24px;color:var(--gold);">{{ ax.icon }}</span>
+                <h3 style="font-family:'Spectral',serif;font-weight:600;font-size:18px;margin:14px 0 8px;color:var(--ink);">{{ ax.title }}</h3>
+                <p style="font-size:13.5px;line-height:1.55;color:var(--text-2);margin:0;">{{ ax.body }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTRIBUTE -->
+      <div style="max-width:1240px;margin:0 auto;padding:64px 32px;">
+        <div style="display:grid;grid-template-columns:1fr 360px;gap:56px;align-items:start;">
+          <div>
+            <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Contribute</div>
+            <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:30px;margin:0 0 14px;letter-spacing:-.01em;color:var(--ink);">Members can add to the Commons</h2>
+            <p style="font-size:16px;line-height:1.65;color:var(--text-2);margin:0 0 32px;max-width:620px;">The Commons grows daily — partly through our own ingestion pipelines, and partly through the researchers who use it. Members may submit their own datasets for inclusion. Each submission is reviewed for provenance, documentation, and methodological soundness before it is cross-referenced into the archive.</p>
+            <div style="border-left:2px solid var(--border-2);padding-left:0;">
+              <sc-for list="{{ dcSteps }}" as="st" hint-placeholder-count="4">
+                <div style="display:flex;gap:20px;padding:0 0 26px 24px;position:relative;margin-left:2px;">
+                  <div style="position:absolute;left:-9px;top:2px;width:16px;height:16px;border-radius:50%;background:var(--accent-fill);border:3px solid var(--bg);"></div>
+                  <div>
+                    <div style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:5px;">{{ st.num }}</div>
+                    <div style="font-family:'Spectral',serif;font-size:18px;font-weight:600;color:var(--ink);margin-bottom:5px;">{{ st.title }}</div>
+                    <div style="font-size:14px;line-height:1.6;color:var(--text-2);">{{ st.body }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <!-- UPLOAD CARD -->
+          <div style="position:sticky;top:90px;border:1px solid var(--border);background:var(--surface);border-radius:2px;overflow:hidden;">
+            <div style="background:var(--inverse);color:var(--on-inverse);padding:22px 24px;">
+              <div style="display:flex;align-items:center;gap:10px;"><span class="material-icons" style="font-size:20px;color:var(--gold);">upload_file</span><span style="font-size:15px;font-weight:600;font-family:'Spectral',serif;">Submit a Dataset</span></div>
+            </div>
+            <div style="padding:24px;">
+              <div style="border:1.5px dashed var(--border-2);border-radius:4px;padding:30px 20px;text-align:center;margin-bottom:20px;">
+                <span class="material-icons" style="font-size:30px;color:var(--text-4);">cloud_upload</span>
+                <div style="font-size:13.5px;color:var(--text-2);margin-top:8px;font-weight:500;">Drag a file here, or browse</div>
+                <div style="font-size:11.5px;color:var(--text-4);margin-top:4px;">CSV · Parquet · JSON · up to 2&nbsp;GB</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <div>
+                  <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-4);margin-bottom:6px;">Dataset title</div>
+                  <div style="border:1px solid var(--border-2);border-radius:2px;padding:10px 12px;font-size:13px;color:var(--text-4);background:var(--surface-2);">e.g. Municipal permit issuance, 1998–2024</div>
+                </div>
+                <div>
+                  <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-4);margin-bottom:6px;">Jurisdiction &amp; period</div>
+                  <div style="border:1px solid var(--border-2);border-radius:2px;padding:10px 12px;font-size:13px;color:var(--text-4);background:var(--surface-2);">Add coverage…</div>
+                </div>
+              </div>
+              <div onClick="{{ goData }}" style="margin-top:20px;background:var(--accent-fill);color:#fff;font-size:14px;font-weight:600;padding:12px 0;text-align:center;border-radius:2px;cursor:pointer;">Submit for Review</div>
+              <div style="font-size:11.5px;line-height:1.5;color:var(--text-4);margin-top:12px;text-align:center;">Typical review turnaround: 2–3 weeks. You retain authorship and license terms.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAVEAT -->
+      <div style="max-width:1240px;margin:0 auto;padding:0 32px 64px;">
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:2px;padding:22px 26px;display:flex;gap:14px;align-items:flex-start;">
+          <span class="material-icons" style="font-size:20px;color:var(--gold);">balance</span>
+          <p style="margin:0;font-size:14px;line-height:1.65;color:var(--text-2);">No archive of this kind is complete or perfectly comparable — jurisdictions differ, records have gaps, and history rarely runs a clean experiment. The Commons is honest about that. But disciplined comparison against the full weight of prior evidence remains the most rigorous, scientific basis available for anticipating what a policy will actually do.</p>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ============ US CONGRESS ============ -->
+    <sc-if value="{{ isCongress }}" hint-placeholder-val="{{ true }}">
+    <div style="">
+      <!-- HERO -->
+      <div style="background:var(--inverse);color:var(--on-inverse);">
+        <div style="max-width:1240px;margin:0 auto;padding:56px 32px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">119th Congress · Housing &amp; Urban Policy</div>
+          <h1 style="font-family:'Spectral',serif;font-weight:700;font-size:42px;line-height:1.1;margin:0 0 18px;max-width:760px;letter-spacing:-.015em;">Federal Legislation Tracker</h1>
+          <p style="font-size:17px;line-height:1.6;color:var(--on-inverse-2);margin:0 0 28px;max-width:660px;">Search housing and urban-policy legislation before Congress, and follow the bills we are actively reviewing as they move through committee and floor votes.</p>
+          <div style="display:flex;align-items:center;gap:0;background:var(--surface);border-radius:2px;max-width:640px;padding:4px 4px 4px 18px;">
+            <span class="material-icons" style="font-size:20px;color:var(--text-4);">search</span>
+            <input ref="{{ congQueryRef }}" onInput="{{ congOnInput }}" placeholder="Search by bill number, title, sponsor, or topic…" style="flex:1;border:none;outline:none;background:transparent;font-family:'Public Sans',sans-serif;font-size:15px;color:var(--ink);padding:13px 14px;">
+            <sc-if value="{{ congHasQuery }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ congClear }}" style="padding:0 12px;cursor:pointer;color:var(--text-4);display:flex;align-items:center;"><span class="material-icons" style="font-size:18px;">close</span></div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEGISLATION TILES -->
+      <div style="max-width:1240px;margin:0 auto;padding:48px 32px 64px;">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:32px;">
+          <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:26px;margin:0;letter-spacing:-.01em;color:var(--ink);">Active Legislation</h2>
+          <div style="font-size:13.5px;color:var(--text-3);"><span style="font-weight:700;color:var(--ink);font-family:'Roboto Mono',monospace;">{{ congResultCount }}</span> bills tracked</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;">
+          <sc-for list="{{ congBills }}" as="b" hint-placeholder-count="6">
+            <div onClick="{{ b.open }}" style="{{ b.cardStyle }}">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <div style="display:flex;align-items:center;gap:9px;">
+                  <span class="material-icons" style="font-size:18px;color:var(--accent);">{{ b.chamberIcon }}</span>
+                  <span style="font-family:'Roboto Mono',monospace;font-size:13px;font-weight:600;color:var(--ink);">{{ b.ref }}</span>
+                  <span style="font-size:12px;color:var(--text-4);">· {{ b.congress }}</span>
+                </div>
+                <span style="display:inline-flex;align-items:center;padding:4px 11px;border-radius:2px;font-size:11px;font-weight:700;background:{{ b.statusBg }};color:{{ b.statusColor }};white-space:nowrap;">{{ b.status }}</span>
+              </div>
+              <h3 style="font-family:'Spectral',serif;font-weight:600;font-size:20px;line-height:1.22;margin:0 0 10px;color:var(--ink);">{{ b.title }}</h3>
+              <p style="font-size:13.5px;line-height:1.6;color:var(--text-2);margin:0 0 18px;flex:1;">{{ b.summary }}</p>
+              <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border-3);padding-top:14px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span style="font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:3px 10px;border-radius:12px;">{{ b.category }}</span>
+                  <span style="font-size:12.5px;color:var(--text-3);">{{ b.sponsor }}</span>
+                </div>
+                <span style="font-size:11.5px;color:var(--text-4);font-family:'Roboto Mono',monospace;">{{ b.updated }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- EMPTY STATE -->
+        <sc-if value="{{ congHasQuery }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ congIsEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:56px 20px;color:var(--text-3);">
+            <span class="material-icons" style="font-size:34px;color:var(--text-4);">search_off</span>
+            <div style="font-size:15px;margin-top:12px;">No tracked legislation matches your search.</div>
+            <div onClick="{{ congClear }}" style="font-size:13.5px;font-weight:600;color:var(--accent);margin-top:10px;cursor:pointer;">Clear search</div>
+          </div>
+          </sc-if>
+        </sc-if>
+
+        <!-- SOURCE NOTE -->
+        <div style="margin-top:36px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;padding:18px 22px;display:flex;gap:13px;align-items:flex-start;">
+          <span class="material-icons" style="font-size:19px;color:var(--gold);">info</span>
+          <p style="margin:0;font-size:13.5px;line-height:1.6;color:var(--text-2);">Status reflects our last synchronization with Congress.gov. Bills we have published a full review for link through to that analysis; others are tracked pending review. <a href="https://www.congress.gov" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none;">Browse all federal legislation on Congress.gov →</a></p>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ============ EXPERTS ============ -->
+    <sc-if value="{{ isExperts }}" hint-placeholder-val="{{ true }}">
+    <div style="">
+      <div style="background:var(--surface);border-bottom:1px solid var(--border);">
+        <div style="max-width:1240px;margin:0 auto;padding:56px 32px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Fellows &amp; Reviewers</div>
+          <h1 style="font-family:'Spectral',serif;font-weight:700;font-size:42px;line-height:1.1;margin:0 0 16px;max-width:760px;letter-spacing:-.015em;color:var(--ink);">Our Experts</h1>
+          <p style="font-size:17px;line-height:1.6;color:var(--text-2);margin:0;max-width:680px;">While we can use AI to compare to large datasets and analyse incoming policies, years of education and experience lends weight to studies  and analysis.   We verify their credentials to ensure peer-reviwed studies are scientifically sound</p>
+        </div>
+      </div>
+      <div style="max-width:1240px;margin:0 auto;padding:40px 32px 64px;">
+        <!-- FILTER + COUNT -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
+          <sc-for list="{{ expertsCatChips }}" as="c" hint-placeholder-count="5"><div onClick="{{ c.set }}" style="{{ c.style }}">{{ c.label }}</div></sc-for>
+          <span style="font-size:12.5px;color:var(--text-3);font-family:'Roboto Mono',monospace;margin-left:auto;">{{ expertRosterCount }} of {{ expertsTotal }} experts</span>
+        </div>
+
+        <!-- ROSTER -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+          <sc-for list="{{ expertRoster }}" as="p" hint-placeholder-count="9">
+            <a href="{{ p.profile_url }}" target="_blank" rel="noopener" style="text-decoration:none;border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:22px;display:flex;flex-direction:column;" style-hover="border-color:var(--accent);">
+              <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:14px;">
+                <div style="width:56px;height:56px;border-radius:50%;background:{{ p.avatarBg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;font-family:'Spectral',serif;flex-shrink:0;position:relative;overflow:hidden;">
+                  {{ p.initials }}
+                  <img src="{{ p.image_url }}" alt="{{ p.name }}" loading="lazy" onError="{{ expertImgError }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" />
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-family:'Spectral',serif;font-weight:600;font-size:17px;line-height:1.18;color:var(--ink);">{{ p.name }}</div>
+                  <div style="font-size:12px;color:var(--text-3);margin-top:4px;line-height:1.35;">{{ p.affiliation }}</div>
+                </div>
+              </div>
+              <span style="display:inline-block;width:fit-content;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:{{ p.catColor }};background:{{ p.catBg }};padding:3px 9px;border-radius:2px;margin-bottom:12px;">{{ p.catLabel }}</span>
+              <div style="font-size:12.5px;font-weight:600;color:var(--text-2);line-height:1.4;margin-bottom:8px;">{{ p.title }}</div>
+              <p style="font-size:12.5px;line-height:1.55;color:var(--text-3);margin:0 0 14px;flex:1;">{{ p.focus }}</p>
+              <span style="font-size:12px;font-weight:600;color:var(--accent);display:inline-flex;align-items:center;gap:5px;border-top:1px solid var(--border-3);padding-top:13px;">View profile<span class="material-icons" style="font-size:14px;">north_east</span></span>
+            </a>
+          </sc-for>
+        </div>
+
+        <div style="margin-top:36px;background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:2px;padding:20px 24px;display:flex;gap:13px;align-items:flex-start;">
+          <span class="material-icons" style="font-size:19px;color:var(--gold);">verified_user</span>
+          <p style="margin:0;font-size:13.5px;line-height:1.6;color:var(--text-2);">This directory lists independent housing-policy scholars and researchers at universities, think tanks, research centers, and non-profits. Affiliations are listed for identification only and do not imply institutional endorsement. Any reviewer's conflicts of interest are disclosed on each published review.</p>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ============ ABOUT ============ -->
+    <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ true }}">
+    <div style="">
+      <div style="background:var(--inverse);color:var(--on-inverse);">
+        <div style="max-width:1240px;margin:0 auto;padding:72px 32px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;">About the Center</div>
+          <h1 style="font-family:'Spectral',serif;font-weight:700;font-size:44px;line-height:1.1;margin:0 0 22px;max-width:820px;letter-spacing:-.01em;">We exist to make housing-policy evidence trustworthy, transparent, and usable.</h1>
+          <p style="font-size:18px;line-height:1.65;color:var(--on-inverse-2);margin:0;max-width:680px;">The Center for Urban Policy Analysis is an independent, non-partisan research institute. We do not advocate for outcomes — we evaluate the strength of the evidence behind them.</p>
+        </div>
+      </div>
+      <div style="max-width:1240px;margin:0 auto;padding:64px 32px;display:grid;grid-template-columns:repeat(3,1fr);gap:40px;border-bottom:1px solid var(--border);">
+        <sc-for list="{{ principles }}" as="p" hint-placeholder-count="3">
+          <div>
+            <span class="material-icons" style="font-size:28px;color:var(--accent);">{{ p.icon }}</span>
+            <h3 style="font-family:'Spectral',serif;font-weight:600;font-size:21px;margin:16px 0 10px;">{{ p.title }}</h3>
+            <p style="font-size:14.5px;line-height:1.65;color:var(--text-2);margin:0;">{{ p.body }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div style="max-width:1240px;margin:0 auto;padding:64px 32px;">
+        <h2 style="font-family:'Spectral',serif;font-weight:700;font-size:28px;margin:0 0 28px;border-bottom:2px solid var(--ink);padding-bottom:14px;">Leadership &amp; Senior Fellows</h2>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:28px;">
+          <sc-for list="{{ people }}" as="pe" hint-placeholder-count="4">
+            <div>
+              <div style="width:100%;aspect-ratio:1;background:{{ pe.bg }};border-radius:2px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;"><span style="font-family:'Spectral',serif;font-weight:700;font-size:34px;color:var(--on-inverse);">{{ pe.initials }}</span></div>
+              <div style="font-family:'Spectral',serif;font-weight:600;font-size:17px;color:var(--ink);">{{ pe.name }}</div>
+              <div style="font-size:13px;color:var(--accent);font-weight:600;margin:3px 0 6px;">{{ pe.role }}</div>
+              <div style="font-size:12.5px;color:var(--text-3);line-height:1.45;">{{ pe.bio }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ============ RESOURCES ============ -->
+    <sc-if value="{{ isResources }}" hint-placeholder-val="{{ true }}">
+    <div style="">
+      <div style="background:var(--surface);border-bottom:1px solid var(--border);">
+        <div style="max-width:1240px;margin:0 auto;padding:44px 32px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;">Resources</div>
+          <h1 style="font-family:'Spectral',serif;font-weight:700;font-size:38px;margin:0 0 10px;letter-spacing:-.01em;color:var(--ink);">External Resources &amp; References</h1>
+          <p style="font-size:16px;color:var(--text-2);margin:0;max-width:760px;">A curated directory of primary sources for legislation, legal research, and academic and economic data. These third-party resources underpin our reviews and are useful starting points for independent research.</p>
+        </div>
+      </div>
+      <div style="max-width:1240px;margin:0 auto;padding:44px 32px 64px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;">
+          <sc-for list="{{ resourceGroups }}" as="g" hint-placeholder-count="4">
+            <div style="border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:26px 30px 12px;">
+              <div style="display:flex;align-items:center;gap:11px;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:4px;">
+                <span class="material-icons" style="font-size:22px;color:var(--accent);">{{ g.icon }}</span>
+                <h3 style="font-family:'Spectral',serif;font-weight:700;font-size:20px;margin:0;color:var(--ink);letter-spacing:-.01em;">{{ g.label }}</h3>
+              </div>
+              <sc-for list="{{ g.links }}" as="lk" hint-placeholder-count="4">
+                <a href="{{ lk.url }}" target="_blank" rel="noopener" style="display:block;padding:15px 0;border-bottom:1px solid var(--border-3);text-decoration:none;" style-hover="opacity:.7;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:15px;font-weight:600;color:var(--ink);">{{ lk.name }}</span>
+                    <span class="material-icons" style="font-size:14px;color:var(--text-4);">north_east</span>
+                  </div>
+                  <div style="font-size:13px;color:var(--text-2);line-height:1.5;margin-top:3px;">{{ lk.desc }}</div>
+                  <div style="font-family:'Roboto Mono',monospace;font-size:11.5px;color:var(--accent);margin-top:5px;">{{ lk.domain }}</div>
+                </a>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;margin-top:32px;padding:18px 22px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;max-width:860px;">
+          <span class="material-icons" style="font-size:18px;color:var(--text-4);">info</span>
+          <p style="font-size:13px;line-height:1.6;color:var(--text-3);margin:0;">Links lead to independent third-party organizations. The Center does not control or endorse their content, and inclusion here does not imply affiliation.</p>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div style="background:var(--inverse-2);color:var(--on-inverse-2);margin-top:0;">
+    <div style="max-width:1240px;margin:0 auto;padding:56px 32px 32px;display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div style="width:42px;height:42px;border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;"><span style="font-family:'Spectral',serif;font-weight:700;font-size:17px;color:var(--gold);">CR</span></div>
+          <div style="font-family:'Spectral',serif;font-weight:700;font-size:17px;line-height:1.1;color:var(--on-inverse);">Center for Urban<br>Policy Analysis</div>
+        </div>
+        <p style="font-size:13px;line-height:1.65;color:var(--on-inverse-3);margin:0;max-width:300px;">An independent 501(c)(3) research institute evaluating the evidence behind housing and urban-economic policy.</p>
+      </div>
+      <sc-for list="{{ footerCols }}" as="fc" hint-placeholder-count="3">
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">{{ fc.head }}</div>
+          <sc-for list="{{ fc.links }}" as="lk" hint-placeholder-count="4">
+            <div style="font-size:13.5px;color:var(--on-inverse-2);margin-bottom:11px;cursor:pointer;">{{ lk }}</div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+    <div style="border-top:1px solid var(--inverse-border-2);">
+      <div style="max-width:1240px;margin:0 auto;padding:20px 32px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-3);">
+        <span>© 2026 Center for Urban Policy Analysis. All rights reserved.</span>
+        <div style="display:flex;gap:22px;"><span style="cursor:pointer;">Privacy</span><span style="cursor:pointer;">Terms</span><span style="cursor:pointer;">Research Standards</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {}, &quot;showClarityScores&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;}, &quot;showUtilityBar&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;}, &quot;showStatsBand&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'home',
+    dark: (() => { try { return localStorage.getItem('cuhpr-theme') === 'dark'; } catch (e) { return false; } })(),
+    locale: 'en',
+    activeBillId: 'hr6644-119',
+    bills: null,
+    dcQuery: '',
+    dcAnswer: null,
+    dcLevel: 'all',
+    dcStatus: 'all',
+    dcCategory: 'all',
+    congQuery: '',
+    experts: null,
+    expertsCat: 'all',
+    messages: [
+      { role: 'user', text: 'Summarize the key findings of the Minneapolis 2040 supply study and flag any methodological weaknesses.' },
+      { role: 'ai', text: 'The study finds that eliminating single-family-only zoning raised permitted units by an estimated 12.4% over four years, with effects concentrated in higher-amenity tracts and no significant short-run rent effect.\n\nTwo methodological cautions:\n\n1. The synthetic control is sensitive to the inclusion of two high-growth Sun Belt metros — a leave-one-out panel would strengthen the result.\n\n2. The four-year window may be too short to observe the full rent response; supply lags entitlement and financing by several years.',
+        cites: [
+          { ref: 'CUHPR-2026-0142', title: 'The Supply Response to Zoning Reform' },
+          { ref: 'CUHPR-2025-0140', title: 'Minimum Lot Size Reform and Housing Production' }
+        ] }
+    ],
+    aiTyping: false,
+    questions: [
+      { num: 'Q1', text: 'Does the fifteen-year panel adequately control for city-level secular trends in construction-cost inflation?', criterion: 'Identification Strategy', open: true },
+      { num: 'Q2', text: 'The quality index relies on self-reported maintenance records. How sensitive are results to inspection-based measures?', criterion: 'Data Quality', open: false },
+      { num: 'Q3', text: 'Are the twelve cities representative, or is the panel weighted toward coastal high-cost markets?', criterion: 'External Validity', open: false },
+      { num: 'Q4', text: 'Have the authors tested for pre-treatment parallel trends in housing quality prior to ordinance adoption?', criterion: 'Robustness', open: false }
+    ],
+    criteria: [
+      { key: 'method', label: 'Methodology', value: 7 },
+      { key: 'data', label: 'Data Quality', value: 6 },
+      { key: 'ident', label: 'Identification Strategy', value: 5 },
+      { key: 'robust', label: 'Robustness', value: 6 },
+      { key: 'policy', label: 'Policy Relevance', value: 8 }
+    ],
+    recommendation: 'minor',
+    reviewSubmitted: false
+  };
+
+  go(screen) {
+    this.setState({ screen });
+    try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch (e) {}
+  }
+
+  scrollChat() {
+    requestAnimationFrame(() => {
+      const el = this.chatRef;
+      if (el) el.scrollTop = el.scrollHeight;
+    });
+  }
+
+  pushUser(text) {
+    this.setState(s => ({ messages: [...s.messages, { role: 'user', text }], aiTyping: true }));
+    this.scrollChat();
+    setTimeout(() => {
+      this.setState(s => ({ aiTyping: false, messages: [...s.messages, this.aiReply(text)] }));
+      this.scrollChat();
+    }, 1100);
+  }
+
+  aiReply(text) {
+    const t = text.toLowerCase();
+    if (t.includes('compare') || t.includes('cross')) {
+      return { role: 'ai', text: 'Across the rent-stabilization and lot-size studies, the evidence diverges on supply elasticity. The minimum-lot-size reform study shows a fast, large supply response; the twelve-city rent-stabilization panel shows quality erosion but no supply effect — consistent with stabilization binding on the intensive (maintenance) margin rather than the extensive (construction) margin.',
+        cites: [ { ref: 'CUHPR-2025-0918', title: 'Rent Stabilization and Housing Quality' }, { ref: 'CUHPR-2025-0140', title: 'Minimum Lot Size Reform and Housing Production' } ] };
+    }
+    if (t.includes('peer') || t.includes('question')) {
+      return { role: 'ai', text: 'Suggested peer-review questions for the Filtering study:\n\n1. How is the hazard rate of unit downward-filtering identified separately from cohort depreciation?\n2. Does the model account for renovation/reinvestment that reverses filtering?\n3. Are the metro fixed effects absorbing the very variation of interest?\n\nI can attach these to the review workspace.',
+        cites: [ { ref: 'CUHPR-2024-0088', title: 'Filtering and the Lifecycle of the American Housing Stock' } ] };
+    }
+    if (t.includes('lot') || t.includes('cost')) {
+      return { role: 'ai', text: 'On minimum lot sizes and costs: the reform study estimates that reducing minimum lot sizes lowered per-unit land costs by roughly 18% in affected tracts, with the largest effects where prior minimums were most binding. The cost-burden assessment suggests these savings only partly pass through to renters in supply-constrained submarkets.',
+        cites: [ { ref: 'CUHPR-2025-0140', title: 'Minimum Lot Size Reform and Housing Production' }, { ref: 'CUHPR-2025-0451', title: 'Housing Cost Burden Across the Income Distribution' } ] };
+    }
+    return { role: 'ai', text: 'Based on the reviewed corpus, the strongest evidence points to land-use liberalization producing measurable but lagged supply responses, with distributional effects that depend heavily on local land values and amenity levels. I can pull the specific studies, critique a methodology, or draft peer-review questions — just say which.',
+      cites: [ { ref: 'CUHPR-2026-0142', title: 'The Supply Response to Zoning Reform' } ] };
+  }
+
+  sendTyped() {
+    const el = this.inputRef;
+    if (!el) return;
+    const v = (el.value || '').trim();
+    if (!v) return;
+    el.value = '';
+    this.pushUser(v);
+  }
+
+  setScore(key, val) {
+    this.setState(s => ({ criteria: s.criteria.map(c => c.key === key ? { ...c, value: +val } : c) }));
+  }
+
+  toggleQ(idx) {
+    this.setState(s => ({ questions: s.questions.map((q, i) => i === idx ? { ...q, open: !q.open } : q) }));
+  }
+
+  genMore() {
+    this.setState(s => ({ questions: [...s.questions, {
+      num: 'Q' + (s.questions.length + 1),
+      text: 'Could selection into rent-stabilized status be endogenous to building age and prior condition, biasing the quality estimate?',
+      criterion: 'Endogeneity', open: true
+    }] }));
+  }
+
+  componentDidMount() {
+    try {
+      fetch('data/bills.json')
+        .then(r => (r.ok ? r.json() : null))
+        .then(d => { if (d && d.bills) this.setState({ bills: d.bills }); })
+        .catch(() => {});
+    } catch (e) {}
+    try {
+      fetch('data/experts.json')
+        .then(r => (r.ok ? r.json() : null))
+        .then(d => { if (d && d.experts) this.setState({ experts: d.experts }); })
+        .catch(() => {});
+    } catch (e) {}
+  }
+
+  expertInitials(name) {
+    const parts = (name || '').replace(/[^A-Za-z\s'-]/g, '').trim().split(/\s+/);
+    if (!parts.length) return '?';
+    const first = parts[0][0] || '';
+    const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
+    return (first + last).toUpperCase();
+  }
+
+  expertCatMeta(category) {
+    const bucket = (category || '').indexOf('Non-profit') === 0 ? 'Non-profit'
+      : (category === 'Academic' ? 'Academic'
+      : (category === 'Think tank' ? 'Think tank'
+      : (category === 'Research center' ? 'Research center' : 'Other')));
+    const styles = {
+      'Academic': { color: 'var(--accent)', bg: 'var(--accent-soft)', avatar: 'var(--accent-fill)' },
+      'Think tank': { color: 'var(--gold)', bg: 'var(--surface-2)', avatar: 'var(--gold)' },
+      'Research center': { color: 'var(--text-2)', bg: 'var(--surface-2)', avatar: 'var(--inverse)' },
+      'Non-profit': { color: 'var(--ok)', bg: 'var(--ok-bg)', avatar: 'var(--ok)' },
+      'Other': { color: 'var(--text-3)', bg: 'var(--surface-2)', avatar: 'var(--inverse)' }
+    };
+    return { bucket, label: bucket, ...styles[bucket] };
+  }
+
+  maps() {
+    return {
+      conf: {
+        strong: { label: 'Strong', color: 'var(--ok)' },
+        mod_high: { label: 'Mod\u2013High', color: 'var(--ok)' },
+        moderate: { label: 'Moderate', color: 'var(--warn)' },
+        low_mod: { label: 'Low\u2013Mod', color: 'var(--alert)' },
+        low: { label: 'Low', color: 'var(--alert)' }
+      },
+      rec: {
+        endorse: { label: 'Endorse Analysis', color: 'var(--ok)', bg: 'var(--ok-bg)' },
+        minor_revisions: { label: 'Minor revisions', color: 'var(--warn)', bg: 'var(--warn-bg)' },
+        major_revisions: { label: 'Major revisions', color: 'var(--alert)', bg: 'var(--alert-bg)' },
+        reject: { label: 'Reject', color: 'var(--reject)', bg: 'var(--neutral-bg)' }
+      },
+      status: {
+        introduced: { label: 'Introduced', color: 'var(--text-3)', bg: 'var(--neutral-bg)' },
+        in_committee: { label: 'In Committee', color: 'var(--warn)', bg: 'var(--warn-bg)' },
+        passed_house: { label: 'Passed House', color: 'var(--warn)', bg: 'var(--warn-bg)' },
+        passed_senate: { label: 'Passed Senate', color: 'var(--warn)', bg: 'var(--warn-bg)' },
+        senate_passed_awaiting_concurrence: { label: 'Senate Passed \u00b7 Awaiting Concurrence', color: 'var(--warn)', bg: 'var(--warn-bg)' },
+        to_president: { label: 'To President', color: 'var(--ok)', bg: 'var(--ok-bg)' },
+        enacted: { label: 'Enacted', color: 'var(--ok)', bg: 'var(--ok-bg)' },
+        failed: { label: 'Failed', color: 'var(--reject)', bg: 'var(--neutral-bg)' }
+      },
+      stage: {
+        introduced: 'Introduced in House', referred_committee: 'Referred to committee',
+        passed_house: 'Passed House', passed_senate: 'Passed Senate',
+        house_concurrence: 'Awaiting House concurrence', to_president: 'Sent to President', enacted: 'Enacted'
+      }
+    };
+  }
+
+  fmtDate(iso) {
+    try { return new Date(iso + 'T00:00:00').toLocaleDateString(this.state.locale || 'en', { year: 'numeric', month: 'short', day: 'numeric' }); }
+    catch (e) { return iso; }
+  }
+
+  activeBill() {
+    const id = this.state.activeBillId || 'hr6644-119';
+    const store = this.state.bills || this.embeddedBills();
+    const raw = store[id] || this.embeddedBills()['hr6644-119'];
+    const loc = this.state.locale || 'en';
+    const c = raw.content[loc] || raw.content.en;
+    return { meta: raw.meta, c };
+  }
+
+  billVals() {
+    const { meta, c } = this.activeBill();
+    const M = this.maps();
+    const st = M.status[meta.status] || { label: meta.status, color: 'var(--warn)', bg: 'var(--warn-bg)' };
+    const ocOut = M.conf[c.outlook.confidence] || M.conf[meta.overallConfidence] || { label: meta.overallConfidence, color: 'var(--warn)' };
+    const conf = (k) => M.conf[k] || { label: k, color: 'var(--warn)' };
+    const rec = (k) => M.rec[k] || { label: k, color: 'var(--warn)', bg: 'var(--warn-bg)' };
+    return {
+      brCategory: c.category, brTitle: c.title, brExcerpt: c.excerpt, brBillNumber: meta.billNumber,
+      brSourceUrl: meta.sourceUrl, brCongress: c.congressLine, brIntroduced: c.introducedLabel,
+      brSponsor: c.sponsor, brSummary: c.summary, brMethodNote: c.methodNote, brAiNote: c.aiNote,
+      brStatusLabel: st.label, brStatusColor: st.color, brStatusBg: st.bg,
+      brOutlookHead: c.outlook.headline, brOutlookBody: c.outlook.body,
+      brOutlookConf: ocOut.label, brOverallConfColor: ocOut.color,
+      billProvisions: c.provisions,
+      billPrecedents: (c.precedents || []).map(p => ({ ...p, confColor: conf(p.confidence).color, confidence: conf(p.confidence).label })),
+      billEffects: c.effects,
+      billProjections: (c.projections || []).map(p => ({ ...p, confColor: conf(p.confidence).color, confidence: conf(p.confidence).label })),
+      billStatus: (meta.legislativeStatus || []).map(s => ({
+        icon: s.state === 'complete' ? 'check_circle' : (s.state === 'in_progress' ? 'pending' : 'radio_button_unchecked'),
+        color: s.state === 'complete' ? 'var(--ok)' : (s.state === 'in_progress' ? 'var(--warn)' : 'var(--text-4)'),
+        label: (M.stage[s.stage] || s.stage) + (s.vote ? (' \u00b7 ' + s.vote.yea + '\u2013' + s.vote.nay) : ''),
+        date: s.date ? this.fmtDate(s.date) : (s.state === 'in_progress' ? 'In progress' : '')
+      })),
+      billFacts: c.facts || [],
+      billReviews: (c.reviews || []).map(r => ({ ...r, rec: rec(r.recommendation).label, recColor: rec(r.recommendation).color, recBg: rec(r.recommendation).bg }))
+    };
+  }
+
+  embeddedBills() {
+    return {
+      'hr6644-119': {
+        meta: {
+          billNumber: 'H.R. 6644',
+          sourceUrl: 'https://www.congress.gov/bill/119th-congress/house-bill/6644',
+          status: 'senate_passed_awaiting_concurrence',
+          overallConfidence: 'moderate',
+          legislativeStatus: [
+            { stage: 'introduced', state: 'complete', date: '2025-12-11' },
+            { stage: 'passed_house', state: 'complete', date: '2026-02-09', vote: { yea: 390, nay: 9 } },
+            { stage: 'passed_senate', state: 'complete', date: '2026-03-12', vote: { yea: 89, nay: 10 } },
+            { stage: 'house_concurrence', state: 'in_progress' }
+          ],
+          precedentRefs: ['CUHPR-2026-0142', 'CUHPR-2025-0140', 'CUHPR-2026-0377', 'CUHPR-2025-0166']
+        },
+        content: {
+          en: {
+            category: 'Federal Legislation \u00b7 Housing Supply',
+            title: '21st Century ROAD to Housing Act',
+            excerpt: 'A wide-ranging federal bill to increase the supply of housing nationwide. It expands financing for affordable housing, funds local planning and community-development grants, streamlines federal environmental review for qualifying projects, modernizes manufactured- and modular-housing rules, reforms the HOME and rural-housing programs, and tightens oversight of HUD and public housing agencies. Introduced December 2025, it passed the House 390\u20139 and the Senate 89\u201310; the CBO found it would not increase the federal deficit.',
+            summary: 'The 21st Century ROAD to Housing Act is a wide-ranging federal bill whose stated purpose is to increase the supply of housing in America by modernizing outdated programs, removing unnecessary federal requirements, and increasing local flexibility. It spans six titles and 38 sections covering housing finance, manufactured housing, rural programs, environmental review, and oversight.',
+            methodNote: 'This review applies the Center\u2019s four-stage method: we decompose the bill into testable provisions, match each to comparable enacted policy from the past fifty years, trace how those precedents actually fared, and project the likely outcome with explicit confidence.',
+            congressLine: '119th Congress (2025\u20132026)',
+            introducedLabel: 'Introduced Dec 11, 2025',
+            sponsor: 'Sponsor: Rep. French Hill (R-AR)',
+            provisions: [
+              { tag: 'Environmental Review', title: 'Streamlined federal review', body: 'Exempts qualifying residential construction, rehabilitation, and improvement from certain NEPA review requirements.' },
+              { tag: 'Manufactured Housing', title: 'Manufactured & modular modernization', body: 'Eliminates the permanent-chassis requirement and updates standards to expand factory-built supply.' },
+              { tag: 'Housing Finance', title: 'Expanded affordable-housing finance', body: 'Raises multifamily loan limits and reforms the HOME Investment Partnerships program.' },
+              { tag: 'Local Capacity', title: 'Planning & development grants', body: 'Funds local planning, zoning modernization, and implementation tied to affordable-housing production.' },
+              { tag: 'Rural Housing', title: 'Rural Housing Service reform', body: 'Modernizes USDA rural housing programs and strengthens interagency coordination.' },
+              { tag: 'Oversight', title: 'HUD & PHA accountability', body: 'Requires public contract disclosure, performance reviews, and regular regulator testimony.' }
+            ],
+            precedents: [
+              { ref: 'CUHPR-2026-0142', match: 'Land-use & review streamlining', title: 'The Supply Response to Zoning Reform (Minneapolis 2040)', finding: 'Permitted units rose ~12% over four years \u2014 measurable but lagged and spatially uneven.', confidence: 'strong' },
+              { ref: 'CUHPR-2025-0140', match: 'Regulatory cost reduction', title: 'Minimum Lot Size Reform and Housing Production', finding: 'Per-unit land costs fell ~18% where prior minimums were most binding.', confidence: 'strong' },
+              { ref: 'CUHPR-2026-0377', match: 'Regional affordability', title: 'Land-Use Deregulation and Regional Housing Affordability', finding: 'Metro-scale liberalization eased rents modestly, with multi-year lags.', confidence: 'moderate' },
+              { ref: 'CUHPR-2025-0166', match: 'Affordable-housing mandates', title: 'Inclusionary Zoning and Market-Rate Production', finding: 'Net effect on starts depends heavily on the stringency of the set-aside.', confidence: 'moderate' }
+            ],
+            effects: [
+              { label: 'Onset', body: 'Permitting responses to land-use and review reform typically appear within 1\u20132 years; completed units lag 3\u20135 years behind, constrained by financing and construction.' },
+              { label: 'Magnitude', body: 'Comparable reforms raised permitted supply on the order of 10\u201318% in affected areas \u2014 largest where prior regulation was most binding.' },
+              { label: 'Persistence', body: 'Supply gains generally persisted where reforms were durable; rent and affordability effects were smaller, slower, and contingent on a sustained supply response.' },
+              { label: 'Distribution', body: 'Effects were spatially uneven \u2014 concentrated in higher-amenity, higher-land-value areas and muted in low-income peripheries.' }
+            ],
+            projections: [
+              { provision: 'Environmental & review streamlining', effect: 'Higher permitted supply', horizon: '2\u20135 yrs', confidence: 'mod_high' },
+              { provision: 'Manufactured / modular modernization', effect: 'Segment-specific supply', horizon: '1\u20134 yrs', confidence: 'moderate' },
+              { provision: 'Finance expansion (HOME, multifamily)', effect: 'Stronger affordable pipeline', horizon: '2\u20136 yrs', confidence: 'moderate' },
+              { provision: 'Net rents / affordability', effect: 'Small near-term relief', horizon: '4+ yrs', confidence: 'low_mod' }
+            ],
+            outlook: { headline: 'Moderate positive supply effect', body: 'Likely to raise housing supply over a 2\u20135 year horizon, with smaller and slower effects on rents.', confidence: 'moderate' },
+            aiNote: 'The strongest evidentiary support is for the land-use and review-streamlining provisions, which mirror the Minneapolis 2040 and lot-size reforms. The manufactured-housing modernization has thinner domestic precedent and is rated lower-confidence. Net affordability effects are likely small in the near term and depend on a sustained supply response.',
+            facts: [
+              { k: 'Congress', v: '119th (2025\u201326)' }, { k: 'Chamber', v: 'House (H.R.)' }, { k: 'Sponsor', v: 'Rep. French Hill' },
+              { k: 'Committee', v: 'Financial Services' }, { k: 'Titles / Sections', v: '6 / 38' }, { k: 'CBO Score', v: 'Deficit-neutral' }
+            ],
+            reviews: [
+              { initials: 'DO', name: 'Dr. Dana Okonkwo', affil: 'RAND Corporation', date: 'Jun 2026', score: '9 / 10', recommendation: 'endorse', text: 'The precedent matching is sound. The supply provisions are well-supported by the Minneapolis and lot-size evidence, and the affordability projection is appropriately cautious.' },
+              { initials: 'KM', name: 'Dr. Kwame Mills', affil: 'Brookings Institution', date: 'Jun 2026', score: '8 / 10', recommendation: 'minor_revisions', text: 'The manufactured-housing provisions lack a strong domestic precedent; the moderate-confidence rating is warranted. I would flag implementation risk more explicitly.' },
+              { initials: 'LT', name: 'Dr. Lan Tran', affil: 'George Mason University', date: 'May 2026', score: '9 / 10', recommendation: 'endorse', text: 'Environmental-review streamlining is the highest-leverage provision, and the projected multi-year horizon is realistic given entitlement lags.' }
+            ]
+          }
+        }
+      }
+    };
+  }
+
+  congressBills() {
+    return [
+      { ref: 'H.R. 6644', congress: '119th', title: '21st Century ROAD to Housing Act', chamber: 'House', status: 'Senate Passed', statusKey: 'advancing', category: 'Housing Supply', updated: 'Mar 12, 2026', sponsor: 'Rep. French Hill (R-AR)', summary: 'Wide-ranging supply bill: streamlines federal environmental review, modernizes manufactured housing, expands affordable-housing finance, and reforms rural programs. Passed House 390–9, Senate 89–10.', featured: true },
+      { ref: 'S. 2145', congress: '119th', title: 'Housing Supply Expansion Act', chamber: 'Senate', status: 'In Committee', statusKey: 'committee', category: 'Housing Supply', updated: 'Feb 28, 2026', sponsor: 'Sen. R. Ellison (D-NV)', summary: 'Conditions a share of federal transportation funds on state adoption of by-right multifamily zoning near transit corridors.' },
+      { ref: 'H.R. 4820', congress: '119th', title: 'Yes In My Backyard (YIMBY) Act Reauthorization', chamber: 'House', status: 'Introduced', statusKey: 'introduced', category: 'Regulation Reform', updated: 'Feb 19, 2026', sponsor: 'Rep. D. Okafor (D-OR)', summary: 'Requires CDBG grantees to report on and remove discriminatory or exclusionary land-use policies as a condition of funding.' },
+      { ref: 'S. 1877', congress: '119th', title: 'Affordable Housing Credit Improvement Act', chamber: 'Senate', status: 'In Committee', statusKey: 'committee', category: 'Finance', updated: 'Feb 11, 2026', sponsor: 'Sen. M. Cardwell (D-MD)', summary: 'Expands the Low-Income Housing Tax Credit allocation and lowers the bond-financing threshold to unlock additional affordable units.' },
+      { ref: 'H.R. 5390', congress: '119th', title: 'Manufactured Housing Modernization Act', chamber: 'House', status: 'Reported', statusKey: 'advancing', category: 'Regulation Reform', updated: 'Jan 30, 2026', sponsor: 'Rep. L. Vance (R-TX)', summary: 'Updates HUD manufactured-housing construction standards and preempts local bans on titled factory-built homes on residential lots.' },
+      { ref: 'S. 2560', congress: '119th', title: 'Tenant Protection & Rental Stability Act', chamber: 'Senate', status: 'Introduced', statusKey: 'introduced', category: 'Rent Regulation', updated: 'Jan 22, 2026', sponsor: 'Sen. A. Reyes (D-CA)', summary: 'Establishes federal notice and just-cause standards for federally backed rental housing and funds state rental-assistance pilots.' }
+    ];
+  }
+
+  congressFiltered() {
+    const q = (this.state.congQuery || '').toLowerCase().trim();
+    const tokens = q.split(/[^a-z0-9]+/).filter(w => w.length > 1);
+    if (!tokens.length) return this.congressBills();
+    return this.congressBills().filter(b => {
+      const hay = (b.title + ' ' + b.ref + ' ' + b.category + ' ' + b.summary + ' ' + b.sponsor + ' ' + b.status).toLowerCase();
+      return tokens.some(t => hay.includes(t));
+    });
+  }
+
+  chipStyle(active) {
+    return 'font-size:13px;font-weight:600;padding:8px 16px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid ' +
+      (active ? 'var(--accent);background:var(--accent-fill);color:#fff;' : 'var(--border-2);background:var(--surface);color:var(--text-2);');
+  }
+
+  commonsCorpus() {
+    return [
+      { ref: 'US-HR-6644-119', title: '21st Century ROAD to Housing Act', level: 'federal', place: 'United States', year: 2026, status: 'passed', category: 'Supply-Side', tags: ['Zoning', 'Environmental Review', 'Manufactured Housing'], summary: 'Wide-ranging federal supply bill; passed House 390–9 and Senate 89–10.', bill: true },
+      { ref: 'CA-SB-9-2021', title: 'California Housing Opportunity & More Efficiency (HOME) Act', level: 'state', place: 'California', year: 2021, status: 'passed', category: 'Regulation Reduction', tags: ['Zoning', 'Lot Splits', 'Duplex'], summary: 'Allowed duplexes and lot splits on single-family parcels statewide.' },
+      { ref: 'OR-HB-2001-2019', title: 'Oregon Middle Housing Act', level: 'state', place: 'Oregon', year: 2019, status: 'passed', category: 'Supply-Side', tags: ['Zoning', 'Missing Middle'], summary: 'Legalized duplexes–fourplexes in cities above population thresholds.' },
+      { ref: 'MN-MPLS-2040-2019', title: 'Minneapolis 2040 Comprehensive Plan', level: 'city', place: 'Minneapolis, MN', year: 2019, status: 'passed', category: 'Supply-Side', tags: ['Zoning', 'Upzoning'], summary: 'Eliminated single-family-only zoning citywide.' },
+      { ref: 'NY-S-6458-2019', title: 'NY Housing Stability & Tenant Protection Act', level: 'state', place: 'New York', year: 2019, status: 'passed', category: 'Rent Regulation', tags: ['Rent Control', 'Tenant Protection'], summary: 'Strengthened and expanded rent-stabilization statewide.' },
+      { ref: 'CA-AB-1482-2019', title: 'California Tenant Protection Act', level: 'state', place: 'California', year: 2019, status: 'passed', category: 'Rent Regulation', tags: ['Rent Cap', 'Just Cause'], summary: 'Statewide rent cap and just-cause eviction standard.' },
+      { ref: 'WA-HB-1110-2023', title: 'Washington Middle Housing Bill', level: 'state', place: 'Washington', year: 2023, status: 'passed', category: 'Supply-Side', tags: ['Zoning', 'Missing Middle'], summary: 'Required cities to allow two–six units on residential lots.' },
+      { ref: 'FL-SB-102-2023', title: 'Florida Live Local Act', level: 'state', place: 'Florida', year: 2023, status: 'passed', category: 'Affordability', tags: ['Preemption', 'Tax Incentive'], summary: 'Preempted local rules and added incentives for affordable development.' },
+      { ref: 'TX-HB-2989-2023', title: 'Texas Statewide Zoning Preemption', level: 'state', place: 'Texas', year: 2023, status: 'failed', category: 'Regulation Reduction', tags: ['Zoning', 'Preemption'], summary: 'Would have curbed municipal minimum-lot-size rules; died in committee.' },
+      { ref: 'CA-SB-827-2018', title: 'California Transit-Density Bill', level: 'state', place: 'California', year: 2018, status: 'failed', category: 'Supply-Side', tags: ['Zoning', 'Transit', 'Upzoning'], summary: 'Transit-oriented upzoning; failed its first committee vote.' },
+      { ref: 'MA-STL-2020', title: 'Massachusetts Rent-Control Reauthorization', level: 'state', place: 'Massachusetts', year: 2020, status: 'failed', category: 'Rent Regulation', tags: ['Rent Control'], summary: 'Sought to re-legalize local rent control; not enacted.' },
+      { ref: 'CO-HB-1313-2023', title: 'Colorado Land Use Initiative', level: 'state', place: 'Colorado', year: 2023, status: 'failed', category: 'Supply-Side', tags: ['Zoning', 'Preemption'], summary: 'Statewide land-use reform; failed after senate amendments.' },
+      { ref: 'IL-CHI-ARO-2021', title: 'Chicago Affordable Requirements Ordinance', level: 'city', place: 'Chicago, IL', year: 2021, status: 'passed', category: 'Affordability', tags: ['Inclusionary Zoning', 'Set-Aside'], summary: 'Updated inclusionary set-aside and in-lieu fee schedule.' },
+      { ref: 'TX-HOU-LOT-1998', title: 'Houston Minimum Lot Size Reform', level: 'city', place: 'Houston, TX', year: 1998, status: 'passed', category: 'Regulation Reduction', tags: ['Lot Size', 'Deregulation'], summary: 'Cut minimum lot sizes, enabling townhouse infill.' },
+      { ref: 'OR-PDX-IH-2017', title: 'Portland Inclusionary Housing Program', level: 'city', place: 'Portland, OR', year: 2017, status: 'passed', category: 'Affordability', tags: ['Inclusionary Zoning'], summary: 'Mandatory affordable set-asides on larger projects.' },
+      { ref: 'NY-NYC-421a-2022', title: 'NYC 421-a Tax Incentive Renewal', level: 'city', place: 'New York, NY', year: 2022, status: 'failed', category: 'Affordability', tags: ['Tax Incentive'], summary: 'Renewal of the multifamily tax exemption; lapsed without agreement.' },
+      { ref: 'CA-SF-VAC-2022', title: 'San Francisco Vacancy Tax', level: 'city', place: 'San Francisco, CA', year: 2022, status: 'passed', category: 'Rent Regulation', tags: ['Vacancy Tax'], summary: 'Tax on long-vacant residential units.' },
+      { ref: 'MN-MPLS-RENT-2021', title: 'Minneapolis Rent Stabilization Authorization', level: 'city', place: 'Minneapolis, MN', year: 2021, status: 'passed', category: 'Rent Regulation', tags: ['Rent Control', 'Ballot'], summary: 'Ballot measure authorizing a future rent-control ordinance.' }
+    ];
+  }
+
+  commonsFiltered() {
+    const STOP = { the: 1, and: 1, for: 1, that: 1, with: 1, from: 1, why: 1, how: 1, what: 1, which: 1, does: 1, did: 1, are: 1, was: 1, were: 1, have: 1, has: 1, our: 1, they: 1, them: 1, most: 1, more: 1, than: 1, vs: 1, bill: 1, bills: 1, policy: 1, policies: 1, measure: 1, measures: 1, government: 1, produce: 1, produced: 1, compare: 1 };
+    const raw = (this.state.dcQuery || '').toLowerCase().trim();
+    const tokens = raw.split(/[^a-z]+/).filter(w => w.length > 2 && !STOP[w]);
+    return this.commonsCorpus().filter(b => {
+      if (this.state.dcLevel !== 'all' && b.level !== this.state.dcLevel) return false;
+      if (this.state.dcStatus !== 'all' && b.status !== this.state.dcStatus) return false;
+      if (this.state.dcCategory !== 'all' && b.category !== this.state.dcCategory) return false;
+      if (tokens.length) {
+        const hay = (b.title + ' ' + b.place + ' ' + b.summary + ' ' + b.category + ' ' + b.tags.join(' ')).toLowerCase();
+        if (!tokens.some(t => hay.includes(t))) return false;
+      }
+      return true;
+    });
+  }
+
+  dcAsk(text) {
+    const q = (text != null ? text : this.state.dcQuery).trim();
+    if (!q) return;
+    const hits = this.commonsFiltered().slice(0, 4);
+    const t = q.toLowerCase();
+    let lead;
+    if (t.includes('rent')) lead = 'Across the Commons, rent-regulation measures cluster in high-cost coastal markets. Stabilization laws that passed (NY 2019, CA AB-1482) tended to bind on the maintenance and turnover margins; several re-authorization attempts (MA 2020) failed. Evidence links stabilization to quality effects more than to new supply.';
+    else if (t.includes('fail') || t.includes('why')) lead = 'Failed measures in the corpus share a pattern: broad statewide preemption of local zoning (TX 2023, CO 2023, CA SB-827) draws municipal opposition and dies in committee, while narrower, incentive-based bills more often pass. Preemption scope is the strongest predictor of failure here.';
+    else if (t.includes('zon') || t.includes('supply') || t.includes('upzon')) lead = 'Supply-side upzoning has the strongest passage record when it sets a floor cities must meet (OR 2019, WA 2023, MN 2019) rather than overriding local control wholesale. Realized effects are positive but lagged — permits respond in 1–2 years, completions in 3–5.';
+    else lead = 'Here are the closest matches in the Commons for your question. The record spans federal, state, and city measures — both enacted and failed — cross-referenced by mechanism, place, and outcome so you can compare like with like.';
+    this.setState({ dcAnswer: { q, lead, hits } });
+  }
+
+  renderVals() {
+    const ACCENT = 'var(--accent)';
+    const screen = this.state.screen;
+    const navBase = "padding:20px 0;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-3px;font-family:'Public Sans',sans-serif;";
+    const mkNav = (id, label) => ({
+      label,
+      onClick: () => this.go(id),
+      style: navBase + (screen === id ? `color:${ACCENT};border-bottom-color:${ACCENT};` : 'color:var(--ink);')
+    });
+    const navItems = [
+      mkNav('home', 'Home'),
+      mkNav('library', 'Studies Library'),
+      mkNav('ai', 'AI Research Assistant'),
+      mkNav('data', 'Data Commons'),
+      mkNav('congress', 'US Congress'),
+      mkNav('resources', 'Resources'),
+      mkNav('about', 'About')
+    ];
+
+    const showClarity = this.props.showClarityScores ?? true;
+
+    const statusMap = {
+      'Peer Reviewed': { color: 'var(--ok)', bg: 'var(--ok-bg)' },
+      'In Review': { color: 'var(--warn)', bg: 'var(--warn-bg)' },
+      'Awaiting Response': { color: 'var(--alert)', bg: 'var(--alert-bg)' },
+      'Submitted': { color: 'var(--text-3)', bg: 'var(--neutral-bg)' }
+    };
+    const clarityColor = (n) => n >= 8.5 ? 'var(--ok)' : (n >= 7.5 ? 'var(--warn)' : 'var(--alert)');
+
+    const allStudies = [
+      { ref: 'CUHPR-2026-0142', category: 'Supply-Side Economics', title: 'The Supply Response to Zoning Reform: Evidence from Minneapolis 2040', authors: 'University of Chicago & MIT', year: 2026, pages: 88, reviews: 5, clarity: 9.2, status: 'Peer Reviewed', excerpt: 'A synthetic-control evaluation finds the elimination of single-family-only zoning raised permitted units roughly 12% over four years, concentrated in higher-amenity tracts.' },
+      { ref: 'CUHPR-2024-0071', category: 'Rent Control', title: 'The Economic Effects of Rent Regulation: A National Assessment', authors: 'National Bureau of Economic Research', year: 2024, pages: 312, reviews: 4, clarity: 8.9, status: 'Peer Reviewed', excerpt: 'A comprehensive synthesis of forty years of rent-regulation evidence across U.S. jurisdictions and its effects on supply, mobility, and welfare.' },
+      { ref: 'CUHPR-2025-0918', category: 'Rent Control', title: 'Rent Stabilization and Housing Quality: A Twelve-City Panel', authors: 'RAND Corporation', year: 2025, pages: 268, reviews: 4, clarity: 8.7, status: 'In Review', excerpt: 'Panel evidence on whether stabilization ordinances correlate with deferred maintenance and unit-quality decline over a fifteen-year window.' },
+      { ref: 'CUHPR-2025-0140', category: 'Regulation Reductions', title: 'Minimum Lot Size Reform and Housing Production', authors: 'Mercatus Center, George Mason University', year: 2025, pages: 196, reviews: 3, clarity: 8.8, status: 'Peer Reviewed', excerpt: 'Finds reductions in minimum lot sizes lowered per-unit land costs by roughly 18% in affected tracts, with the largest effects where prior minimums most bound.' },
+      { ref: 'CUHPR-2025-0112', category: 'Building Policies', title: 'Housing Supply and the Cost of Residential Construction', authors: 'U.S. Dept. of Housing & Urban Development (PD&R)', year: 2025, pages: 248, reviews: 3, clarity: 8.2, status: 'In Review', excerpt: 'A federal assessment linking regulatory burden, material costs, and labor constraints to the per-unit cost of new residential construction.' },
+      { ref: 'CUHPR-2026-0377', category: 'Regulation Reductions', title: 'Land-Use Deregulation and Regional Housing Affordability', authors: 'Brookings Institution', year: 2026, pages: 204, reviews: 3, clarity: 8.5, status: 'Peer Reviewed', excerpt: 'Estimates how metropolitan-scale land-use liberalization propagates into regional rents and price-to-income ratios.' },
+      { ref: 'CUHPR-2025-0166', category: 'Building Policies', title: 'Inclusionary Zoning and Market-Rate Housing Production', authors: 'Furman Center, New York University', year: 2025, pages: 142, reviews: 3, clarity: 8.0, status: 'In Review', excerpt: 'Tests whether inclusionary mandates suppress overall market-rate housing starts and how outcomes vary with the stringency of the set-aside.' },
+      { ref: 'CUHPR-2024-0203', category: 'Gentrification', title: 'Transit Expansion, Gentrification, and Displacement', authors: 'Urban Institute', year: 2024, pages: 220, reviews: 4, clarity: 8.4, status: 'Awaiting Response', excerpt: 'Uses staggered transit openings to identify displacement effects on incumbent low-income renters and the durability of neighborhood change.' },
+      { ref: 'CUHPR-2024-0088', category: 'Filtering', title: 'Filtering and the Lifecycle of the American Housing Stock', authors: 'Joint Center for Housing Studies, Harvard', year: 2024, pages: 174, reviews: 2, clarity: 8.1, status: 'Peer Reviewed', excerpt: 'Estimates the rate at which units filter down the income distribution as the stock ages, and the reinvestment that arrests it.' },
+      { ref: 'CUHPR-2025-0451', category: 'Costs', title: 'Housing Cost Burden Across the Income Distribution', authors: 'The Pew Charitable Trusts', year: 2025, pages: 156, reviews: 2, clarity: 7.6, status: 'Submitted', excerpt: 'Maps housing cost-burden incidence across income deciles in sixty metropolitan areas and the role of supply constraints.' }
+    ].map(s => ({
+      ...s,
+      open: () => this.go('study'),
+      statusColor: statusMap[s.status].color,
+      statusBg: statusMap[s.status].bg,
+      clarityColor: clarityColor(s.clarity)
+    }));
+
+    const featCard = "padding:32px 28px 28px;border:1px solid var(--border);border-top:none;border-left:none;display:flex;flex-direction:column;cursor:pointer;background:var(--surface);";
+    const featured = allStudies.slice(0, 6).map((s, i) => ({
+      ...s,
+      cardStyle: featCard + ((i % 3 === 2) ? 'border-right:none;' : '')
+    }));
+
+    const topicFilters = [
+      ['Rent Control', 2], ['Building Policies', 2], ['Regulation Reductions', 2],
+      ['Filtering', 1], ['Supply-Side Economics', 1], ['Gentrification', 1], ['Costs', 1]
+    ].map(([label, count]) => ({
+      label, count,
+      check: '', boxStyle: 'width:18px;height:18px;border:1.5px solid var(--check-border);border-radius:2px;display:flex;align-items:center;justify-content:center;background:var(--surface);flex-shrink:0;',
+      toggle: () => {}
+    }));
+
+    return {
+      screen,
+      themeAttr: this.state.dark ? 'dark' : 'light',
+      themeIcon: this.state.dark ? 'light_mode' : 'dark_mode',
+      toggleTheme: () => this.setState(s => { const d = !s.dark; try { localStorage.setItem('cuhpr-theme', d ? 'dark' : 'light'); } catch (e) {} return { dark: d }; }),
+      isHome: screen === 'home', isLibrary: screen === 'library', isStudy: screen === 'study',
+      isAI: screen === 'ai', isData: screen === 'data', isCongress: screen === 'congress', isExperts: screen === 'experts', isAbout: screen === 'about', isResources: screen === 'resources', isBillReview: screen === 'billreview',
+      showUtilityBar: this.props.showUtilityBar ?? true,
+      showStatsBand: this.props.showStatsBand ?? true,
+      showClarityScores: showClarity,
+      navItems,
+      goHome: () => this.go('home'), goLibrary: () => this.go('library'),
+      goStudy: () => this.go('study'), goAI: () => this.go('ai'), goData: () => this.go('data'), goCongress: () => this.go('congress'), goExperts: () => this.go('experts'), goBillReview: () => this.go('billreview'),
+
+      topics: ['Rent Control', 'Building Policies', 'Regulation Reductions', 'Filtering', 'Supply-Side Economics', 'Gentrification', 'Costs'],
+      featured,
+      steps: [
+        { num: '01', icon: 'account_tree', title: 'Decompose the Provisions', body: 'Each proposal is broken down into its primary, testable provisions, so the analysis turns on specific mechanisms rather than political framing.' },
+        { num: '02', icon: 'history', title: 'Match Historical Precedent', body: 'We map each provision against five decades of comparable policy \u2014 distinguishing what passed from what failed, and which enacted measures most closely mirror the bill at hand.' },
+        { num: '03', icon: 'timeline', title: 'Trace Realized Effects', body: 'For the precedents that became law, we trace the documented short- and long-term outcomes: how quickly effects appeared, how large they were, and whether they endured.' },
+        { num: '04', icon: 'insights', title: 'Project the Likely Outcome', body: 'Grounded in that evidentiary record, we set out what can reasonably be expected from the proposal under review \u2014 and the conditions on which that expectation depends.' }
+      ],
+      techPillars: [
+        { icon: 'storage', title: 'Thousands of bills & proposals', body: 'Legislation and policy proposals from federal, state, and city governments \u2014 catalogued, normalized, and continuously expanded.' },
+        { icon: 'hub', title: 'Cross-referenced vector database', body: 'Each measure is embedded and linked by mechanism, jurisdiction, and intent, so comparable policies surface by meaning \u2014 not by keyword.' },
+        { icon: 'query_stats', title: 'Time-matched economic record', body: 'Regional economic conditions for the corresponding period sit beside each policy, so its outcomes are read in their true historical context.' }
+      ],
+      stats: [
+        { value: '10', label: 'Studies Under Review' },
+        { value: '33', label: 'Expert Reviews' },
+        { value: '12', label: 'Independent Reviewers' },
+        { value: '8.3', label: 'Median Clarity Score' }
+      ],
+      commentary: [
+        { date: 'Jun 18, 2026', tag: 'Supply-Side Economics', title: 'What Minneapolis tells us — and what it does not — about upzoning', author: 'Elena Hargrove' },
+        { date: 'Jun 11, 2026', tag: 'Rent Control', title: 'The maintenance margin: how stabilization reshapes landlord behavior', author: 'Dana Okonkwo' },
+        { date: 'Jun 04, 2026', tag: 'Methodology', title: 'Why we attach an AI methodology note to every study', author: 'The Review Board' }
+      ],
+
+      // library
+      topicFilters,
+      statusFilters: [
+        { label: 'Peer Reviewed', color: 'var(--ok)' }, { label: 'In Review', color: 'var(--warn)' },
+        { label: 'Awaiting Response', color: 'var(--alert)' }, { label: 'Submitted', color: 'var(--text-3)' }
+      ],
+      clearFilters: () => {},
+      resultCount: '10',
+      libraryStudies: allStudies,
+
+      // study detail
+      reviewTimeline: [
+        { icon: 'check_circle', color: 'var(--ok)', label: 'Intake complete', date: 'Jan 2026' },
+        { icon: 'check_circle', color: 'var(--ok)', label: 'AI analysis attached', date: 'Feb 2026' },
+        { icon: 'check_circle', color: 'var(--ok)', label: 'Peer review (5 reviewers)', date: 'Mar 2026' },
+        { icon: 'verified', color: 'var(--accent)', label: 'Published', date: 'Mar 2026' }
+      ],
+      studyReviews: [
+        { initials: 'DO', name: 'Dr. Dana Okonkwo', affil: 'RAND Corporation', score: '9 / 10', rec: 'Accept', recColor: 'var(--ok)', recBg: 'var(--ok-bg)', date: 'Mar 2026', text: 'A model application of synthetic control. The leave-one-out donor-pool check added in revision fully addresses my original concern about the two Sun Belt metros.' },
+        { initials: 'KM', name: 'Dr. Kwame Mills', affil: 'Brookings Institution', score: '8 / 10', rec: 'Minor revisions', recColor: 'var(--warn)', recBg: 'var(--warn-bg)', date: 'Feb 2026', text: 'Convincing identification overall. The short-run rent null result should be contextualized more explicitly against the four-year observation window before publication.' },
+        { initials: 'LT', name: 'Dr. Lan Tran', affil: 'George Mason University', score: '9 / 10', rec: 'Accept', recColor: 'var(--ok)', recBg: 'var(--ok-bg)', date: 'Feb 2026', text: 'The spatial-heterogeneity analysis is the paper\u2019s strongest contribution and is robust to alternative census-tract definitions. Recommend acceptance.' }
+      ],
+
+      // bill review (H.R. 6644)
+      billProvisions: [
+        { tag: 'Environmental Review', title: 'Streamlined federal review', body: 'Exempts qualifying residential construction, rehabilitation, and improvement from certain NEPA review requirements.' },
+        { tag: 'Manufactured Housing', title: 'Manufactured & modular modernization', body: 'Eliminates the permanent-chassis requirement and updates standards to expand factory-built supply.' },
+        { tag: 'Housing Finance', title: 'Expanded affordable-housing finance', body: 'Raises multifamily loan limits and reforms the HOME Investment Partnerships program.' },
+        { tag: 'Local Capacity', title: 'Planning & development grants', body: 'Funds local planning, zoning modernization, and implementation tied to affordable-housing production.' },
+        { tag: 'Rural Housing', title: 'Rural Housing Service reform', body: 'Modernizes USDA rural housing programs and strengthens interagency coordination.' },
+        { tag: 'Oversight', title: 'HUD & PHA accountability', body: 'Requires public contract disclosure, performance reviews, and regular regulator testimony.' }
+      ],
+      billPrecedents: [
+        { ref: 'CUHPR-2026-0142', match: 'Land-use & review streamlining', title: 'The Supply Response to Zoning Reform (Minneapolis 2040)', finding: 'Permitted units rose ~12% over four years \u2014 measurable but lagged and spatially uneven.', confidence: 'Strong', confColor: 'var(--ok)' },
+        { ref: 'CUHPR-2025-0140', match: 'Regulatory cost reduction', title: 'Minimum Lot Size Reform and Housing Production', finding: 'Per-unit land costs fell ~18% where prior minimums were most binding.', confidence: 'Strong', confColor: 'var(--ok)' },
+        { ref: 'CUHPR-2026-0377', match: 'Regional affordability', title: 'Land-Use Deregulation and Regional Housing Affordability', finding: 'Metro-scale liberalization eased rents modestly, with multi-year lags.', confidence: 'Moderate', confColor: 'var(--warn)' },
+        { ref: 'CUHPR-2025-0166', match: 'Affordable-housing mandates', title: 'Inclusionary Zoning and Market-Rate Production', finding: 'Net effect on starts depends heavily on the stringency of the set-aside.', confidence: 'Moderate', confColor: 'var(--warn)' }
+      ],
+      billEffects: [
+        { label: 'Onset', body: 'Permitting responses to land-use and review reform typically appear within 1\u20132 years; completed units lag 3\u20135 years behind, constrained by financing and construction.' },
+        { label: 'Magnitude', body: 'Comparable reforms raised permitted supply on the order of 10\u201318% in affected areas \u2014 largest where prior regulation was most binding.' },
+        { label: 'Persistence', body: 'Supply gains generally persisted where reforms were durable; rent and affordability effects were smaller, slower, and contingent on a sustained supply response.' },
+        { label: 'Distribution', body: 'Effects were spatially uneven \u2014 concentrated in higher-amenity, higher-land-value areas and muted in low-income peripheries.' }
+      ],
+      billProjections: [
+        { provision: 'Environmental & review streamlining', effect: 'Higher permitted supply', horizon: '2\u20135 yrs', confidence: 'Mod\u2013High', confColor: 'var(--ok)' },
+        { provision: 'Manufactured / modular modernization', effect: 'Segment-specific supply', horizon: '1\u20134 yrs', confidence: 'Moderate', confColor: 'var(--warn)' },
+        { provision: 'Finance expansion (HOME, multifamily)', effect: 'Stronger affordable pipeline', horizon: '2\u20136 yrs', confidence: 'Moderate', confColor: 'var(--warn)' },
+        { provision: 'Net rents / affordability', effect: 'Small near-term relief', horizon: '4+ yrs', confidence: 'Low\u2013Mod', confColor: 'var(--alert)' }
+      ],
+      billStatus: [
+        { icon: 'check_circle', color: 'var(--ok)', label: 'Introduced in House', date: 'Dec 11, 2025' },
+        { icon: 'check_circle', color: 'var(--ok)', label: 'Passed House \u00b7 390\u20139', date: 'Feb 9, 2026' },
+        { icon: 'check_circle', color: 'var(--ok)', label: 'Passed Senate \u00b7 89\u201310', date: 'Mar 12, 2026' },
+        { icon: 'pending', color: 'var(--warn)', label: 'Awaiting House concurrence', date: 'In progress' }
+      ],
+      billFacts: [
+        ['Congress', '119th (2025\u201326)'], ['Chamber', 'House (H.R.)'], ['Sponsor', 'Rep. French Hill'],
+        ['Committee', 'Financial Services'], ['Titles / Sections', '6 / 38'], ['CBO Score', 'Deficit-neutral']
+      ].map(([k, v]) => ({ k, v })),
+      billReviews: [
+        { initials: 'DO', name: 'Dr. Dana Okonkwo', affil: 'RAND Corporation', score: '9 / 10', rec: 'Endorse Analysis', recColor: 'var(--ok)', recBg: 'var(--ok-bg)', date: 'Jun 2026', text: 'The precedent matching is sound. The supply provisions are well-supported by the Minneapolis and lot-size evidence, and the affordability projection is appropriately cautious.' },
+        { initials: 'KM', name: 'Dr. Kwame Mills', affil: 'Brookings Institution', score: '8 / 10', rec: 'Minor revisions', recColor: 'var(--warn)', recBg: 'var(--warn-bg)', date: 'Jun 2026', text: 'The manufactured-housing provisions lack a strong domestic precedent; the moderate-confidence rating is warranted. I would flag implementation risk more explicitly.' },
+        { initials: 'LT', name: 'Dr. Lan Tran', affil: 'George Mason University', score: '9 / 10', rec: 'Endorse Analysis', recColor: 'var(--ok)', recBg: 'var(--ok-bg)', date: 'May 2026', text: 'Environmental-review streamlining is the highest-leverage provision, and the projected multi-year horizon is realistic given entitlement lags.' }
+      ],
+
+      // bill review values (data-driven; overrides the static defaults above)
+      ...this.billVals(),
+
+      // data commons
+      dcStats: [
+        { value: '2.4M+', label: 'Policy Records' },
+        { value: '9,200', label: 'Jurisdictions' },
+        { value: '140+', label: 'Data Sources' },
+        { value: 'Daily', label: 'Ingestion Cycle' }
+      ],
+      dcCoverage: [
+        { icon: 'account_balance', label: 'Federal', detail: 'Bills, statutes & agency rules', count: '180K' },
+        { icon: 'gavel', label: 'State', detail: '50 states & territories', count: '610K' },
+        { icon: 'location_city', label: 'Local', detail: 'County & municipal ordinances', count: '1.4M' },
+        { icon: 'query_stats', label: 'Economic Series', detail: 'Matched regional indicators', count: '240K' }
+      ],
+      dcAxes: [
+        { icon: 'category', title: 'By policy mechanism', body: 'Zoning, rent regulation, subsidy, tax, permitting — grouped by what the policy actually does, not how it is named.' },
+        { icon: 'public', title: 'By jurisdiction', body: 'Federal, state, county, and city, with the demographic and market context of each place attached.' },
+        { icon: 'history', title: 'By time period', body: 'Roughly fifty years of record, so a measure can be compared across eras as well as across places.' },
+        { icon: 'trending_up', title: 'By economic condition', body: 'Linked to the housing-market and macro indicators prevailing when each policy took effect.' },
+        { icon: 'rule', title: 'By observed outcome', body: 'Connected to the empirical findings on what followed — supply, rents, quality, displacement.' },
+        { icon: 'hub', title: 'By similarity', body: 'Vector-indexed so a new proposal surfaces its nearest historical analogues automatically.' }
+      ],
+      dcSteps: [
+        { num: 'STEP 01', title: 'Submit', body: 'Upload your dataset with a short description of its source, coverage, and method.' },
+        { num: 'STEP 02', title: 'Provenance check', body: 'Our data team verifies origin, licensing, and documentation completeness.' },
+        { num: 'STEP 03', title: 'Methodological review', body: 'A fellow assesses construction and fitness for comparative use, and may request clarifications.' },
+        { num: 'STEP 04', title: 'Cross-reference & publish', body: 'Accepted data is indexed along every axis above and credited to you in the Commons.' }
+      ],
+
+      // data commons — search & ask
+      dcQueryRef: (el) => { this.dcQueryEl = el; },
+      dcOnQueryKey: (e) => { if (e.key === 'Enter') { this.setState({ dcQuery: e.target.value }); this.dcAsk(e.target.value); } },
+      dcOnQueryInput: (e) => { this.setState({ dcQuery: e.target.value }); },
+      dcRunSearch: () => { const v = this.dcQueryEl ? this.dcQueryEl.value : this.state.dcQuery; this.setState({ dcQuery: v }); this.dcAsk(v); },
+      dcSuggestions: [
+        { label: 'Why do statewide zoning bills fail?', q: 'Why do statewide zoning bills fail?' },
+        { label: 'Compare rent-control measures that passed vs. failed', q: 'rent control passed and failed' },
+        { label: 'Which upzoning laws produced the most supply?', q: 'upzoning supply' }
+      ].map(s => ({ label: s.label, ask: () => { this.setState({ dcQuery: s.q }); if (this.dcQueryEl) this.dcQueryEl.value = s.q; this.dcAsk(s.q); } })),
+      dcLevelChips: [
+        ['all', 'All levels'], ['federal', 'Federal'], ['state', 'State'], ['city', 'City']
+      ].map(([k, label]) => ({ label, active: this.state.dcLevel === k, style: this.chipStyle(this.state.dcLevel === k), set: () => this.setState({ dcLevel: k }) })),
+      dcStatusChips: [
+        ['all', 'Passed & failed'], ['passed', 'Passed'], ['failed', 'Failed']
+      ].map(([k, label]) => ({ label, active: this.state.dcStatus === k, style: this.chipStyle(this.state.dcStatus === k), set: () => this.setState({ dcStatus: k }) })),
+      dcCategoryChips: [
+        ['all', 'All categories'], ['Supply-Side', 'Supply-Side'], ['Regulation Reduction', 'Regulation Reduction'], ['Rent Regulation', 'Rent Regulation'], ['Affordability', 'Affordability']
+      ].map(([k, label]) => ({ label, active: this.state.dcCategory === k, style: this.chipStyle(this.state.dcCategory === k), set: () => this.setState({ dcCategory: k }) })),
+      dcResultCount: this.commonsFiltered().length,
+      dcResults: this.commonsFiltered().map(b => ({
+        ...b,
+        levelLabel: b.level.charAt(0).toUpperCase() + b.level.slice(1),
+        levelColor: b.level === 'federal' ? 'var(--accent)' : (b.level === 'state' ? 'var(--gold)' : 'var(--text-3)'),
+        statusLabel: b.status === 'passed' ? 'Passed' : 'Failed',
+        statusColor: b.status === 'passed' ? 'var(--ok)' : 'var(--alert)',
+        statusBg: b.status === 'passed' ? 'var(--ok-bg)' : 'var(--alert-bg)',
+        open: b.bill ? (() => this.go('billreview')) : (() => this.go('billreview'))
+      })),
+      dcAnswer: this.state.dcAnswer,
+      dcHasAnswer: !!this.state.dcAnswer,
+      dcAnswerHits: this.state.dcAnswer ? this.state.dcAnswer.hits.map(h => ({ ...h, open: () => this.go('billreview') })) : [],
+
+      // us congress
+      congQueryRef: (el) => { this.congQueryEl = el; },
+      congOnInput: (e) => this.setState({ congQuery: e.target.value }),
+      congClear: () => { if (this.congQueryEl) this.congQueryEl.value = ''; this.setState({ congQuery: '' }); },
+      congHasQuery: !!(this.state.congQuery || '').trim(),
+      congIsEmpty: this.congressFiltered().length === 0,
+      congResultCount: this.congressFiltered().length,
+      congBills: this.congressFiltered().map(b => {
+        const sk = { advancing: { label: b.status, color: 'var(--ok)', bg: 'var(--ok-bg)' }, committee: { label: b.status, color: 'var(--warn)', bg: 'var(--warn-bg)' }, introduced: { label: b.status, color: 'var(--text-3)', bg: 'var(--neutral-bg)' } }[b.statusKey] || { label: b.status, color: 'var(--text-3)', bg: 'var(--neutral-bg)' };
+        return {
+          ...b,
+          statusColor: sk.color, statusBg: sk.bg,
+          chamberIcon: b.chamber === 'Senate' ? 'gavel' : 'account_balance',
+          cardStyle: 'border:1px solid var(--border);background:var(--surface);border-radius:2px;padding:24px;cursor:pointer;display:flex;flex-direction:column;height:100%;' + (b.featured ? 'border-top:3px solid var(--accent);' : ''),
+          open: () => this.go(b.featured ? 'billreview' : 'billreview')
+        };
+      }),
+
+      // ai
+      messages: this.state.messages.map(m => ({
+        ...m,
+        hasCites: !!(m.cites && m.cites.length),
+        cites: m.cites || [],
+        rowStyle: 'display:flex;justify-content:' + (m.role === 'user' ? 'flex-end' : 'flex-start') + ';',
+        bubbleStyle: m.role === 'user'
+          ? 'max-width:78%;background:var(--inverse);color:var(--on-inverse);padding:14px 18px;border-radius:2px;'
+          : 'max-width:88%;background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--accent);color:var(--text);padding:16px 18px;border-radius:2px;'
+      })),
+      aiTyping: this.state.aiTyping,
+      chatRef: (el) => { this.chatRef = el; },
+      inputRef: (el) => { this.inputRef = el; },
+      onKey: (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendTyped(); } },
+      sendTyped: () => this.sendTyped(),
+      prompts: [
+        { label: 'Compare rent-control vs. lot-size evidence', send: () => this.pushUser('Compare rent-control findings with the Houston lot-size study.') },
+        { label: 'Generate peer-review questions for the Filtering study', send: () => this.pushUser('Generate peer-review questions for the Filtering study.') },
+        { label: 'What does the evidence say about lot sizes and costs?', send: () => this.pushUser('What does the evidence say about minimum lot sizes and costs?') }
+      ],
+      capabilities: [
+        { icon: 'summarize', title: 'Summarize findings', body: 'Condense any study to its core results and confidence intervals.' },
+        { icon: 'fact_check', title: 'Critique methodology', body: 'Surface identification risks, robustness gaps, and data limitations.' },
+        { icon: 'quiz', title: 'Draft review questions', body: 'Generate targeted questions for the peer-review panel.' },
+        { icon: 'hub', title: 'Cross-reference evidence', body: 'Connect findings across studies and research programs.' }
+      ],
+
+      // review
+      questions: this.state.questions.map((q, i) => ({
+        ...q,
+        chevron: q.open ? 'expand_less' : 'expand_more',
+        toggle: () => this.toggleQ(i)
+      })),
+      openQuestionCount: this.state.questions.filter(q => q.open).length,
+      genMore: () => this.genMore(),
+      criteria: this.state.criteria.map(c => ({
+        ...c,
+        display: c.value + ' / 10',
+        onChange: (e) => this.setScore(c.key, e.target.value)
+      })),
+      recommendations: [
+        ['accept', 'Accept', 'check_circle', 'var(--ok)'],
+        ['minor', 'Accept with minor revisions', 'edit_note', 'var(--warn)'],
+        ['major', 'Major revisions required', 'build', 'var(--alert)'],
+        ['reject', 'Reject', 'cancel', 'var(--reject)']
+      ].map(([key, label, icon, iconColor]) => ({
+        label, icon, iconColor,
+        select: () => this.setState({ recommendation: key }),
+        style: 'display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:2px;font-size:13.5px;font-weight:500;cursor:pointer;border:1px solid ' +
+          (this.state.recommendation === key ? 'var(--accent);background:var(--accent-soft);color:var(--ink);' : 'var(--border);background:var(--surface);color:var(--text-2);')
+      })),
+      submitReview: () => this.setState({ reviewSubmitted: true }),
+      submitLabel: this.state.reviewSubmitted ? '✓ Review Submitted' : 'Submit Review',
+      reviewers: [
+        { initials: 'EH', name: 'Elena Hargrove', affil: 'Univ. of Chicago', bg: 'var(--accent-fill)', status: 'Complete', statusColor: 'var(--ok)' },
+        { initials: 'YOU', name: 'You', affil: 'Senior Fellow', bg: 'var(--inverse)', status: 'In progress', statusColor: 'var(--warn)' },
+        { initials: 'KM', name: 'Kwame Mills', affil: 'Brookings', bg: '#9a7b2e', status: 'Assigned', statusColor: 'var(--text-4)' }
+      ],
+
+      // experts (data-driven from data/experts.json)
+      expertsCatChips: [
+        ['all', 'All'], ['Academic', 'Academic'], ['Think tank', 'Think Tank'], ['Research center', 'Research Center'], ['Non-profit', 'Non-Profit']
+      ].map(([k, label]) => ({ label, active: this.state.expertsCat === k, style: this.chipStyle(this.state.expertsCat === k), set: () => this.setState({ expertsCat: k }) })),
+      expertsLoaded: !!this.state.experts,
+      expertsTotal: this.state.experts ? this.state.experts.length : 0,
+      expertRoster: (this.state.experts || []).filter(p => {
+        if (this.state.expertsCat === 'all') return true;
+        return this.expertCatMeta(p.category).bucket === this.state.expertsCat;
+      }).map(p => {
+        const m = this.expertCatMeta(p.category);
+        return {
+          ...p,
+          initials: this.expertInitials(p.name),
+          catLabel: m.label, catColor: m.color, catBg: m.bg, avatarBg: m.avatar
+        };
+      }),
+      expertRosterCount: (this.state.experts || []).filter(p => {
+        if (this.state.expertsCat === 'all') return true;
+        return this.expertCatMeta(p.category).bucket === this.state.expertsCat;
+      }).length,
+      expertImgError: (e) => { try { e.target.style.display = 'none'; } catch (err) {} },
+
+      // about
+      principles: [
+        { icon: 'balance', title: 'Non-partisan', body: 'We evaluate evidence, not ideology. Findings are reported wherever they fall, and our funding is fully disclosed.' },
+        { icon: 'visibility', title: 'Transparent', body: 'Every study carries its data sources, methods, AI analysis, and the full peer-review record alongside it.' },
+        { icon: 'school', title: 'Rigorous', body: 'Studies pass a fixed-criteria review by independent fellows before they receive the Center\u2019s imprimatur.' }
+      ],
+      people: [
+        { initials: 'EH', name: 'Dr. Elena Hargrove', role: 'Director', bg: 'var(--accent-fill)', bio: 'Urban economics; land-use regulation.' },
+        { initials: 'PN', name: 'Dr. Paul Nakamura', role: 'Chief Methodologist', bg: 'var(--inverse)', bio: 'Causal inference; synthetic controls.' },
+        { initials: 'DO', name: 'Dr. Dana Okonkwo', role: 'Senior Fellow', bg: '#9a7b2e', bio: 'Rental markets; housing quality.' },
+        { initials: 'LT', name: 'Dr. Lan Tran', role: 'Senior Fellow', bg: '#5c0c0d', bio: 'Deregulation; supply elasticity.' }
+      ],
+      resourceGroups: [
+        { label: 'Federal Legislation & Regulation', icon: 'account_balance', links: [
+          { name: 'Congress.gov', desc: 'The official source for federal bills, public laws, and the Congressional Record.', url: 'https://www.congress.gov', domain: 'congress.gov' },
+          { name: 'GovInfo (U.S. GPO)', desc: 'Authenticated federal government publications, reports, and documents.', url: 'https://www.govinfo.gov', domain: 'govinfo.gov' },
+          { name: 'Regulations.gov', desc: 'Proposed federal rules and the full public-comment record.', url: 'https://www.regulations.gov', domain: 'regulations.gov' },
+          { name: 'Federal Register', desc: 'The daily journal of the United States government.', url: 'https://www.federalregister.gov', domain: 'federalregister.gov' }
+        ] },
+        { label: 'State & Local Policy', icon: 'location_city', links: [
+          { name: 'LegiScan', desc: 'Real-time bill tracking across all fifty state legislatures.', url: 'https://legiscan.com', domain: 'legiscan.com' },
+          { name: 'NCSL', desc: 'National Conference of State Legislatures \u2014 research and policy databases.', url: 'https://www.ncsl.org', domain: 'ncsl.org' },
+          { name: 'Municode Library', desc: 'Searchable municipal codes and local ordinances nationwide.', url: 'https://library.municode.com', domain: 'library.municode.com' },
+          { name: 'Local Housing Solutions', desc: 'Evidence-based policy toolkit for city and county housing strategy.', url: 'https://localhousingsolutions.org', domain: 'localhousingsolutions.org' }
+        ] },
+        { label: 'Legal Research', icon: 'gavel', links: [
+          { name: 'Cornell Legal Information Institute', desc: 'Free access to U.S. statutes, regulations, and case law.', url: 'https://www.law.cornell.edu', domain: 'law.cornell.edu' },
+          { name: 'CourtListener', desc: 'The Free Law Project\u2019s database of court opinions and dockets.', url: 'https://www.courtlistener.com', domain: 'courtlistener.com' },
+          { name: 'Justia', desc: 'Free case law, statutory codes, and legal resources.', url: 'https://www.justia.com', domain: 'justia.com' },
+          { name: 'Google Scholar', desc: 'Search across case law and scholarly literature.', url: 'https://scholar.google.com', domain: 'scholar.google.com' }
+        ] },
+        { label: 'Academic Research & Economic Data', icon: 'school', links: [
+          { name: 'NBER', desc: 'National Bureau of Economic Research working papers.', url: 'https://www.nber.org', domain: 'nber.org' },
+          { name: 'SSRN', desc: 'Social Science Research Network preprints and papers.', url: 'https://www.ssrn.com', domain: 'ssrn.com' },
+          { name: 'HUD USER (PD&R)', desc: 'Federal housing research, data sets, and policy reports.', url: 'https://www.huduser.gov', domain: 'huduser.gov' },
+          { name: 'Harvard Joint Center for Housing Studies', desc: 'Leading academic research on U.S. housing markets.', url: 'https://www.jchs.harvard.edu', domain: 'jchs.harvard.edu' },
+          { name: 'FRED (St. Louis Fed)', desc: 'Federal Reserve economic data \u2014 hundreds of thousands of series.', url: 'https://fred.stlouisfed.org', domain: 'fred.stlouisfed.org' },
+          { name: 'U.S. Census Bureau', desc: 'American Community Survey and national housing statistics.', url: 'https://www.census.gov', domain: 'census.gov' }
+        ] }
+      ],
+      footerCols: [
+        { head: 'Research', links: ['Studies Library', 'Working Papers', 'Research Programs', 'Data & Replication'] },
+        { head: 'Tools', links: ['AI Research Assistant', 'Data Commons', 'Clarity Scores', 'Citation Index'] },
+        { head: 'Institute', links: ['About', 'Fellows', 'Research Standards', 'Contact'] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

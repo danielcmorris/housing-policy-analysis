@@ -1,0 +1,81 @@
+{
+  "version": "1.0",
+  "defaultLocale": "en",
+  "featuredBillId": "hr6644-119",
+  "bills": {
+    "hr6644-119": {
+      "id": "hr6644-119",
+      "schemaVersion": "1.0",
+      "meta": {
+        "billNumber": "H.R. 6644",
+        "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6644",
+        "status": "senate_passed_awaiting_concurrence",
+        "overallConfidence": "moderate",
+        "legislativeStatus": [
+          { "stage": "introduced", "state": "complete", "date": "2025-12-11" },
+          { "stage": "passed_house", "state": "complete", "date": "2026-02-09", "vote": { "yea": 390, "nay": 9 } },
+          { "stage": "passed_senate", "state": "complete", "date": "2026-03-12", "vote": { "yea": 89, "nay": 10 } },
+          { "stage": "house_concurrence", "state": "in_progress" }
+        ],
+        "precedentRefs": ["CUHPR-2026-0142", "CUHPR-2025-0140", "CUHPR-2026-0377", "CUHPR-2025-0166"]
+      },
+      "content": {
+        "en": {
+          "category": "Federal Legislation · Housing Supply",
+          "title": "21st Century ROAD to Housing Act",
+          "excerpt": "A wide-ranging federal bill to increase the supply of housing nationwide. It expands financing for affordable housing, funds local planning and community-development grants, streamlines federal environmental review for qualifying projects, modernizes manufactured- and modular-housing rules, reforms the HOME and rural-housing programs, and tightens oversight of HUD and public housing agencies. Introduced December 2025, it passed the House 390–9 and the Senate 89–10; the CBO found it would not increase the federal deficit.",
+          "summary": "The 21st Century ROAD to Housing Act is a wide-ranging federal bill whose stated purpose is to increase the supply of housing in America by modernizing outdated programs, removing unnecessary federal requirements, and increasing local flexibility. It spans six titles and 38 sections covering housing finance, manufactured housing, rural programs, environmental review, and oversight.",
+          "methodNote": "This review applies the Center's four-stage method: we decompose the bill into testable provisions, match each to comparable enacted policy from the past fifty years, trace how those precedents actually fared, and project the likely outcome with explicit confidence.",
+          "congressLine": "119th Congress (2025–2026)",
+          "introducedLabel": "Introduced Dec 11, 2025",
+          "sponsor": "Sponsor: Rep. French Hill (R-AR)",
+          "provisions": [
+            { "tag": "Environmental Review", "title": "Streamlined federal review", "body": "Exempts qualifying residential construction, rehabilitation, and improvement from certain NEPA review requirements." },
+            { "tag": "Manufactured Housing", "title": "Manufactured & modular modernization", "body": "Eliminates the permanent-chassis requirement and updates standards to expand factory-built supply." },
+            { "tag": "Housing Finance", "title": "Expanded affordable-housing finance", "body": "Raises multifamily loan limits and reforms the HOME Investment Partnerships program." },
+            { "tag": "Local Capacity", "title": "Planning & development grants", "body": "Funds local planning, zoning modernization, and implementation tied to affordable-housing production." },
+            { "tag": "Rural Housing", "title": "Rural Housing Service reform", "body": "Modernizes USDA rural housing programs and strengthens interagency coordination." },
+            { "tag": "Oversight", "title": "HUD & PHA accountability", "body": "Requires public contract disclosure, performance reviews, and regular regulator testimony." }
+          ],
+          "precedents": [
+            { "ref": "CUHPR-2026-0142", "match": "Land-use & review streamlining", "title": "The Supply Response to Zoning Reform (Minneapolis 2040)", "finding": "Permitted units rose ~12% over four years — measurable but lagged and spatially uneven.", "confidence": "strong" },
+            { "ref": "CUHPR-2025-0140", "match": "Regulatory cost reduction", "title": "Minimum Lot Size Reform and Housing Production", "finding": "Per-unit land costs fell ~18% where prior minimums were most binding.", "confidence": "strong" },
+            { "ref": "CUHPR-2026-0377", "match": "Regional affordability", "title": "Land-Use Deregulation and Regional Housing Affordability", "finding": "Metro-scale liberalization eased rents modestly, with multi-year lags.", "confidence": "moderate" },
+            { "ref": "CUHPR-2025-0166", "match": "Affordable-housing mandates", "title": "Inclusionary Zoning and Market-Rate Production", "finding": "Net effect on starts depends heavily on the stringency of the set-aside.", "confidence": "moderate" }
+          ],
+          "effects": [
+            { "label": "Onset", "body": "Permitting responses to land-use and review reform typically appear within 1–2 years; completed units lag 3–5 years behind, constrained by financing and construction." },
+            { "label": "Magnitude", "body": "Comparable reforms raised permitted supply on the order of 10–18% in affected areas — largest where prior regulation was most binding." },
+            { "label": "Persistence", "body": "Supply gains generally persisted where reforms were durable; rent and affordability effects were smaller, slower, and contingent on a sustained supply response." },
+            { "label": "Distribution", "body": "Effects were spatially uneven — concentrated in higher-amenity, higher-land-value areas and muted in low-income peripheries." }
+          ],
+          "projections": [
+            { "provision": "Environmental & review streamlining", "effect": "Higher permitted supply", "horizon": "2–5 yrs", "confidence": "mod_high" },
+            { "provision": "Manufactured / modular modernization", "effect": "Segment-specific supply", "horizon": "1–4 yrs", "confidence": "moderate" },
+            { "provision": "Finance expansion (HOME, multifamily)", "effect": "Stronger affordable pipeline", "horizon": "2–6 yrs", "confidence": "moderate" },
+            { "provision": "Net rents / affordability", "effect": "Small near-term relief", "horizon": "4+ yrs", "confidence": "low_mod" }
+          ],
+          "outlook": {
+            "headline": "Moderate positive supply effect",
+            "body": "Likely to raise housing supply over a 2–5 year horizon, with smaller and slower effects on rents.",
+            "confidence": "moderate"
+          },
+          "aiNote": "The strongest evidentiary support is for the land-use and review-streamlining provisions, which mirror the Minneapolis 2040 and lot-size reforms. The manufactured-housing modernization has thinner domestic precedent and is rated lower-confidence. Net affordability effects are likely small in the near term and depend on a sustained supply response.",
+          "facts": [
+            { "k": "Congress", "v": "119th (2025–26)" },
+            { "k": "Chamber", "v": "House (H.R.)" },
+            { "k": "Sponsor", "v": "Rep. French Hill" },
+            { "k": "Committee", "v": "Financial Services" },
+            { "k": "Titles / Sections", "v": "6 / 38" },
+            { "k": "CBO Score", "v": "Deficit-neutral" }
+          ],
+          "reviews": [
+            { "initials": "DO", "name": "Dr. Dana Okonkwo", "affil": "RAND Corporation", "date": "Jun 2026", "score": "9 / 10", "recommendation": "endorse", "text": "The precedent matching is sound. The supply provisions are well-supported by the Minneapolis and lot-size evidence, and the affordability projection is appropriately cautious." },
+            { "initials": "KM", "name": "Dr. Kwame Mills", "affil": "Brookings Institution", "date": "Jun 2026", "score": "8 / 10", "recommendation": "minor_revisions", "text": "The manufactured-housing provisions lack a strong domestic precedent; the moderate-confidence rating is warranted. I would flag implementation risk more explicitly." },
+            { "initials": "LT", "name": "Dr. Lan Tran", "affil": "George Mason University", "date": "May 2026", "score": "9 / 10", "recommendation": "endorse", "text": "Environmental-review streamlining is the highest-leverage provision, and the projected multi-year horizon is realistic given entitlement lags." }
+          ]
+        }
+      }
+    }
+  }
+}

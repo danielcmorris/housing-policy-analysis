@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cuhpr.org/schemas/bill-review-1.0.json",
+  "title": "CUHPR Bill Review",
+  "description": "Structured, internationalized review of a single legislative bill. Locale-independent facts live under `meta`; all human-readable prose lives under `content`, keyed by BCP-47 locale code. Enum tokens (status, confidence, recommendation, stage) are NOT translated — the application maps them to a localized label and color.",
+  "type": "object",
+  "required": ["id", "schemaVersion", "meta", "content"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable slug, e.g. 'hr6644-119' (bill number + congress).",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "schemaVersion": { "type": "string", "const": "1.0" },
+
+    "meta": {
+      "type": "object",
+      "description": "Locale-independent. Machine values: refs, ISO dates, integers, URLs, enum tokens.",
+      "required": ["billNumber", "sourceUrl", "status", "overallConfidence", "legislativeStatus", "precedentRefs"],
+      "additionalProperties": false,
+      "properties": {
+        "billNumber": { "type": "string", "description": "e.g. 'H.R. 6644'." },
+        "sourceUrl": { "type": "string", "format": "uri", "description": "Public canonical link (Congress.gov)." },
+        "status": {
+          "type": "string",
+          "description": "Current legislative status (enum). App maps to localized label + color.",
+          "enum": ["introduced", "in_committee", "passed_house", "passed_senate", "senate_passed_awaiting_concurrence", "to_president", "enacted", "failed"]
+        },
+        "overallConfidence": {
+          "type": "string",
+          "description": "Overall review confidence (enum).",
+          "enum": ["strong", "mod_high", "moderate", "low_mod", "low"]
+        },
+        "legislativeStatus": {
+          "type": "array",
+          "description": "Ordered legislative milestones.",
+          "items": {
+            "type": "object",
+            "required": ["stage", "state"],
+            "additionalProperties": false,
+            "properties": {
+              "stage": { "type": "string", "enum": ["introduced", "referred_committee", "passed_house", "passed_senate", "house_concurrence", "to_president", "enacted"] },
+              "state": { "type": "string", "enum": ["complete", "in_progress", "pending"] },
+              "date": { "type": "string", "description": "ISO 8601 date (YYYY-MM-DD). Omit if not yet reached.", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+              "vote": {
+                "type": "object",
+                "description": "Recorded vote, if any.",
+                "required": ["yea", "nay"],
+                "additionalProperties": false,
+                "properties": { "yea": { "type": "integer" }, "nay": { "type": "integer" } }
+              }
+            }
+          }
+        },
+        "precedentRefs": {
+          "type": "array",
+          "description": "Catalog refs of precedent studies cited (must exist in the Center's evidence base).",
+          "items": { "type": "string", "pattern": "^CUHPR-\\d{4}-\\d{4}$" }
+        }
+      }
+    },
+
+    "content": {
+      "type": "object",
+      "description": "Map of BCP-47 locale code -> localized content block. 'en' is required; add others (e.g. 'es', 'fr') as needed. Every locale block has the SAME shape.",
+      "required": ["en"],
+      "propertyNames": { "pattern": "^[a-z]{2}(-[A-Z]{2})?$" },
+      "additionalProperties": { "$ref": "#/$defs/localeBlock" }
+    }
+  },
+
+  "$defs": {
+    "localeBlock": {
+      "type": "object",
+      "required": ["category", "title", "excerpt", "summary", "methodNote", "congressLine", "introducedLabel", "sponsor", "provisions", "precedents", "effects", "projections", "outlook", "aiNote", "facts"],
+      "additionalProperties": false,
+      "properties": {
+        "category": { "type": "string", "description": "Eyebrow label, e.g. 'Federal Legislation · Housing Supply'." },
+        "title": { "type": "string", "description": "Short title of the bill." },
+        "excerpt": { "type": "string", "description": "Homepage out-take. 2–3 sentences." },
+        "summary": { "type": "string", "description": "Review-page summary. One paragraph (3–5 sentences)." },
+        "methodNote": { "type": "string", "description": "One sentence restating the four-stage method." },
+        "congressLine": { "type": "string", "description": "e.g. '119th Congress (2025–2026)'." },
+        "introducedLabel": { "type": "string", "description": "e.g. 'Introduced Dec 11, 2025'." },
+        "sponsor": { "type": "string", "description": "e.g. 'Sponsor: Rep. French Hill (R-AR)'." },
+        "provisions": {
+          "type": "array", "minItems": 3, "maxItems": 8,
+          "description": "Stage 1 — the bill decomposed into primary, testable provisions.",
+          "items": {
+            "type": "object",
+            "required": ["tag", "title", "body"],
+            "additionalProperties": false,
+            "properties": {
+              "tag": { "type": "string", "description": "Short category tag, 1–2 words." },
+              "title": { "type": "string", "description": "Provision name, ~3–6 words." },
+              "body": { "type": "string", "description": "One descriptive sentence." }
+            }
+          }
+        },
+        "precedents": {
+          "type": "array", "minItems": 1, "maxItems": 6,
+          "description": "Stage 2 — comparable enacted policies from the evidence base, matched by mechanism. `ref` MUST be one of meta.precedentRefs.",
+          "items": {
+            "type": "object",
+            "required": ["ref", "match", "title", "finding", "confidence"],
+            "additionalProperties": false,
+            "properties": {
+              "ref": { "type": "string", "pattern": "^CUHPR-\\d{4}-\\d{4}$" },
+              "match": { "type": "string", "description": "Which provision/mechanism this precedent maps to." },
+              "title": { "type": "string", "description": "Precedent study title." },
+              "finding": { "type": "string", "description": "One-sentence summary of how it fared." },
+              "confidence": { "type": "string", "enum": ["strong", "mod_high", "moderate", "low_mod", "low"] }
+            }
+          }
+        },
+        "effects": {
+          "type": "array", "minItems": 2, "maxItems": 6,
+          "description": "Stage 3 — realized effects of the precedents, as labelled rows (e.g. Onset, Magnitude, Persistence, Distribution).",
+          "items": {
+            "type": "object",
+            "required": ["label", "body"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string", "description": "Row label, 1 word." },
+              "body": { "type": "string", "description": "One sentence." }
+            }
+          }
+        },
+        "projections": {
+          "type": "array", "minItems": 1, "maxItems": 8,
+          "description": "Stage 4 — projected outcome per provision area.",
+          "items": {
+            "type": "object",
+            "required": ["provision", "effect", "horizon", "confidence"],
+            "additionalProperties": false,
+            "properties": {
+              "provision": { "type": "string" },
+              "effect": { "type": "string", "description": "Expected effect, short phrase." },
+              "horizon": { "type": "string", "description": "Time horizon, e.g. '2–5 yrs'." },
+              "confidence": { "type": "string", "enum": ["strong", "mod_high", "moderate", "low_mod", "low"] }
+            }
+          }
+        },
+        "outlook": {
+          "type": "object",
+          "description": "Overall outlook shown in the rail.",
+          "required": ["headline", "body", "confidence"],
+          "additionalProperties": false,
+          "properties": {
+            "headline": { "type": "string", "description": "Short verdict, ~4–6 words." },
+            "body": { "type": "string", "description": "1–2 sentences." },
+            "confidence": { "type": "string", "enum": ["strong", "mod_high", "moderate", "low_mod", "low"] }
+          }
+        },
+        "aiNote": { "type": "string", "description": "AI analysis note. 2–4 sentences. Must be hedged and cite the strongest/weakest evidence." },
+        "facts": {
+          "type": "array",
+          "description": "Key-facts rows in the rail.",
+          "items": {
+            "type": "object",
+            "required": ["k", "v"],
+            "additionalProperties": false,
+            "properties": {
+              "k": { "type": "string", "description": "Label." },
+              "v": { "type": "string", "description": "Value." }
+            }
+          }
+        },
+        "reviews": {
+          "type": "array",
+          "description": "Human peer reviews. OPTIONAL — leave empty []; populated by the peer-review workflow, NOT by automated generation.",
+          "items": {
+            "type": "object",
+            "required": ["initials", "name", "affil", "date", "score", "recommendation", "text"],
+            "additionalProperties": false,
+            "properties": {
+              "initials": { "type": "string", "maxLength": 3 },
+              "name": { "type": "string" },
+              "affil": { "type": "string" },
+              "date": { "type": "string" },
+              "score": { "type": "string", "description": "e.g. '9 / 10'." },
+              "recommendation": { "type": "string", "enum": ["endorse", "minor_revisions", "major_revisions", "reject"] },
+              "text": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

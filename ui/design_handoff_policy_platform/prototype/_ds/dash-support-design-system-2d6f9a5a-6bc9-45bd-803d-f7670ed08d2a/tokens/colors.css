@@ -1,0 +1,109 @@
+/* ============================================================================
+   Dash Support — Color tokens
+   Recreated from web-ui/src/styles.scss (Angular Material custom token layer).
+   Base palette + semantic aliases. Light is the default; .dark-mode overrides.
+   ========================================================================= */
+
+:root {
+  /* ── Brand blue ramp (Material Blue, Pinnacle Power blue) ───────────────── */
+  --blue-900:        #0d47a1;   /* deepest — gradient start, headings */
+  --blue-800:        #1565c0;   /* primary brand blue */
+  --blue-700:        #1976d2;
+  --blue-600:        #1e88e5;   /* gradient end */
+  --blue-indigo:     #1a237e;   /* --app-blue-dark, page titles */
+  --blue-100:        #e3f2fd;   /* tint surface */
+  --blue-200:        #bbdefb;   /* tint border */
+  --indigo-tint-bg:  #e8eaf6;   /* category badge bg */
+  --indigo-tint-fg:  #3949ab;   /* category badge fg */
+
+  /* ── Neutrals (Blue Grey, Material) ────────────────────────────────────── */
+  --grey-900:        #263238;
+  --grey-800:        #37474f;
+  --grey-600:        #546e7a;
+  --grey-500:        #78909c;
+  --grey-400:        #90a4ae;
+  --grey-300:        #b0bec5;
+  --grey-200:        #cfd8dc;
+
+  /* ── Semantic: surfaces & background ───────────────────────────────────── */
+  --app-bg:           #eef2f7;
+  --app-surface:      #ffffff;
+  --app-surface-2:    #f8fafd;
+  --app-surface-3:    #fafbfd;
+  --app-hover:        #f3f6ff;
+  --app-border:       #e8eef5;
+  --app-border-2:     #f0f4f8;
+
+  /* ── Semantic: text ────────────────────────────────────────────────────── */
+  --app-text:         #263238;
+  --app-text-2:       #37474f;
+  --app-text-3:       #78909c;
+  --app-text-4:       #90a4ae;
+  --app-text-5:       #b0bec5;
+
+  /* ── Semantic: accent (primary blue) ───────────────────────────────────── */
+  --app-blue:         #1565c0;
+  --app-blue-dark:    #1a237e;
+  --app-blue-bg:      #e3f2fd;
+  --app-blue-border:  #bbdefb;
+
+  /* ── Semantic: inputs ──────────────────────────────────────────────────── */
+  --app-input-bg:     #fafbfd;
+  --app-input-border: #cfd8dc;
+
+  /* ── Brand gradients ───────────────────────────────────────────────────── */
+  --grad-brand:       linear-gradient(135deg, #0d47a1 0%, #1565c0 55%, #1e88e5 100%);  /* @kind color */
+  --grad-brand-login: linear-gradient(145deg, #0d47a1 0%, #1565c0 55%, #1976d2 100%);  /* @kind color */
+  --grad-user-bubble: linear-gradient(135deg, #1565c0, #1e88e5);  /* @kind color */
+
+  /* ── Priority colors ───────────────────────────────────────────────────── */
+  --priority-critical: #dc3545;
+  --priority-high:     #fd7e14;
+  --priority-medium:   #ffc107;
+  --priority-low:      #28a745;
+
+  /* ── Status colors ─────────────────────────────────────────────────────── */
+  --status-open:                  #1976d2;
+  --status-reviewed:              #0097a7;
+  --status-in-progress:           #f57c00;
+  --status-awaiting-tech:         #7b1fa2;
+  --status-awaiting-user:         #c2185b;
+  --status-resolved:              #388e3c;
+  --status-closed:                #757575;
+  --status-deleted:               #b71c1c;
+
+  /* ── Feedback / state ──────────────────────────────────────────────────── */
+  --success:        #2e7d32;
+  --success-bg:     #e8f5e9;
+  --success-border: #c8e6c9;
+  --danger:         #c62828;
+  --danger-bg:      #fce4ec;
+  --warning:        #f57c00;
+}
+
+/* ============================================================================
+   Dark theme — applied when .dark-mode is on <html> (ThemeService)
+   ========================================================================= */
+html.dark-mode,
+.dark-mode {
+  --app-bg:           #111118;
+  --app-surface:      #1c1c28;
+  --app-surface-2:    #22222f;
+  --app-surface-3:    #1e1e2b;
+  --app-hover:        #28283c;
+  --app-border:       #2e2e44;
+  --app-border-2:     #252538;
+  --app-text:         #e0e0e0;
+  --app-text-2:       #cfd8dc;
+  --app-text-3:       #9e9e9e;
+  --app-text-4:       #757575;
+  --app-text-5:       #616161;
+  --app-blue:         #90caf9;
+  --app-blue-dark:    #90caf9;
+  --app-blue-bg:      #1e3a5f;
+  --app-blue-border:  #2d5a8e;
+  --app-input-bg:     #1a1a27;
+  --app-input-border: #3a3a50;
+
+  color-scheme: dark;
+}
