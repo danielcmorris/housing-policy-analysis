@@ -54,10 +54,35 @@
         <h2 class="font-serif font-bold text-2xl m-0 mb-3.5 text-ink">Methodology</h2>
         <p class="m-0 mb-7">{{ s.methodology }}</p>
       }
-      <div class="bg-surface-2 border border-border border-l-[3px] border-l-gold rounded-[2px] py-[22px] px-6">
-        <div class="flex items-center gap-[9px] mb-3"><span class="material-icons text-[19px] text-gold">pending_actions</span><span class="text-xs font-bold tracking-[.08em] uppercase text-gold">Review in Progress</span></div>
-        <p class="m-0 text-[14.5px] leading-[1.65] text-text-2">This document is in the Center's review pipeline ({{ s.status }}). The AI methodology note and peer reviews will appear here as the assessment completes.</p>
-      </div>
+      @if (dbReviews().length) {
+        <div class="flex items-center justify-between border-b-2 border-ink pb-3 mt-2 mb-6">
+          <h2 class="font-serif font-bold text-2xl m-0 text-ink">Peer Reviews</h2>
+          <span class="text-[13px] text-text-3 font-mono">{{ dbReviews().length }} review{{ dbReviews().length === 1 ? '' : 's' }}</span>
+        </div>
+        @for (rv of dbReviews(); track rv.expert_slug) {
+          <div class="border border-border bg-surface rounded-[2px] py-[22px] px-6 mb-4">
+            <div class="flex items-center gap-[13px] mb-3.5">
+              <div class="w-10 h-10 rounded-full bg-inverse text-on-inverse flex items-center justify-center text-sm font-semibold font-serif shrink-0">{{ expertInitials(rv.name) }}</div>
+              <div class="flex-1">
+                <a [routerLink]="['/experts', rv.expert_slug]" class="text-[14.5px] font-semibold text-ink no-underline hover-accent">{{ rv.name }}</a>
+                <div class="text-[12.5px] text-text-4">{{ rv.affil }}@if (rv.reviewed_at) { · {{ rv.reviewed_at.slice(0, 7) }} }</div>
+              </div>
+              @if (rv.recommendation) {
+                <span class="inline-flex items-center py-1 px-3 rounded-[2px] text-[11px] font-bold tracking-[.03em] bg-warn-bg text-warn">{{ recLabel(rv.recommendation) }}</span>
+              }
+              @if (rv.score != null) {
+                <span class="font-mono text-sm font-semibold text-ink">{{ rv.score }} / 10</span>
+              }
+            </div>
+            @if (rv.text) { <p class="m-0 text-[14.5px] leading-[1.65] text-text">{{ rv.text }}</p> }
+          </div>
+        }
+      } @else {
+        <div class="bg-surface-2 border border-border border-l-[3px] border-l-gold rounded-[2px] py-[22px] px-6">
+          <div class="flex items-center gap-[9px] mb-3"><span class="material-icons text-[19px] text-gold">pending_actions</span><span class="text-xs font-bold tracking-[.08em] uppercase text-gold">Review in Progress</span></div>
+          <p class="m-0 text-[14.5px] leading-[1.65] text-text-2">This document is in the Center's review pipeline ({{ s.status }}). The AI methodology note and peer reviews will appear here as the assessment completes.</p>
+        </div>
+      }
     </div>
     <!-- RAIL -->
     <div class="sticky top-[90px] flex flex-col gap-[18px]">

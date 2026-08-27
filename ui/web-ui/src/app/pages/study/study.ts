@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DbStudy, StudiesService } from '../../core/studies.service';
+import { DbStudy, StudiesService, StudyReviewPublic } from '../../core/studies.service';
 import { STUDY_STATUS, clarityColor } from '../../core/studies.data';
 
 /* Study / policy-proposal detail. Documents added through the admin page are
@@ -18,6 +18,7 @@ export class StudyPage {
   private route = inject(ActivatedRoute);
 
   readonly db = signal<DbStudy | null>(null);
+  readonly dbReviews = signal<StudyReviewPublic[]>([]);
   readonly resolved = signal(false);
   readonly studyStatus = STUDY_STATUS;
   readonly clarityColor = clarityColor;
@@ -27,12 +28,29 @@ export class StudyPage {
       const ref = p.get('ref');
       this.resolved.set(false);
       this.db.set(null);
+      this.dbReviews.set([]);
       if (!ref) { this.resolved.set(true); return; }
       this.svc.get(ref).subscribe({
-        next: (s) => { this.db.set(s); this.resolved.set(true); },
+        next: (d) => {
+          this.db.set(d.study);
+          this.dbReviews.set(d.reviews ?? []);
+          this.resolved.set(true);
+        },
         error: () => this.resolved.set(true),
       });
     });
+  }
+
+  recLabel(rec: string | null): string {
+    return ({
+      accept: 'Accept', minor_revisions: 'Minor revisions',
+      major_revisions: 'Major revisions', reject: 'Reject',
+    } as Record<string, string>)[rec ?? ''] ?? (rec ?? '');
+  }
+
+  expertInitials(name: string): string {
+    const parts = name.trim().split(/\s+/);
+    return ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
   }
 
   pdfUrl(ref: string): string {

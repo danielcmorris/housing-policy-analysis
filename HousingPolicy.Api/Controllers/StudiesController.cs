@@ -15,11 +15,13 @@ namespace HousingPolicy.Api.Controllers;
 public sealed class StudiesController : ControllerBase
 {
     private readonly StudyService _studies;
+    private readonly ExpertService _experts;
     private readonly StudiesOptions _opt;
 
-    public StudiesController(StudyService studies, IOptions<StudiesOptions> options)
+    public StudiesController(StudyService studies, ExpertService experts, IOptions<StudiesOptions> options)
     {
         _studies = studies;
+        _experts = experts;
         _opt = options.Value;
     }
 
@@ -35,7 +37,8 @@ public sealed class StudiesController : ControllerBase
     public async Task<IActionResult> Get(string reference)
     {
         var s = await _studies.GetAsync(reference);
-        return s is null ? NotFound(new { detail = $"no study '{reference}'" }) : Ok(s);
+        if (s is null) return NotFound(new { detail = $"no study '{reference}'" });
+        return Ok(new { study = s, reviews = await _experts.ReviewsForStudyAsync(reference) });
     }
 
     [HttpGet("api/studies/{reference}/pdf")]

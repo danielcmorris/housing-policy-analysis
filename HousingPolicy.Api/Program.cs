@@ -35,6 +35,7 @@ builder.Services.AddScoped<SchemaInitializer>();
 builder.Services.AddScoped<TrackerService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<StudyService>();
+builder.Services.AddScoped<ExpertService>();
 
 // Typed congress.gov client over HttpClientFactory-managed handlers.
 var congressOpt = builder.Configuration.GetSection(CongressOptions.SectionName).Get<CongressOptions>() ?? new CongressOptions();

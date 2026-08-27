@@ -1,0 +1,134 @@
+<div>
+  @if (expert(); as e) {
+    <!-- HEADER -->
+    <div class="bg-surface border-b border-border">
+      <div class="wrap pt-[30px] pb-10">
+        <div routerLink="/experts" class="text-[13px] text-text-3 mb-[22px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-base">chevron_left</span>Our Experts</div>
+        <div class="flex items-start gap-6 flex-wrap">
+          <div class="w-[88px] h-[88px] rounded-full text-white flex items-center justify-center text-[26px] font-semibold font-serif shrink-0 relative overflow-hidden"
+               [style.background]="svc.catMeta(e.category).avatar">
+            {{ svc.initials(e.name) }}
+            <img [src]="e.image_url" [alt]="e.name" (error)="hideImg($event)" class="absolute inset-0 w-full h-full object-cover" />
+          </div>
+          <div class="flex-1 min-w-[300px]">
+            <div class="flex items-center gap-2.5 mb-2 flex-wrap">
+              <span class="inline-block w-fit text-[10px] font-bold tracking-[.05em] uppercase py-[3px] px-[9px] rounded-[2px]"
+                    [style.color]="svc.catMeta(e.category).color" [style.background]="svc.catMeta(e.category).bg">{{ svc.catMeta(e.category).label }}</span>
+              @if (e.credentials) { <span class="font-mono text-[11px] text-text-4">{{ e.credentials }}</span> }
+              @if (e.location) { <span class="text-[12px] text-text-4">· {{ e.location }}</span> }
+            </div>
+            <h1 class="font-serif font-bold text-[36px] leading-[1.1] m-0 mb-1.5 tracking-[-.01em] text-ink">{{ e.name }}</h1>
+            <div class="text-[15px] font-semibold text-text-2 mb-1">{{ e.title }}</div>
+            <div class="text-sm text-text-3 mb-4">{{ e.affiliation }}</div>
+            <div class="flex gap-2.5 flex-wrap">
+              @if (e.linkedin_url) {
+                <a [href]="e.linkedin_url" target="_blank" rel="noopener" class="bg-accent-fill text-white text-[13px] font-semibold py-2.5 px-4 rounded-[2px] no-underline flex items-center gap-1.5"><span class="material-icons text-[15px]">work</span>LinkedIn</a>
+              }
+              @if (e.profile_url) {
+                <a [href]="e.profile_url" target="_blank" rel="noopener" class="bg-surface text-ink text-[13px] font-semibold py-2.5 px-4 border border-ink rounded-[2px] no-underline flex items-center gap-1.5"><span class="material-icons text-[15px]">account_balance</span>Institutional profile<span class="material-icons text-[13px]">north_east</span></a>
+              }
+              @if (e.scholar_url) {
+                <a [href]="e.scholar_url" target="_blank" rel="noopener" class="bg-surface text-ink text-[13px] font-semibold py-2.5 px-4 border border-border-2 rounded-[2px] no-underline flex items-center gap-1.5"><span class="material-icons text-[15px]">school</span>Scholar</a>
+              }
+              @if (e.website_url) {
+                <a [href]="e.website_url" target="_blank" rel="noopener" class="bg-surface text-ink text-[13px] font-semibold py-2.5 px-4 border border-border-2 rounded-[2px] no-underline flex items-center gap-1.5"><span class="material-icons text-[15px]">public</span>Website</a>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap pt-10 pb-16 grid grid-cols-[1fr_320px] gap-14 items-start">
+      <!-- MAIN -->
+      <div>
+        @if (e.bio) {
+          <h2 class="font-serif font-bold text-[15px] tracking-[.06em] uppercase text-accent m-0 mb-3.5">Biography</h2>
+          <p class="m-0 mb-8 text-[15.5px] leading-[1.7] text-text-2 whitespace-pre-line">{{ e.bio }}</p>
+        } @else if (e.focus) {
+          <h2 class="font-serif font-bold text-[15px] tracking-[.06em] uppercase text-accent m-0 mb-3.5">Research Focus</h2>
+          <p class="m-0 mb-8 text-[15.5px] leading-[1.7] text-text-2">{{ e.focus }}</p>
+        }
+
+        @if (profile(); as prof) {
+          <!-- STUDIES REVIEWED -->
+          <div class="flex items-center justify-between border-b-2 border-ink pb-3 mb-4">
+            <h2 class="font-serif font-bold text-[21px] m-0 text-ink">Studies Reviewed</h2>
+            <span class="text-[13px] text-text-3 font-mono">{{ prof.study_reviews.length }}</span>
+          </div>
+          @if (!prof.study_reviews.length) {
+            <p class="text-[13.5px] text-text-4 mb-8">No published study reviews yet.</p>
+          }
+          @for (r of prof.study_reviews; track r.study_ref) {
+            <div class="border border-border bg-surface rounded-[2px] py-4 px-5 mb-3">
+              <div class="flex items-center justify-between gap-3 flex-wrap mb-1.5">
+                <a [routerLink]="['/studies', r.study_ref]" class="font-serif font-semibold text-[15.5px] text-ink no-underline hover-accent">{{ r.study_title || r.study_ref }}</a>
+                <span class="flex items-center gap-2.5 whitespace-nowrap">
+                  @if (r.recommendation) { <span class="text-[11px] font-bold text-warn">{{ recLabel(r.recommendation) }}</span> }
+                  @if (r.score != null) { <span class="font-mono text-[13px] font-semibold text-ink">{{ r.score }} / 10</span> }
+                </span>
+              </div>
+              <div class="text-[11.5px] text-text-4 font-mono mb-1.5">{{ r.study_ref }} @if (r.reviewed_at) { · {{ r.reviewed_at | date:'MMM y' }} }</div>
+              @if (r.review_text) { <p class="m-0 text-[13.5px] leading-[1.6] text-text-2">{{ r.review_text }}</p> }
+            </div>
+          }
+
+          <!-- BILL ANALYSES REVIEWED -->
+          <div class="flex items-center justify-between border-b-2 border-ink pb-3 mb-4 mt-10">
+            <h2 class="font-serif font-bold text-[21px] m-0 text-ink">Bill Analyses Reviewed</h2>
+            <span class="text-[13px] text-text-3 font-mono">{{ prof.bill_reviews.length }}</span>
+          </div>
+          @if (!prof.bill_reviews.length) {
+            <p class="text-[13.5px] text-text-4">No published bill-analysis reviews yet.</p>
+          }
+          @for (r of prof.bill_reviews; track r.review_id) {
+            <div class="border border-border bg-surface rounded-[2px] py-4 px-5 mb-3">
+              <div class="flex items-center justify-between gap-3 flex-wrap mb-1.5">
+                <a [routerLink]="['/bills', r.review_id]" class="font-serif font-semibold text-[15.5px] text-ink no-underline hover-accent">{{ r.bill_title || r.review_id }}</a>
+                <span class="flex items-center gap-2.5 whitespace-nowrap">
+                  @if (r.recommendation) { <span class="text-[11px] font-bold text-warn">{{ recLabel(r.recommendation) }}</span> }
+                  @if (r.score != null) { <span class="font-mono text-[13px] font-semibold text-ink">{{ r.score }} / 10</span> }
+                </span>
+              </div>
+              <div class="text-[11.5px] text-text-4 font-mono mb-1.5">{{ r.bill_id }} @if (r.reviewed_at) { · {{ r.reviewed_at | date:'MMM y' }} }</div>
+              @if (r.review_text) { <p class="m-0 text-[13.5px] leading-[1.6] text-text-2">{{ r.review_text }}</p> }
+            </div>
+          }
+        }
+      </div>
+
+      <!-- RAIL -->
+      <div class="sticky top-[90px] flex flex-col gap-[18px]">
+        <div class="border border-border bg-surface rounded-[2px] p-[22px]">
+          <div class="text-[11px] font-bold tracking-[.08em] uppercase text-ink mb-3.5">At a Glance</div>
+          <div class="text-[13px] leading-[2] text-text-2">
+            <div class="flex justify-between gap-3"><span class="text-text-4">Category</span><span class="font-semibold text-right">{{ svc.catMeta(e.category).label }}</span></div>
+            <div class="flex justify-between gap-3"><span class="text-text-4">Studies reviewed</span><span class="font-semibold font-mono">{{ e.study_review_count ?? 0 }}</span></div>
+            <div class="flex justify-between gap-3"><span class="text-text-4">Bill analyses</span><span class="font-semibold font-mono">{{ e.bill_review_count ?? 0 }}</span></div>
+            @if (e.active === false) {
+              <div class="flex justify-between gap-3"><span class="text-text-4">Status</span><span class="font-semibold text-text-3">Emeritus / inactive</span></div>
+            }
+          </div>
+        </div>
+        @if (e.focus && e.bio) {
+          <div class="border border-border bg-surface rounded-[2px] p-[22px]">
+            <div class="text-[11px] font-bold tracking-[.08em] uppercase text-ink mb-2.5">Research Focus</div>
+            <p class="m-0 text-[12.5px] leading-[1.55] text-text-3">{{ e.focus }}</p>
+          </div>
+        }
+        @if (e.conflicts) {
+          <div class="bg-surface-2 border border-border border-l-[3px] border-l-gold rounded-[2px] p-[18px]">
+            <div class="text-[11px] font-bold tracking-[.08em] uppercase text-gold mb-2">Disclosures</div>
+            <p class="m-0 text-[12.5px] leading-[1.55] text-text-3">{{ e.conflicts }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  } @else if (missing()) {
+    <div class="wrap py-20 text-center text-text-3">
+      <span class="material-icons text-[34px] text-text-4">person_off</span>
+      <div class="text-[15px] mt-3">No expert found at this address.</div>
+      <div routerLink="/experts" class="text-[13.5px] font-semibold text-accent mt-2.5 cursor-pointer">Back to the roster</div>
+    </div>
+  }
+</div>

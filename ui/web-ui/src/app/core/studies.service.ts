@@ -25,6 +25,21 @@ export interface DbStudy {
   pinned: boolean;
 }
 
+export interface StudyReviewPublic {
+  expert_slug: string;
+  name: string;
+  affil: string | null;
+  recommendation: string | null;
+  score: number | null;
+  text: string | null;
+  reviewed_at: string | null;
+}
+
+export interface StudyDetail {
+  study: DbStudy;
+  reviews: StudyReviewPublic[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class StudiesService {
   readonly studies = signal<DbStudy[]>([]);
@@ -45,7 +60,7 @@ export class StudiesService {
   }
 
   get(ref: string) {
-    return this.http.get<DbStudy>(`${API_BASE}/studies/${ref}`);
+    return this.http.get<StudyDetail>(`${API_BASE}/studies/${ref}`);
   }
 
   adminList(q: string) {

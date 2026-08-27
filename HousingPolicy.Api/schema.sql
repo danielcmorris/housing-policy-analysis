@@ -225,6 +225,51 @@ CREATE TABLE IF NOT EXISTS studies (
 );
 CREATE INDEX IF NOT EXISTS idx_studies_display ON studies (display_date, year);
 
+-- ---------------------------------------------------------------------------
+-- Experts / reviewers (see Services/ExpertService.cs). The vetted people who
+-- peer-review studies and bill analyses. Seeded from the public roster
+-- (api/seed_experts.py); "studies reviewed" and "bills reviewed" are derived
+-- from the review join tables below, never stored as lists.
+CREATE TABLE IF NOT EXISTS experts (
+    expert_id    BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    slug         TEXT UNIQUE NOT NULL,      -- 'ingrid-gould-ellen' (route id)
+    full_name    TEXT NOT NULL,
+    title        TEXT,                      -- current position
+    affiliation  TEXT,
+    category     TEXT,                      -- Academic | Think tank | Research center | Non-profit...
+    focus        TEXT,                      -- one-line research focus
+    bio          TEXT,
+    credentials  TEXT,                      -- e.g. 'PhD, Economics (MIT)'
+    linkedin_url TEXT,
+    profile_url  TEXT,                      -- institutional profile
+    scholar_url  TEXT,                      -- Google Scholar / ORCID
+    website_url  TEXT,
+    image_url    TEXT,
+    email        TEXT,                      -- internal contact; never rendered publicly
+    location     TEXT,
+    conflicts    TEXT,                      -- standing conflict-of-interest disclosure
+    notes        TEXT,                      -- internal admin notes; never rendered publicly
+    active       BOOLEAN NOT NULL DEFAULT TRUE,
+    joined_at    DATE,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- A peer review of a study by an expert.
+CREATE TABLE IF NOT EXISTS study_reviews (
+    id             BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    study_ref      TEXT NOT NULL REFERENCES studies(ref) ON DELETE CASCADE,
+    expert_id      BIGINT NOT NULL REFERENCES experts(expert_id) ON DELETE CASCADE,
+    recommendation TEXT,                    -- accept | minor_revisions | major_revisions | reject
+    score          NUMERIC(3,1),            -- 0-10
+    review_text    TEXT,
+    reviewed_at    DATE,
+    published      BOOLEAN NOT NULL DEFAULT TRUE,
+    UNIQUE (study_ref, expert_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_study_reviews_expert ON study_reviews (expert_id);
+
 -- The Center's authored bill reviews (four-stage analysis rendered at
 -- /bills/{review_id}); JSONB shaped by prototype/data/bill-review.schema.json.
 -- Live legislative status is merged in from `bills` at read time.
@@ -235,3 +280,18 @@ CREATE TABLE IF NOT EXISTS bill_reviews (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- A peer review of a bill analysis by an expert (attached to the authored
+-- bill-review document above).
+CREATE TABLE IF NOT EXISTS expert_bill_reviews (
+    id             BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    review_id      TEXT NOT NULL REFERENCES bill_reviews(review_id) ON DELETE CASCADE,
+    expert_id      BIGINT NOT NULL REFERENCES experts(expert_id) ON DELETE CASCADE,
+    recommendation TEXT,                    -- endorse | minor_revisions | major_revisions | reject
+    score          NUMERIC(3,1),
+    review_text    TEXT,
+    reviewed_at    DATE,
+    published      BOOLEAN NOT NULL DEFAULT TRUE,
+    UNIQUE (review_id, expert_id)
+);
+CREATE INDEX IF NOT EXISTS idx_expert_bill_reviews_expert ON expert_bill_reviews (expert_id);

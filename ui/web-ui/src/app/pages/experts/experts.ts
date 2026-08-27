@@ -1,9 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ExpertsService } from '../../core/experts.service';
 
 @Component({
   selector: 'app-experts',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './experts.html',
 })
 export class ExpertsPage {
