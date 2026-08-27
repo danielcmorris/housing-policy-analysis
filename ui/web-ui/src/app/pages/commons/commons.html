@@ -1,0 +1,217 @@
+<div>
+  <!-- HERO -->
+  <div class="bg-inverse text-on-inverse">
+    <div class="wrap py-16">
+      <div class="text-xs font-bold tracking-[.14em] uppercase text-gold mb-[18px]">Research Infrastructure</div>
+      <h1 class="font-serif font-bold text-[46px] leading-[1.08] m-0 mb-[22px] max-w-[840px] tracking-[-.015em]">The Policy Data Commons</h1>
+      <p class="text-lg leading-[1.65] text-on-inverse-2 m-0 max-w-[720px]">A continuously growing repository of legislation, regulation, and economic evidence — past and present, across every level of government. It is the empirical foundation beneath every review we publish: the means by which a new proposal can be measured against what has actually been tried before, and what resulted.</p>
+      <div class="flex gap-3 mt-[30px] flex-wrap">
+        <div routerLink="/studies" class="bg-[var(--on-inverse)] text-[var(--inverse)] text-sm font-semibold py-3 px-[22px] rounded-[2px] cursor-pointer flex items-center gap-2"><span class="material-icons text-[17px]">travel_explore</span>Explore the catalog</div>
+        <div class="border border-inverse-border text-on-inverse text-sm font-semibold py-3 px-[22px] rounded-[2px] cursor-pointer flex items-center gap-2"><span class="material-icons text-[17px]">upload_file</span>Contribute a dataset</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="bg-accent-fill text-white">
+    <div class="wrap py-10 grid grid-cols-4 gap-6">
+      @for (x of dcStats; track x.label) {
+        <div class="text-center border-r border-[rgba(255,255,255,.18)] py-0 px-4">
+          <div class="font-serif font-bold text-[40px] leading-none mb-2">{{ x.value }}</div>
+          <div class="text-[12.5px] tracking-[.04em] text-[#f1d9d9] uppercase font-medium">{{ x.label }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- SEARCH & ASK -->
+  <div class="bg-bg border-b border-border">
+    <div class="wrap py-14">
+      <div class="max-w-[720px] mb-[26px]">
+        <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-3.5">Search &amp; Ask</div>
+        <h2 class="font-serif font-bold text-[30px] m-0 mb-3 tracking-[-.01em] text-ink">Query bills from every level of government</h2>
+        <p class="text-base leading-[1.65] text-text-2 m-0">Search federal, state, and city legislation — both enacted and failed — or ask a question in plain language. Narrow by level, outcome, and category.</p>
+      </div>
+
+      <!-- ASK BAR -->
+      <div class="flex gap-2.5 items-stretch mb-4">
+        <div class="flex-1 flex items-center gap-3 border border-border-2 rounded-[2px] py-1 pr-1.5 pl-[18px] bg-surface">
+          <span class="material-icons text-xl text-text-4">search</span>
+          <input #q [value]="query()" (input)="onInput(q.value)" (keydown.enter)="ask()" placeholder="Search bills, places, and tags — or ask a question…" class="flex-1 border-none outline-none bg-transparent font-sans text-[15px] text-ink py-3 px-0">
+          <div (click)="ask()" class="bg-accent-fill text-white text-sm font-semibold py-[11px] px-[22px] rounded-[2px] cursor-pointer flex items-center gap-[7px] whitespace-nowrap"><span class="material-icons text-[17px]">smart_toy</span>Ask</div>
+        </div>
+      </div>
+
+      <!-- SUGGESTIONS -->
+      <div class="flex gap-2 flex-wrap mb-[26px]">
+        <span class="text-[12.5px] text-text-4 self-center">Try:</span>
+        @for (sg of suggestions; track sg.label) {
+          <div (click)="ask(sg.q)" class="text-[12.5px] text-text-2 border border-border-2 bg-surface-2 py-[7px] px-[13px] rounded-[2px] cursor-pointer">{{ sg.label }}</div>
+        }
+      </div>
+
+      <!-- AI ANSWER -->
+      @if (answer(); as a) {
+        <div class="border border-border bg-surface-2 border-l-[3px] border-l-gold rounded-[2px] py-[22px] px-6 mb-[30px]">
+          <div class="flex items-center gap-[9px] mb-3"><span class="material-icons text-[19px] text-gold">smart_toy</span><span class="text-xs font-bold tracking-[.08em] uppercase text-gold">Commons Answer</span></div>
+          <p class="m-0 mb-4 text-[15px] leading-[1.65] text-text">{{ a.lead }}</p>
+          <div class="text-[10px] font-bold tracking-[.08em] uppercase text-text-4 mb-2.5">Drawn from</div>
+          <div class="flex flex-col gap-2">
+            @for (h of a.hits; track h.ref) {
+              <div routerLink="/bills/hr6644-119" class="flex items-center gap-2.5 cursor-pointer text-[13px] text-text-2">
+                <span class="material-icons text-[15px] text-accent">description</span>
+                <span class="font-mono text-[11px] text-text-4">{{ h.ref }}</span>
+                <span class="font-semibold text-ink">{{ h.title }}</span>
+                <span class="text-text-4">· {{ h.place }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- FILTERS -->
+      <div class="flex flex-col gap-3 mb-5">
+        <div class="flex gap-2 flex-wrap">
+          @for (c of levelChips; track c[0]) {
+            <div (click)="level.set(c[0])" class="chip" [class.chip-active]="level() === c[0]">{{ c[1] }}</div>
+          }
+        </div>
+        <div class="flex gap-2 flex-wrap">
+          @for (c of statusChips; track c[0]) {
+            <div (click)="status.set(c[0])" class="chip" [class.chip-active]="status() === c[0]">{{ c[1] }}</div>
+          }
+          <span class="w-px bg-border my-0 mx-1.5"></span>
+          @for (c of categoryChips; track c[0]) {
+            <div (click)="category.set(c[0])" class="chip" [class.chip-active]="category() === c[0]">{{ c[1] }}</div>
+          }
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="flex items-center justify-between pb-3 border-b-2 border-ink mb-1">
+        <div class="text-sm text-text-3"><span class="font-bold text-ink font-mono">{{ results().length }}</span> measures</div>
+        <div class="text-[12.5px] text-text-4">Federal · State · City — enacted &amp; failed</div>
+      </div>
+      <div class="border-t border-border">
+        @for (b of results(); track b.ref) {
+          <div routerLink="/bills/hr6644-119" class="py-5 border-b border-border cursor-pointer grid grid-cols-[120px_1fr_auto] gap-6 items-start">
+            <div class="pt-0.5">
+              <div class="text-[11px] font-bold tracking-[.06em] uppercase" [style.color]="levelColor(b.level)">{{ levelLabel(b.level) }}</div>
+              <div class="font-mono text-[11px] text-text-4 mt-1">{{ b.year }}</div>
+            </div>
+            <div>
+              <div class="font-serif font-semibold text-lg leading-[1.25] text-ink mb-[5px]">{{ b.title }}</div>
+              <div class="text-[13.5px] leading-normal text-text-2 mb-2.5">{{ b.place }} — {{ b.summary }}</div>
+              <div class="flex gap-[7px] flex-wrap items-center">
+                <span class="text-[11px] font-semibold text-accent bg-accent-soft py-[3px] px-2.5 rounded-xl">{{ b.category }}</span>
+                @for (tg of b.tags; track tg) {
+                  <span class="text-[11px] text-text-3 bg-surface-2 border border-border py-[3px] px-[9px] rounded-xl">{{ tg }}</span>
+                }
+              </div>
+            </div>
+            <span class="inline-flex items-center gap-[5px] py-1 px-3 rounded-[2px] text-[11px] font-bold whitespace-nowrap"
+                  [style.background]="b.status === 'passed' ? 'var(--ok-bg)' : 'var(--alert-bg)'"
+                  [style.color]="b.status === 'passed' ? 'var(--ok)' : 'var(--alert)'">{{ b.status === 'passed' ? 'Passed' : 'Failed' }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- WHAT IT IS -->
+  <div class="wrap py-16 grid grid-cols-2 gap-14 items-start">
+    <div>
+      <h2 class="font-serif font-bold text-[30px] m-0 mb-[18px] tracking-[-.01em] text-ink">One repository, every level of government</h2>
+      <p class="text-base leading-[1.7] text-text-2 m-0 mb-4">The Commons brings federal statutes, state legislation, and municipal ordinances into a single structured archive — alongside the economic conditions of each jurisdiction at the time each policy took effect. Bills, enacted laws, regulatory text, administrative data, and the published empirical literature are all held together and linked.</p>
+      <p class="text-base leading-[1.7] text-text-2 m-0">Because the record reaches back roughly fifty years, a proposal introduced today can be set beside comparable measures from other decades and other places — and against what actually happened after they passed.</p>
+    </div>
+    <div class="border border-border bg-surface rounded-[2px] p-2">
+      @for (cv of dcCoverage; track cv.label) {
+        <div class="flex items-center gap-4 py-[18px] px-4 border-b border-border-3">
+          <span class="material-icons text-2xl text-accent">{{ cv.icon }}</span>
+          <div class="flex-1">
+            <div class="text-[14.5px] font-semibold text-ink">{{ cv.label }}</div>
+            <div class="text-[12.5px] text-text-3">{{ cv.detail }}</div>
+          </div>
+          <span class="font-mono text-[13px] font-semibold text-text-2">{{ cv.count }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- CROSS-REFERENCED -->
+  <div class="bg-surface border-y border-border">
+    <div class="wrap py-16">
+      <div class="mb-10 max-w-[680px]">
+        <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-3.5">Cross-Referenced</div>
+        <h2 class="font-serif font-bold text-[30px] m-0 mb-3.5 tracking-[-.01em] text-ink">The same record, indexed many ways</h2>
+        <p class="text-base leading-[1.65] text-text-2 m-0">Every entry is linked along multiple axes at once, so a question can be approached from whichever direction the evidence demands. These cross-references are what make valid comparison possible.</p>
+      </div>
+      <div class="grid grid-cols-3 gap-px bg-border border border-border">
+        @for (ax of dcAxes; track ax.title) {
+          <div class="bg-surface py-[26px] px-6">
+            <span class="material-icons text-2xl text-gold">{{ ax.icon }}</span>
+            <h3 class="font-serif font-semibold text-lg mt-3.5 mx-0 mb-2 text-ink">{{ ax.title }}</h3>
+            <p class="text-[13.5px] leading-[1.55] text-text-2 m-0">{{ ax.body }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTRIBUTE -->
+  <div class="wrap py-16">
+    <div class="grid grid-cols-[1fr_360px] gap-14 items-start">
+      <div>
+        <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-3.5">Contribute</div>
+        <h2 class="font-serif font-bold text-[30px] m-0 mb-3.5 tracking-[-.01em] text-ink">Members can add to the Commons</h2>
+        <p class="text-base leading-[1.65] text-text-2 m-0 mb-8 max-w-[620px]">The Commons grows daily — partly through our own ingestion pipelines, and partly through the researchers who use it. Members may submit their own datasets for inclusion. Each submission is reviewed for provenance, documentation, and methodological soundness before it is cross-referenced into the archive.</p>
+        <div class="border-l-2 border-border-2">
+          @for (st of dcSteps; track st.num) {
+            <div class="flex gap-5 pt-0 pr-0 pb-[26px] pl-6 relative ml-0.5">
+              <div class="absolute left-[-9px] top-0.5 w-4 h-4 rounded-full bg-accent-fill border-[3px] border-bg"></div>
+              <div>
+                <div class="font-mono text-[11px] text-gold mb-[5px]">{{ st.num }}</div>
+                <div class="font-serif text-lg font-semibold text-ink mb-[5px]">{{ st.title }}</div>
+                <div class="text-sm leading-[1.6] text-text-2">{{ st.body }}</div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      <!-- UPLOAD CARD -->
+      <div class="sticky top-[90px] border border-border bg-surface rounded-[2px] overflow-hidden">
+        <div class="bg-inverse text-on-inverse py-[22px] px-6">
+          <div class="flex items-center gap-2.5"><span class="material-icons text-xl text-gold">upload_file</span><span class="text-[15px] font-semibold font-serif">Submit a Dataset</span></div>
+        </div>
+        <div class="p-6">
+          <div class="border-[1.5px] border-dashed border-border-2 rounded-[4px] py-[30px] px-5 text-center mb-5">
+            <span class="material-icons text-[30px] text-text-4">cloud_upload</span>
+            <div class="text-[13.5px] text-text-2 mt-2 font-medium">Drag a file here, or browse</div>
+            <div class="text-[11.5px] text-text-4 mt-1">CSV · Parquet · JSON · up to 2&nbsp;GB</div>
+          </div>
+          <div class="flex flex-col gap-3">
+            <div>
+              <div class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4 mb-1.5">Dataset title</div>
+              <div class="border border-border-2 rounded-[2px] py-2.5 px-3 text-[13px] text-text-4 bg-surface-2">e.g. Municipal permit issuance, 1998–2024</div>
+            </div>
+            <div>
+              <div class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4 mb-1.5">Jurisdiction &amp; period</div>
+              <div class="border border-border-2 rounded-[2px] py-2.5 px-3 text-[13px] text-text-4 bg-surface-2">Add coverage…</div>
+            </div>
+          </div>
+          <div class="mt-5 bg-accent-fill text-white text-sm font-semibold py-3 px-0 text-center rounded-[2px] cursor-pointer">Submit for Review</div>
+          <div class="text-[11.5px] leading-normal text-text-4 mt-3 text-center">Typical review turnaround: 2–3 weeks. You retain authorship and license terms.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAVEAT -->
+  <div class="wrap pb-16">
+    <div class="bg-surface-2 border border-border border-l-[3px] border-l-gold rounded-[2px] py-[22px] px-[26px] flex gap-3.5 items-start">
+      <span class="material-icons text-xl text-gold">balance</span>
+      <p class="m-0 text-sm leading-[1.65] text-text-2">No archive of this kind is complete or perfectly comparable — jurisdictions differ, records have gaps, and history rarely runs a clean experiment. The Commons is honest about that. But disciplined comparison against the full weight of prior evidence remains the most rigorous, scientific basis available for anticipating what a policy will actually do.</p>
+    </div>
+  </div>
+</div>

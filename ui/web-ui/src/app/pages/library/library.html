@@ -1,0 +1,78 @@
+<div>
+  <div class="bg-surface border-b border-border">
+    <div class="wrap py-11">
+      <div class="text-xs font-bold tracking-[.12em] uppercase text-accent mb-3">Research Library</div>
+      <h1 class="font-serif font-bold text-[38px] m-0 mb-2.5 tracking-[-.01em]">Studies Under Review</h1>
+      <p class="text-base text-text-2 m-0 max-w-[720px]">Ten landmark studies on housing policy — from federal agencies and leading research institutions — each under structured, multi-reviewer assessment. Filter by topic and review status.</p>
+    </div>
+  </div>
+  <div class="bg-surface-2 border-b border-border">
+    <div class="wrap py-5 flex gap-3.5 items-start">
+      <span class="material-icons text-xl text-gold shrink-0 mt-px">workspaces</span>
+      <p class="m-0 text-sm leading-[1.6] text-text-2 max-w-[960px]">These studies are submitted by our members and sent to our experts for peer review. We then merge the peer reviews back into each study — enabling extended AI analysis and cross-referencing against datasets in our <span routerLink="/commons" class="text-accent font-semibold cursor-pointer">Data Commons</span>.</p>
+    </div>
+  </div>
+  <div class="wrap py-9 grid grid-cols-[248px_1fr] gap-10 items-start">
+    <!-- FILTERS -->
+    <div class="sticky top-[90px]">
+      <div class="border border-border bg-surface rounded-[2px]">
+        <div class="py-4 px-[18px] border-b border-border text-xs font-bold tracking-[.1em] uppercase text-ink flex items-center justify-between">Filters<span (click)="clearFilters()" class="text-[11px] font-semibold text-accent cursor-pointer normal-case tracking-normal">Clear</span></div>
+        <div class="p-[18px]">
+          <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mb-3">Topic</div>
+          @for (tf of topicFilters; track tf.label) {
+            <div (click)="toggleTopic(tf.label)" class="flex items-center gap-2.5 py-1.5 cursor-pointer text-[13.5px] text-ink">
+              <div class="w-[18px] h-[18px] border-[1.5px] border-check-border rounded-[2px] flex items-center justify-center shrink-0"
+                   [style.background]="selectedTopics().has(tf.label) ? 'var(--accent-fill)' : 'var(--surface)'">
+                <span class="material-icons text-sm text-on-inverse">{{ selectedTopics().has(tf.label) ? 'check' : '' }}</span>
+              </div>
+              <span class="flex-1">{{ tf.label }}</span>
+              <span class="text-xs text-text-4 font-mono">{{ tf.count }}</span>
+            </div>
+          }
+        </div>
+        <div class="pt-0 px-[18px] pb-[18px] border-t border-border-3">
+          <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mt-[18px] mb-3">Review Status</div>
+          @for (sf of statusFilters; track sf.label) {
+            <div class="flex items-center gap-[9px] py-[5px] text-[13.5px] text-text-2">
+              <span class="w-[9px] h-[9px] rounded-full" [style.background]="sf.color"></span>{{ sf.label }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    <!-- RESULTS -->
+    <div>
+      <div class="flex items-center justify-between pb-4 border-b-2 border-ink mb-1">
+        <div class="text-sm text-text-3"><span class="font-bold text-ink font-mono">{{ studies().length }}</span> studies</div>
+        <div class="flex items-center gap-2 text-[13px] text-text-3">Sort by <span class="font-semibold text-ink border-b border-ink cursor-pointer">Most recent</span></div>
+      </div>
+      @for (s of studies(); track s.ref) {
+        <div [routerLink]="['/studies', s.ref]" class="py-[26px] border-b border-border cursor-pointer grid grid-cols-[1fr_auto] gap-7">
+          <div>
+            <div class="flex items-center gap-3 mb-[9px]">
+              <span class="text-[10px] font-bold tracking-[.1em] uppercase text-accent">{{ s.category }}</span>
+              <span class="font-mono text-[11px] text-text-4">{{ s.ref }}</span>
+            </div>
+            <h3 class="font-serif font-semibold text-[22px] leading-[1.2] m-0 mb-[9px] text-ink">{{ s.title }}</h3>
+            <p class="text-sm leading-[1.55] text-text-2 m-0 mb-3 max-w-[680px]">{{ s.excerpt }}</p>
+            <div class="flex items-center gap-3 text-[13px] text-text-3 flex-wrap">
+              <span class="font-semibold text-ink">{{ s.authors }}</span>
+              <span class="w-[3px] h-[3px] rounded-full bg-dot"></span>
+              <span class="font-mono text-xs">{{ s.pages }} pp</span>
+              <span class="w-[3px] h-[3px] rounded-full bg-dot"></span>
+              <span>{{ s.year }}</span>
+              <span class="inline-flex items-center gap-[5px] text-accent font-semibold"><span class="material-icons text-[15px]">rate_review</span>{{ s.reviews }} reviews</span>
+              <span class="inline-flex items-center gap-1.5 py-[3px] px-2.5 rounded-[2px] text-[11px] font-semibold"
+                    [style.background]="studyStatus[s.status].bg" [style.color]="studyStatus[s.status].color">{{ s.status }}</span>
+            </div>
+          </div>
+          <div class="text-center border border-border rounded-[2px] py-3.5 px-[18px] h-fit min-w-[96px]">
+            <div class="font-serif font-bold text-[30px] leading-none" [style.color]="clarityColor(s.clarity)">{{ s.clarity }}</div>
+            <div class="text-[9.5px] font-bold tracking-[.08em] uppercase text-text-4 mt-1.5">Clarity<br>Score</div>
+          </div>
+        </div>
+      }
+      <div class="text-center pt-[30px] pb-2 text-[13px] text-text-4">Showing all 10 studies currently under review.</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+<div>
+  <div class="bg-inverse text-on-inverse">
+    <div class="wrap py-[72px]">
+      <div class="text-xs font-bold tracking-[.14em] uppercase text-gold mb-[18px]">About the Center</div>
+      <h1 class="font-serif font-bold text-[44px] leading-[1.1] mt-0 mx-0 mb-[22px] max-w-[820px] tracking-[-.01em]">We exist to make housing-policy evidence trustworthy, transparent, and usable.</h1>
+      <p class="text-lg leading-[1.65] text-on-inverse-2 m-0 max-w-[680px]">The Center for Urban Policy Analysis is an independent, non-partisan research institute. We do not advocate for outcomes — we evaluate the strength of the evidence behind them.</p>
+    </div>
+  </div>
+  <div class="wrap py-16 grid grid-cols-3 gap-10 border-b border-border">
+    @for (p of principles; track p.title) {
+      <div>
+        <span class="material-icons text-[28px] text-accent">{{ p.icon }}</span>
+        <h3 class="font-serif font-semibold text-[21px] mt-4 mx-0 mb-2.5">{{ p.title }}</h3>
+        <p class="text-[14.5px] leading-[1.65] text-text-2 m-0">{{ p.body }}</p>
+      </div>
+    }
+  </div>
+  <div class="wrap py-16">
+    <h2 class="font-serif font-bold text-[28px] mt-0 mx-0 mb-7 border-b-2 border-ink pb-3.5">Leadership &amp; Senior Fellows</h2>
+    <div class="grid grid-cols-4 gap-7">
+      @for (pe of people; track pe.name) {
+        <div>
+          <div class="w-full aspect-square rounded-[2px] flex items-center justify-center mb-3.5" [style.background]="pe.bg"><span class="font-serif font-bold text-[34px] text-on-inverse">{{ pe.initials }}</span></div>
+          <div class="font-serif font-semibold text-[17px] text-ink">{{ pe.name }}</div>
+          <div class="text-[13px] text-accent font-semibold mt-[3px] mx-0 mb-1.5">{{ pe.role }}</div>
+          <div class="text-[12.5px] text-text-3 leading-[1.45]">{{ pe.bio }}</div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+<div class="wrap py-8 grid grid-cols-[1fr_300px] gap-8 items-start h-[calc(100vh-220px)] min-h-[560px]">
+  <!-- CHAT -->
+  <div class="border border-border bg-surface rounded-[2px] flex flex-col h-full overflow-hidden">
+    <div class="py-[18px] px-6 border-b border-border flex items-center gap-3 bg-inverse">
+      <div class="w-9 h-9 rounded-full bg-accent-fill flex items-center justify-center"><span class="material-icons text-[20px] text-on-inverse">smart_toy</span></div>
+      <div><div class="text-[15px] font-semibold text-on-inverse font-serif">Research Assistant</div><div class="text-xs text-text-4">Reading the full text of 10 studies</div></div>
+    </div>
+    <div #chatBox class="flex-1 overflow-y-auto py-[26px] px-6 flex flex-col gap-5">
+      @for (m of messages(); track $index) {
+        <div class="flex" [style.justify-content]="m.role === 'user' ? 'flex-end' : 'flex-start'">
+          <div [style]="m.role === 'user'
+            ? 'max-width:78%;background:var(--inverse);color:var(--on-inverse);padding:14px 18px;border-radius:2px;'
+            : 'max-width:88%;background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--accent);color:var(--text);padding:16px 18px;border-radius:2px;'">
+            <div class="whitespace-pre-wrap text-[14.5px] leading-[1.62]">{{ m.text }}</div>
+            @if (m.cites?.length) {
+              <div class="mt-3.5 pt-3.5 border-t border-border-3 flex flex-col gap-[7px]">
+                <div class="text-[10px] font-bold tracking-[.08em] uppercase text-text-4">Sources</div>
+                @for (ct of m.cites; track ct.ref) {
+                  <div [routerLink]="['/studies', ct.ref]" class="flex items-center gap-2 cursor-pointer text-[12.5px] text-accent font-medium"><span class="material-icons text-sm">description</span><span class="font-mono text-text-4">{{ ct.ref }}</span> {{ ct.title }}</div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+      @if (typing()) {
+        <div class="flex gap-[5px] py-3.5 px-[18px] bg-surface-2 border border-border rounded-[2px] w-fit">
+          <span class="w-[7px] h-[7px] rounded-full bg-accent-fill animate-[dotPulse_1.2s_infinite]"></span>
+          <span class="w-[7px] h-[7px] rounded-full bg-accent-fill animate-[dotPulse_1.2s_infinite_.2s]"></span>
+          <span class="w-[7px] h-[7px] rounded-full bg-accent-fill animate-[dotPulse_1.2s_infinite_.4s]"></span>
+        </div>
+      }
+    </div>
+    <div class="py-4 px-6 border-t border-border">
+      <div class="flex gap-2 mb-3 flex-wrap">
+        @for (p of prompts; track p.label) {
+          <div (click)="send(p.text)" class="text-xs text-text-2 border border-border-2 bg-surface-2 py-[7px] px-[13px] rounded-[2px] cursor-pointer">{{ p.label }}</div>
+        }
+      </div>
+      <div class="flex gap-2.5 items-end border border-border-2 rounded-[2px] p-2 pl-4 bg-surface">
+        <textarea #input (keydown)="onKey($event)" placeholder="Ask about a study, methodology, or cross-cutting evidence…" rows="1" class="flex-1 border-none outline-none resize-none font-sans text-[14.5px] text-ink leading-[1.5] py-1.5 px-0 max-h-[120px] bg-transparent"></textarea>
+        <div (click)="sendTyped()" class="w-10 h-10 shrink-0 bg-accent-fill rounded-[2px] flex items-center justify-center cursor-pointer"><span class="material-icons text-[20px] text-on-inverse">arrow_upward</span></div>
+      </div>
+    </div>
+  </div>
+  <!-- CAPABILITIES RAIL -->
+  <div class="sticky top-[90px] flex flex-col gap-4">
+    <div class="border border-border bg-surface rounded-[2px] p-[22px]">
+      <div class="text-[11px] font-bold tracking-[.08em] uppercase text-ink mb-4">What it can do</div>
+      @for (cap of capabilities; track cap.title) {
+        <div class="flex gap-3 mb-4">
+          <span class="material-icons text-lg text-accent">{{ cap.icon }}</span>
+          <div><div class="text-[13.5px] font-semibold text-ink mb-0.5">{{ cap.title }}</div><div class="text-[12.5px] text-text-3 leading-[1.45]">{{ cap.body }}</div></div>
+        </div>
+      }
+    </div>
+    <div class="bg-surface-2 border border-border rounded-[2px] p-[18px] text-[12.5px] leading-[1.55] text-text-3">
+      <span class="material-icons text-base text-gold align-[-3px]">info</span> Assistant responses cite source studies and are flagged for reviewer verification. They do not constitute peer-reviewed conclusions.
+    </div>
+  </div>
+</div>

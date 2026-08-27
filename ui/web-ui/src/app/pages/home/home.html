@@ -1,0 +1,138 @@
+<div>
+  <!-- HERO -->
+  <div class="bg-surface border-b border-border">
+    <div class="wrap grid grid-cols-2">
+      <div class="py-16 pr-12 border-r border-border">
+        <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-5">Independent · Evidence-Based · Peer-Reviewed</div>
+        <h1 class="font-serif font-bold text-[50px] leading-[1.08] tracking-[-.015em] m-0 mb-6 text-ink">Rigorous research on housing supply, affordability, and the rules that shape our cities.</h1>
+        <p class="text-lg leading-[1.6] text-text-2 m-0 mb-8 max-w-[560px]">We assemble the most consequential studies on housing policy — then subject each to AI-assisted analysis and structured, multi-reviewer evaluation, so decision-makers can act on findings they can trust.</p>
+      </div>
+      <div class="py-16 pl-12 flex flex-col justify-center">
+        <div class="text-[11px] font-bold tracking-[.12em] uppercase text-text-4 mb-4">Featured Bill</div>
+        @if (bill(); as b) {
+          <div>
+            <div class="text-[11px] font-bold tracking-[.1em] uppercase text-accent mb-2.5">{{ b.c.category }}</div>
+            <h3 [routerLink]="['/bills', featuredBillId()]" class="hover-accent font-serif font-semibold text-[26px] leading-[1.18] m-0 mb-3.5 text-ink cursor-pointer">{{ b.c.title }}</h3>
+            <p class="text-sm leading-[1.6] text-text-2 m-0 mb-[18px]">{{ b.c.excerpt }}</p>
+            <div class="flex items-center gap-3.5 text-[13px] text-text-3 mb-[18px]">
+              <span class="font-semibold text-ink">{{ b.c.congressLine }}</span>
+              <span class="w-[3px] h-[3px] rounded-full bg-dot"></span>
+              <span class="font-mono">{{ b.meta.billNumber }}</span>
+            </div>
+            <div class="flex items-center gap-[22px] flex-wrap">
+              <span [routerLink]="['/bills', featuredBillId()]" class="inline-flex items-center gap-[7px] text-[13px] font-semibold text-accent cursor-pointer">Read our full review<span class="material-icons text-base">arrow_forward</span></span>
+              <a [href]="b.meta.sourceUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-[13px] font-semibold text-text-3 no-underline">Congress.gov<span class="material-icons text-sm">north_east</span></a>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC STRIP -->
+  <div class="bg-inverse">
+    <div class="wrap py-[18px] flex items-center gap-2 flex-wrap">
+      <span class="text-[11px] font-bold tracking-[.12em] uppercase text-gold mr-2">Research Programs</span>
+      @for (t of topics; track t) {
+        <div routerLink="/studies" class="text-[13px] font-medium text-on-inverse py-1.5 px-3.5 border border-inverse-border rounded-[2px] cursor-pointer">{{ t }}</div>
+      }
+    </div>
+  </div>
+
+  <!-- LATEST RESEARCH -->
+  <div class="wrap py-16">
+    <div class="flex items-end justify-between border-b-2 border-ink pb-3.5 mb-9">
+      <h2 class="font-serif font-bold text-[30px] m-0 tracking-[-.01em]">Studies Under Review</h2>
+      <div routerLink="/studies" class="text-sm font-semibold text-accent cursor-pointer flex items-center gap-1.5">View all 10 studies<span class="material-icons text-base">arrow_forward</span></div>
+    </div>
+    <div class="grid grid-cols-3 gap-0 border-t border-border">
+      @for (s of featured; track s.ref; let i = $index) {
+        <div [routerLink]="['/studies', s.ref]"
+             class="pt-8 px-7 pb-7 border border-border border-t-0 border-l-0 flex flex-col cursor-pointer bg-surface"
+             [style.border-right]="(i % 3 === 2) ? 'none' : null">
+          <div class="text-[10px] font-bold tracking-[.1em] uppercase text-accent mb-3">{{ s.category }}</div>
+          <h3 class="font-serif font-semibold text-xl leading-[1.22] m-0 mb-3 text-ink">{{ s.title }}</h3>
+          <p class="text-[13.5px] leading-[1.55] text-text-2 m-0 mb-[18px]">{{ s.excerpt }}</p>
+          <div class="flex items-center justify-between mt-auto">
+            <span class="text-[12.5px] font-semibold text-ink">{{ s.authors }}</span>
+            <span class="text-xs text-text-4 font-mono">{{ s.year }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="bg-surface border-y border-border">
+    <div class="wrap py-16">
+      <div class="text-center mb-12">
+        <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-3.5">Our Analytical Method</div>
+        <h2 class="font-serif font-bold text-[32px] mx-auto tracking-[-.01em] max-w-[760px]">From proposed bill to evidence-based forecast, in four disciplined stages</h2>
+      </div>
+      <div class="grid grid-cols-4 gap-9">
+        @for (st of steps; track st.num) {
+          <div class="text-center">
+            <div class="w-14 h-14 mx-auto mb-[18px] border-2 border-accent rounded-full flex items-center justify-center">
+              <span class="material-icons text-[25px] text-accent">{{ st.icon }}</span>
+            </div>
+            <div class="font-mono text-[11px] text-gold mb-[7px]">{{ st.num }}</div>
+            <h3 class="font-serif font-semibold text-[17px] leading-[1.2] m-0 mb-[9px]">{{ st.title }}</h3>
+            <p class="text-[13px] leading-[1.55] text-text-2 m-0">{{ st.body }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- TECHNOLOGY -->
+  <div class="bg-inverse text-on-inverse">
+    <div class="wrap py-[72px]">
+      <div class="grid grid-cols-2 gap-16 items-start mb-[52px]">
+        <div>
+          <div class="text-xs font-bold tracking-[.14em] uppercase text-gold mb-4">Technology</div>
+          <h2 class="font-serif font-bold text-[34px] leading-[1.12] m-0 tracking-[-.01em] text-on-inverse">The evidence engine behind every review</h2>
+        </div>
+        <div class="pt-1.5">
+          <p class="text-[16.5px] leading-[1.7] text-on-inverse-2 m-0">We maintain a database of thousands of bills and policy proposals — federal, state, and municipal — held in a cross-referenced vector system, alongside the economic record of each region for the corresponding period. When a new policy comes under review, we can match it accurately to comparable measures already enacted and to how they actually fared.</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-6 mb-11">
+        @for (tp of techPillars; track tp.title) {
+          <div class="border border-inverse-border rounded-[2px] py-7 px-[26px]">
+            <span class="material-icons text-[26px] text-gold">{{ tp.icon }}</span>
+            <h3 class="font-serif font-semibold text-[19px] mt-4 mb-2.5 text-on-inverse">{{ tp.title }}</h3>
+            <p class="text-sm leading-[1.6] text-on-inverse-2 m-0">{{ tp.body }}</p>
+          </div>
+        }
+      </div>
+      <div class="border-l-[3px] border-gold py-1.5 pl-[22px] max-w-[860px]">
+        <p class="text-[14.5px] leading-[1.7] text-on-inverse-3 m-0 italic">This is not a perfect system, and we do not claim it to be. No model can fully predict how a policy will behave. But by grounding every assessment in the largest available record of comparable legislation and its measured outcomes, it offers the most accurate, scientific approach to understanding what a policy is and how it is likely to affect the regions it touches.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMENTARY -->
+  <div class="wrap py-16 grid grid-cols-[1.6fr_1fr] gap-14">
+    <div>
+      <h2 class="font-serif font-bold text-[28px] m-0 mb-7 border-b-2 border-ink pb-3.5">Commentary &amp; Analysis</h2>
+      @for (c of commentary; track c.title) {
+        <div class="flex gap-5 py-[22px] border-b border-border cursor-pointer">
+          <div class="font-mono text-xs text-text-4 whitespace-nowrap pt-1">{{ c.date }}</div>
+          <div>
+            <div class="text-[10px] font-bold tracking-[.1em] uppercase text-accent mb-[7px]">{{ c.tag }}</div>
+            <h3 class="font-serif font-semibold text-[19px] leading-[1.25] m-0 mb-1.5">{{ c.title }}</h3>
+            <div class="text-[13px] text-text-3">By {{ c.author }}</div>
+          </div>
+        </div>
+      }
+    </div>
+    <div>
+      <div class="bg-inverse text-on-inverse p-[34px] rounded-[2px]">
+        <span class="material-icons text-[30px] text-gold">smart_toy</span>
+        <h3 class="font-serif font-semibold text-[23px] mt-4 mb-3">Query the evidence directly</h3>
+        <p class="text-sm leading-[1.6] text-on-inverse-2 m-0 mb-[22px]">Our research assistant reads the full text of all ten studies under review. Ask it to summarize findings, critique a methodology, or surface cross-cutting evidence.</p>
+        <div routerLink="/assistant" class="bg-accent-fill text-on-inverse text-sm font-semibold py-[13px] text-center rounded-[2px] cursor-pointer">Open the Research Assistant</div>
+      </div>
+    </div>
+  </div>
+</div>

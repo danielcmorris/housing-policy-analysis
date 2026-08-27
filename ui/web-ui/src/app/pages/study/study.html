@@ -1,0 +1,87 @@
+<div>
+  <div class="bg-surface border-b border-border">
+    <div class="wrap pt-[30px] pb-10">
+      <div routerLink="/studies" class="text-[13px] text-text-3 mb-[22px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-base">chevron_left</span>Studies Library / Supply-Side Economics</div>
+      <div class="flex items-center gap-3.5 mb-3.5">
+        <span class="text-[11px] font-bold tracking-[.1em] uppercase text-accent">Supply-Side Economics</span>
+        <span class="font-mono text-xs text-text-4">CUHPR-2026-0142</span>
+        <span class="inline-flex items-center gap-1.5 py-[3px] px-2.5 rounded-[2px] text-[11px] font-semibold bg-ok-bg text-ok">Peer Reviewed</span>
+      </div>
+      <h1 class="font-serif font-bold text-[38px] leading-[1.12] m-0 mb-[18px] max-w-[880px] tracking-[-.01em]">The Supply Response to Zoning Reform: Evidence from Minneapolis 2040</h1>
+      <div class="flex items-center gap-[18px] text-sm text-text-2 flex-wrap">
+        <span><span class="text-text-4">Authors</span> &nbsp;<strong>Elena Hargrove</strong>, Univ. of Chicago · <strong>Paul Nakamura</strong>, MIT</span>
+        <span class="w-[3px] h-[3px] rounded-full bg-dot"></span>
+        <span class="font-mono text-text-3">Published Mar 2026</span>
+      </div>
+      <div class="flex gap-2.5 mt-[26px]">
+        <div class="bg-accent-fill text-on-inverse text-sm font-semibold py-[11px] px-5 rounded-[2px] cursor-pointer flex items-center gap-[7px]"><span class="material-icons text-[17px]">download</span>Download PDF</div>
+        <div routerLink="/assistant" class="bg-surface text-ink text-sm font-semibold py-[11px] px-5 border border-ink rounded-[2px] cursor-pointer flex items-center gap-[7px]"><span class="material-icons text-[17px]">smart_toy</span>Ask the AI about this study</div>
+        <div routerLink="/commons" class="bg-surface text-ink text-sm font-semibold py-[11px] px-5 border border-border-2 rounded-[2px] cursor-pointer flex items-center gap-[7px]"><span class="material-icons text-[17px]">database</span>Source Data</div>
+      </div>
+    </div>
+  </div>
+  <div class="wrap pt-12 pb-12 grid grid-cols-[1fr_320px] gap-14 items-start">
+    <!-- ARTICLE -->
+    <div class="text-base leading-[1.7] text-text">
+      <h2 class="font-serif font-bold text-[15px] tracking-[.06em] uppercase text-accent m-0 mb-3.5">Abstract</h2>
+      <p class="m-0 mb-7 text-[17px] leading-[1.7] text-text italic border-l-[3px] border-accent pl-[22px]">We exploit Minneapolis's 2019 elimination of single-family-only zoning as a natural experiment, comparing permitting outcomes against a synthetic control of 14 comparable metros. Four years post-reform, permitted units rose an estimated 12.4% (95% CI: 7.1–17.6), with effects concentrated in higher-amenity census tracts and muted in low-income peripheries.</p>
+      <h2 class="font-serif font-bold text-2xl m-0 mb-3.5 text-ink">Key Findings</h2>
+      <ul class="m-0 mb-7 pl-[22px]">
+        <li class="mb-2.5">Zoning liberalization produced a measurable supply response, but with a multi-year lag tied to financing and entitlement timelines.</li>
+        <li class="mb-2.5">Gains were spatially uneven — triplex and fourplex conversions clustered where land values supported redevelopment.</li>
+        <li class="mb-2.5">No statistically significant short-run effect on median rents was detected within the four-year window.</li>
+      </ul>
+      <h2 class="font-serif font-bold text-2xl m-0 mb-3.5 text-ink">Methodology</h2>
+      <p class="m-0 mb-[18px]">The authors employ a synthetic control method paired with a staggered difference-in-differences specification to address the timing of complementary reforms. Permitting microdata were sourced from municipal records spanning 2014–2025, deflated to constant 2025 dollars.</p>
+      <p class="m-0 mb-7">Robustness checks include placebo tests on pre-reform trends and alternative donor-pool constructions. The identifying assumption — parallel pre-trends between Minneapolis and its synthetic counterpart — is supported but, as the AI analysis notes below, sensitive to the inclusion of two high-growth Sun Belt metros.</p>
+      <div class="bg-surface-2 border border-border border-l-[3px] border-l-[#9a7b2e] rounded-[2px] py-[22px] px-6 mb-7">
+        <div class="flex items-center gap-[9px] mb-3"><span class="material-icons text-[19px] text-gold">smart_toy</span><span class="text-xs font-bold tracking-[.08em] uppercase text-gold">AI Methodology Note</span></div>
+        <p class="m-0 text-[14.5px] leading-[1.65] text-text-2">The donor pool's sensitivity to two Sun Belt metros warrants a leave-one-out robustness panel. The four-year window may also be too short to capture the full rent response; consider extending the post-period or modeling expected future supply. <span routerLink="/assistant" class="text-accent font-semibold cursor-pointer">Continue this analysis →</span></p>
+      </div>
+      <div class="flex items-center justify-between border-b-2 border-ink pb-3 mt-2 mx-0 mb-6">
+        <h2 class="font-serif font-bold text-2xl m-0 text-ink">Peer Reviews</h2>
+        <span class="text-[13px] text-text-3 font-mono">5 reviews · 2 recommend acceptance</span>
+      </div>
+      @for (rv of studyReviews; track rv.name) {
+        <div class="border border-border bg-surface rounded-[2px] py-[22px] px-6 mb-4">
+          <div class="flex items-center gap-[13px] mb-3.5">
+            <div class="w-10 h-10 rounded-full bg-inverse text-on-inverse flex items-center justify-center text-sm font-semibold font-serif shrink-0">{{ rv.initials }}</div>
+            <div class="flex-1">
+              <div class="text-[14.5px] font-semibold text-ink">{{ rv.name }}</div>
+              <div class="text-[12.5px] text-text-4">{{ rv.affil }} · {{ rv.date }}</div>
+            </div>
+            <span class="inline-flex items-center py-1 px-3 rounded-[2px] text-[11px] font-bold tracking-[.03em]" [style.background]="rv.recBg" [style.color]="rv.recColor">{{ rv.rec }}</span>
+            <span class="font-mono text-sm font-semibold text-ink">{{ rv.score }}</span>
+          </div>
+          <p class="m-0 text-[14.5px] leading-[1.65] text-text">{{ rv.text }}</p>
+        </div>
+      }
+    </div>
+    <!-- RAIL -->
+    <div class="sticky top-[90px] flex flex-col gap-[18px]">
+      <div class="border border-border bg-surface rounded-[2px] p-[22px] text-center">
+        <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mb-3">Clarity Score</div>
+        <div class="font-serif font-bold text-[52px] text-ok leading-none">9.2</div>
+        <div class="text-xs text-text-3 mt-1.5">AI-assessed completeness &amp; rigor</div>
+      </div>
+      <div class="border border-border bg-surface rounded-[2px] p-[22px]">
+        <div class="text-[11px] font-bold tracking-[.08em] uppercase text-ink mb-4">Review Status</div>
+        @for (r of reviewTimeline; track r.label) {
+          <div class="flex gap-3 mb-3.5">
+            <span class="material-icons text-lg" [style.color]="r.color">{{ r.icon }}</span>
+            <div><div class="text-[13.5px] font-semibold text-ink">{{ r.label }}</div><div class="text-xs text-text-4">{{ r.date }}</div></div>
+          </div>
+        }
+      </div>
+      <div class="border border-border bg-surface rounded-[2px] p-[22px]">
+        <div class="text-[11px] font-bold tracking-[.08em] uppercase text-ink mb-3.5">Metadata</div>
+        <div class="text-[13px] leading-[2] text-text-2">
+          <div class="flex justify-between"><span class="text-text-4">Methodology</span><span class="font-semibold">Synthetic control</span></div>
+          <div class="flex justify-between"><span class="text-text-4">Sample</span><span class="font-semibold">15 metros</span></div>
+          <div class="flex justify-between"><span class="text-text-4">Period</span><span class="font-semibold">2014–2025</span></div>
+          <div class="flex justify-between"><span class="text-text-4">Citations</span><span class="font-semibold">38</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

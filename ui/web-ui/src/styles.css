@@ -1,0 +1,114 @@
+/* Global styles — Tailwind v4 + the crimson design-token system ported from
+   the design prototype (ui/design_handoff_policy_platform/prototype). */
+
+@import "tailwindcss";
+
+/* ── Design tokens (light default; [data-theme="dark"] flips them) ─────── */
+:root {
+  --bg:#f7f4ee; --surface:#ffffff; --surface-2:#faf8f3;
+  --ink:#1c1814; --text:#2c2720; --text-2:#4a4339; --text-3:#6f665a; --text-4:#9a8e7a;
+  --border:#e2dccf; --border-2:#d8d2c4; --border-3:#f0ebe1;
+  --accent:#7b1113; --accent-fill:#7b1113; --accent-soft:#faf0f0;
+  --gold:#9a7b2e; --dot:#bcae97; --check-border:#c4bdac;
+  --inverse:#1c1814; --inverse-2:#14110f; --on-inverse:#ffffff; --on-inverse-2:#cfc7b8; --on-inverse-3:#8a8270;
+  --inverse-border:#3a342b; --inverse-border-2:#2a2520;
+  --ok:#2e7d4f; --ok-bg:#e6f0ea; --warn:#b5751d; --warn-bg:#fbf0dd;
+  --alert:#c0561f; --alert-bg:#fbe7dc; --reject:#c0392b; --neutral:#6f665a; --neutral-bg:#efece4;
+}
+
+[data-theme="dark"] {
+  --bg:#141109; --surface:#211d15; --surface-2:#1a1710;
+  --ink:#f1ebdd; --text:#e7e0d1; --text-2:#c9bfac; --text-3:#a89e8a; --text-4:#857c69;
+  --border:#322c22; --border-2:#3d362a; --border-3:#272219;
+  --accent:#e8766c; --accent-fill:#8c1618; --accent-soft:#37191a;
+  --gold:#cda85a; --dot:#4a4234; --check-border:#4a4234;
+  --inverse:#27221a; --inverse-2:#0f0d08; --on-inverse:#f1ebdd; --on-inverse-2:#c9bfac; --on-inverse-3:#9a9079;
+  --inverse-border:#3d362a; --inverse-border-2:#272219;
+  --ok:#5cc488; --ok-bg:rgba(46,125,79,.2); --warn:#e3ad55; --warn-bg:rgba(181,117,29,.22);
+  --alert:#e8916a; --alert-bg:rgba(192,86,31,.22); --reject:#e8766c; --neutral:#a89e8a; --neutral-bg:rgba(120,112,99,.24);
+}
+
+/* ── Tailwind theme: expose the tokens as utility colors/fonts.
+     `inline` emits var() references so [data-theme="dark"] still flips
+     every utility at runtime. ─────────────────────────────────────────── */
+@theme inline {
+  --color-*: initial;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-text-4: var(--text-4);
+  --color-border: var(--border);
+  --color-border-2: var(--border-2);
+  --color-border-3: var(--border-3);
+  --color-accent: var(--accent);
+  --color-accent-fill: var(--accent-fill);
+  --color-accent-soft: var(--accent-soft);
+  --color-gold: var(--gold);
+  --color-dot: var(--dot);
+  --color-check-border: var(--check-border);
+  --color-inverse: var(--inverse);
+  --color-inverse-2: var(--inverse-2);
+  --color-on-inverse: var(--on-inverse);
+  --color-on-inverse-2: var(--on-inverse-2);
+  --color-on-inverse-3: var(--on-inverse-3);
+  --color-inverse-border: var(--inverse-border);
+  --color-inverse-border-2: var(--inverse-border-2);
+  --color-ok: var(--ok);
+  --color-ok-bg: var(--ok-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-alert: var(--alert);
+  --color-alert-bg: var(--alert-bg);
+  --color-reject: var(--reject);
+  --color-neutral: var(--neutral);
+  --color-neutral-bg: var(--neutral-bg);
+  --color-white: #ffffff;
+
+  --font-serif: 'Spectral', serif;
+  --font-sans: 'Public Sans', system-ui, sans-serif;
+  --font-mono: 'Roboto Mono', monospace;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+body {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--accent-fill); color: #fff; }
+
+@keyframes scrFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes dotPulse { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
+
+input[type=range] { accent-color: var(--accent-fill); }
+
+/* ── Shared component classes ──────────────────────────────────────────── */
+
+/* Content column: max 1240px, 32px side padding */
+.wrap { @apply max-w-[1240px] mx-auto px-8; }
+
+.hover-accent { @apply transition-colors duration-[180ms] hover:!text-accent; }
+.hover-border-accent { @apply transition-colors duration-[180ms] hover:!border-accent; }
+.hover-dim { @apply transition-opacity duration-[180ms] hover:opacity-70; }
+
+/* Primary nav items (app shell); routerLinkActive adds .nav-active */
+.nav-item {
+  @apply py-5 text-[13px] font-semibold tracking-[.06em] uppercase cursor-pointer border-b-[3px] border-transparent -mb-[3px] font-sans text-ink;
+}
+.nav-item.nav-active {
+  @apply text-accent border-accent;
+}
+
+/* Filter chips (Commons / Experts) — chipStyle() from the prototype */
+.chip {
+  @apply text-[13px] font-semibold px-4 py-2 rounded-[20px] cursor-pointer whitespace-nowrap border border-border-2 bg-surface text-text-2;
+}
+.chip.chip-active {
+  @apply border-accent bg-accent-fill text-white;
+}

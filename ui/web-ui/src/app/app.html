@@ -1,0 +1,88 @@
+<div class="min-h-screen flex flex-col bg-bg text-ink">
+
+  <!-- UTILITY BAR -->
+  <div class="bg-inverse text-on-inverse-2 text-xs tracking-[.02em]">
+    <div class="wrap h-[34px] flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="material-icons text-sm text-gold">account_balance</span>
+        <span class="font-semibold text-on-inverse">An independent 501(c)(3) research institute</span>
+      </div>
+      <div class="flex items-center gap-5">
+        <span class="cursor-pointer">Newsroom</span>
+        <span class="cursor-pointer">Events</span>
+        <span routerLink="/experts" class="cursor-pointer">Experts</span>
+        <span class="w-px h-[15px] bg-inverse-border"></span>
+        <span class="cursor-pointer font-semibold text-white bg-accent-fill py-[5px] px-[15px] rounded-[2px] tracking-[.02em]">My Dashboard</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MASTHEAD -->
+  <div class="bg-surface border-b border-border">
+    <div class="wrap py-[22px] flex items-center justify-between gap-6">
+      <div routerLink="/" class="flex items-center gap-4 cursor-pointer">
+        <div class="w-[54px] h-[54px] border-2 border-accent rounded-full flex items-center justify-center relative shrink-0">
+          <div class="absolute inset-1 border border-accent rounded-full"></div>
+          <span class="font-serif font-bold text-[22px] text-accent tracking-[-.02em]">CR</span>
+        </div>
+        <div>
+          <div class="font-serif font-bold text-[23px] leading-[1.05] text-ink tracking-[-.01em]">Center for Urban<br>Policy Analysis</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3.5">
+        <div (click)="theme.toggle()" title="Toggle light / dark" class="w-[38px] h-[38px] flex items-center justify-center border border-border-2 rounded-[2px] cursor-pointer">
+          <span class="material-icons text-[19px] text-ink">{{ theme.dark() ? 'light_mode' : 'dark_mode' }}</span>
+        </div>
+        <div class="flex items-center gap-2 border border-border-2 rounded-[2px] py-[9px] px-3.5 bg-surface-2 min-w-[240px]">
+          <span class="material-icons text-lg text-text-4">search</span>
+          <span class="text-[13px] text-text-4">Search studies, authors, topics…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIMARY NAV -->
+  <div class="bg-surface border-b-[3px] border-accent sticky top-0 z-50 shadow-[0_1px_8px_rgba(28,24,20,.05)]">
+    <div class="wrap flex items-stretch gap-[34px]">
+      @for (nav of navItems; track nav.path) {
+        <div [routerLink]="nav.path"
+             routerLinkActive="nav-active"
+             [routerLinkActiveOptions]="{ exact: nav.exact }"
+             class="nav-item">{{ nav.label }}</div>
+      }
+    </div>
+  </div>
+
+  <!-- SCREEN AREA -->
+  <div class="flex-1">
+    <router-outlet />
+  </div>
+
+  <!-- FOOTER -->
+  <div class="bg-inverse-2 text-on-inverse-2">
+    <div class="wrap pt-14 pb-8 grid grid-cols-[1.6fr_1fr_1fr_1fr] gap-10">
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-[42px] h-[42px] border-2 border-gold rounded-full flex items-center justify-center"><span class="font-serif font-bold text-[17px] text-gold">CR</span></div>
+          <div class="font-serif font-bold text-[17px] leading-[1.1] text-on-inverse">Center for Urban<br>Policy Analysis</div>
+        </div>
+        <p class="text-[13px] leading-[1.65] text-on-inverse-3 m-0 max-w-[300px]">An independent 501(c)(3) research institute evaluating the evidence behind housing and urban-economic policy.</p>
+      </div>
+      @for (fc of footerCols; track fc.head) {
+        <div>
+          <div class="text-[11px] font-bold tracking-[.1em] uppercase text-gold mb-4">{{ fc.head }}</div>
+          @for (lk of fc.links; track lk) {
+            <div class="text-[13.5px] text-on-inverse-2 mb-[11px] cursor-pointer">{{ lk }}</div>
+          }
+        </div>
+      }
+    </div>
+    <div class="border-t border-inverse-border-2">
+      <div class="wrap py-5 flex items-center justify-between text-xs text-text-3">
+        <span>© 2026 Center for Urban Policy Analysis. All rights reserved.</span>
+        <div class="flex gap-[22px]"><span class="cursor-pointer">Privacy</span><span class="cursor-pointer">Terms</span><span class="cursor-pointer">Research Standards</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>

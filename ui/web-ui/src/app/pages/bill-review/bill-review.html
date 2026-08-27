@@ -1,0 +1,158 @@
+@if (vm(); as v) {
+<div>
+  <div class="bg-surface border-b border-border">
+    <div class="wrap pt-[30px] pb-10">
+      <div routerLink="/" class="text-[13px] text-text-3 mb-[22px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-base">chevron_left</span>Bills Under Review / Federal Legislation</div>
+      <div class="flex items-center gap-3.5 mb-3.5 flex-wrap">
+        <span class="text-[11px] font-bold tracking-[.1em] uppercase text-accent">{{ v.c.category }}</span>
+        <span class="font-mono text-xs text-text-4">{{ v.meta.billNumber }}</span>
+        <span class="inline-flex items-center gap-1.5 py-[3px] px-2.5 rounded-[2px] text-[11px] font-semibold" [style.background]="v.st.bg" [style.color]="v.st.color">{{ v.st.label }}</span>
+      </div>
+      <h1 class="font-serif font-bold text-[38px] leading-[1.12] m-0 mb-[18px] max-w-[880px] tracking-[-.01em] text-ink">{{ v.c.title }}</h1>
+      <div class="flex items-center gap-3.5 text-sm text-text-2 flex-wrap">
+        <span class="font-semibold text-ink">{{ v.c.congressLine }}</span>
+        <span class="w-[3px] h-[3px] rounded-full bg-dot"></span>
+        <span>{{ v.c.introducedLabel }}</span>
+        <span class="w-[3px] h-[3px] rounded-full bg-dot"></span>
+        <span>{{ v.c.sponsor }}</span>
+      </div>
+      <div class="flex gap-2.5 mt-[26px] flex-wrap">
+        <a [href]="v.meta.sourceUrl" target="_blank" rel="noopener" class="bg-accent-fill text-white text-sm font-semibold py-[11px] px-5 rounded-[2px] cursor-pointer flex items-center gap-[7px] no-underline"><span class="material-icons text-[17px]">north_east</span>View full text on Congress.gov</a>
+        <div routerLink="/assistant" class="bg-surface text-ink text-sm font-semibold py-[11px] px-5 border border-ink rounded-[2px] cursor-pointer flex items-center gap-[7px]"><span class="material-icons text-[17px]">smart_toy</span>Ask the AI about this bill</div>
+        <div routerLink="/commons" class="bg-surface text-ink text-sm font-semibold py-[11px] px-5 border border-border-2 rounded-[2px] cursor-pointer flex items-center gap-[7px]"><span class="material-icons text-[17px]">database</span>Source Data</div>
+      </div>
+    </div>
+  </div>
+  <div class="wrap pt-12 pb-12 grid grid-cols-[1fr_320px] gap-14 items-start">
+    <!-- ARTICLE -->
+    <div class="text-base leading-[1.7] text-text">
+      <h2 class="font-serif font-bold text-[15px] tracking-[.06em] uppercase text-accent m-0 mb-3.5">Summary</h2>
+      <p class="m-0 mb-[26px] text-[17px] leading-[1.7] text-text">{{ v.c.summary }}</p>
+      <p class="m-0 mb-9 text-sm leading-[1.6] text-text-3 border-l-[3px] border-border-2 pl-[18px]">{{ v.c.methodNote }}</p>
+
+      <!-- STAGE 1 -->
+      <div class="flex items-baseline gap-3 border-b-2 border-ink pb-3 mb-5">
+        <span class="font-mono text-[13px] text-gold">01</span>
+        <h2 class="font-serif font-bold text-[23px] m-0 text-ink">Primary Provisions</h2>
+      </div>
+      <div class="grid grid-cols-2 gap-3.5 mb-10">
+        @for (pv of v.c.provisions; track pv.title) {
+          <div class="border border-border bg-surface rounded-[2px] py-[18px] px-5">
+            <div class="text-[10px] font-bold tracking-[.08em] uppercase text-accent mb-2">{{ pv.tag }}</div>
+            <div class="font-serif text-base font-semibold text-ink mb-1.5">{{ pv.title }}</div>
+            <div class="text-[13px] leading-[1.55] text-text-2">{{ pv.body }}</div>
+          </div>
+        }
+      </div>
+
+      <!-- STAGE 2 -->
+      <div class="flex items-baseline gap-3 border-b-2 border-ink pb-3 mb-[18px]">
+        <span class="font-mono text-[13px] text-gold">02</span>
+        <h2 class="font-serif font-bold text-[23px] m-0 text-ink">Historical Precedent</h2>
+      </div>
+      <p class="m-0 mb-[18px] text-[14.5px] text-text-2">Comparable enacted policies drawn from our reviewed evidence base, matched by mechanism:</p>
+      <div class="mb-10">
+        @for (pr of v.precedents; track pr.ref) {
+          <div [routerLink]="['/studies', pr.ref]" class="border border-border bg-surface rounded-[2px] py-[18px] px-[22px] mb-3 cursor-pointer grid grid-cols-[1fr_auto] gap-5 items-center">
+            <div>
+              <div class="text-[10px] font-bold tracking-[.08em] uppercase text-gold mb-1.5">Matches · {{ pr.match }}</div>
+              <div class="font-serif text-base font-semibold text-ink mb-[5px]">{{ pr.title }}</div>
+              <div class="text-[13.5px] leading-[1.55] text-text-2">{{ pr.finding }}</div>
+              <div class="font-mono text-[11px] text-text-4 mt-[7px]">{{ pr.ref }}</div>
+            </div>
+            <div class="text-center border-l border-border pl-5 min-w-[92px]">
+              <div class="text-[9.5px] font-bold tracking-[.06em] uppercase text-text-4 mb-[5px]">Evidence</div>
+              <div class="text-sm font-bold" [style.color]="pr.badge.color">{{ pr.badge.label }}</div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- STAGE 3 -->
+      <div class="flex items-baseline gap-3 border-b-2 border-ink pb-3 mb-5">
+        <span class="font-mono text-[13px] text-gold">03</span>
+        <h2 class="font-serif font-bold text-[23px] m-0 text-ink">Realized Effects of Precedent</h2>
+      </div>
+      <div class="border border-border rounded-[2px] overflow-hidden mb-10">
+        @for (ef of v.c.effects; track ef.label) {
+          <div class="grid grid-cols-[150px_1fr] gap-[18px] py-4 px-[22px] border-b border-border-3 bg-surface">
+            <div class="text-[13px] font-bold text-ink uppercase tracking-[.05em]">{{ ef.label }}</div>
+            <div class="text-[13.5px] leading-[1.55] text-text-2">{{ ef.body }}</div>
+          </div>
+        }
+      </div>
+
+      <!-- STAGE 4 -->
+      <div class="flex items-baseline gap-3 border-b-2 border-ink pb-3 mb-5">
+        <span class="font-mono text-[13px] text-gold">04</span>
+        <h2 class="font-serif font-bold text-[23px] m-0 text-ink">Projected Outcome</h2>
+      </div>
+      <div class="border border-border rounded-[2px] overflow-hidden mb-8">
+        <div class="grid grid-cols-[1.5fr_1.1fr_.7fr_.8fr] gap-3 py-3 px-[22px] bg-surface-2 border-b border-border text-[10px] font-bold tracking-[.06em] uppercase text-text-4">
+          <span>Provision</span><span>Expected Effect</span><span>Horizon</span><span>Confidence</span>
+        </div>
+        @for (pj of v.projections; track pj.provision) {
+          <div class="grid grid-cols-[1.5fr_1.1fr_.7fr_.8fr] gap-3 py-3.5 px-[22px] border-b border-border-3 bg-surface items-center">
+            <span class="text-[13.5px] font-semibold text-ink">{{ pj.provision }}</span>
+            <span class="text-[13px] text-text-2">{{ pj.effect }}</span>
+            <span class="font-mono text-[12.5px] text-text-3">{{ pj.horizon }}</span>
+            <span class="text-xs font-bold" [style.color]="pj.badge.color">{{ pj.badge.label }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- AI NOTE -->
+      <div class="bg-surface-2 border border-border border-l-[3px] border-l-gold rounded-[2px] py-[22px] px-6 mb-10">
+        <div class="flex items-center gap-[9px] mb-3"><span class="material-icons text-[19px] text-gold">smart_toy</span><span class="text-xs font-bold tracking-[.08em] uppercase text-gold">AI Analysis Note</span></div>
+        <p class="m-0 text-[14.5px] leading-[1.65] text-text-2">{{ v.c.aiNote }} <span routerLink="/assistant" class="text-accent font-semibold cursor-pointer">Continue this analysis →</span></p>
+      </div>
+
+      <!-- PEER REVIEWS -->
+      <div class="flex items-center justify-between border-b-2 border-ink pb-3 m-0 mb-6">
+        <h2 class="font-serif font-bold text-[23px] m-0 text-ink">Peer Reviews</h2>
+        <span class="text-[13px] text-text-3 font-mono">{{ v.reviews.length }} reviews · {{ v.endorseCount }} endorse</span>
+      </div>
+      @for (rv of v.reviews; track rv.name) {
+        <div class="border border-border bg-surface rounded-[2px] py-[22px] px-6 mb-4">
+          <div class="flex items-center gap-[13px] mb-3.5">
+            <div class="w-10 h-10 rounded-full bg-inverse text-on-inverse flex items-center justify-center text-sm font-semibold font-serif shrink-0">{{ rv.initials }}</div>
+            <div class="flex-1">
+              <div class="text-[14.5px] font-semibold text-ink">{{ rv.name }}</div>
+              <div class="text-[12.5px] text-text-4">{{ rv.affil }} · {{ rv.date }}</div>
+            </div>
+            <span class="inline-flex items-center py-1 px-3 rounded-[2px] text-[11px] font-bold tracking-[.03em]" [style.background]="rv.badge.bg" [style.color]="rv.badge.color">{{ rv.badge.label }}</span>
+            <span class="font-mono text-sm font-semibold text-ink">{{ rv.score }}</span>
+          </div>
+          <p class="m-0 text-[14.5px] leading-[1.65] text-text">{{ rv.text }}</p>
+        </div>
+      }
+    </div>
+
+    <!-- RAIL -->
+    <div class="sticky top-[90px] flex flex-col gap-[18px]">
+      <div class="border border-border bg-surface rounded-[2px] p-[22px]">
+        <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mb-3">Overall Outlook</div>
+        <div class="font-serif font-bold text-[21px] leading-[1.2] text-ink mb-2.5">{{ v.c.outlook.headline }}</div>
+        <div class="text-[13px] leading-[1.55] text-text-2">{{ v.c.outlook.body }} Overall confidence: <strong [style.color]="v.outlookConf.color">{{ v.outlookConf.label }}</strong>.</div>
+      </div>
+      <div class="border border-border bg-surface rounded-[2px] p-[22px]">
+        <div class="text-[11px] font-bold tracking-[.08em] uppercase text-ink mb-4">Legislative Status</div>
+        @for (bs of v.legStatus; track bs.label) {
+          <div class="flex gap-3 mb-3.5">
+            <span class="material-icons text-lg" [style.color]="bs.color">{{ bs.icon }}</span>
+            <div><div class="text-[13.5px] font-semibold text-ink">{{ bs.label }}</div><div class="text-xs text-text-4">{{ bs.date }}</div></div>
+          </div>
+        }
+      </div>
+      <div class="border border-border bg-surface rounded-[2px] p-[22px]">
+        <div class="text-[11px] font-bold tracking-[.08em] uppercase text-ink mb-3.5">Key Facts</div>
+        <div class="text-[13px] leading-[1.4] text-text-2">
+          @for (bf of v.c.facts; track bf.k) {
+            <div class="flex justify-between gap-3 py-1.5 border-b border-border-3"><span class="text-text-4">{{ bf.k }}</span><span class="font-semibold text-right text-ink">{{ bf.v }}</span></div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}

@@ -1,0 +1,66 @@
+<div>
+  <!-- HERO -->
+  <div class="bg-inverse text-on-inverse">
+    <div class="wrap pt-14 pb-14">
+      <div class="text-xs font-bold tracking-[.14em] uppercase text-gold mb-4">119th Congress · Housing &amp; Urban Policy</div>
+      <h1 class="font-serif font-bold text-[42px] leading-[1.1] m-0 mb-[18px] max-w-[760px] tracking-[-.015em]">Federal Legislation Tracker</h1>
+      <p class="text-[17px] leading-[1.6] text-on-inverse-2 m-0 mb-7 max-w-[660px]">Search housing and urban-policy legislation before Congress, and follow the bills we are actively reviewing as they move through committee and floor votes.</p>
+      <div class="flex items-center gap-0 bg-surface rounded-[2px] max-w-[640px] py-1 pr-1 pl-[18px]">
+        <span class="material-icons text-[20px] text-text-4">search</span>
+        <input #q [value]="query()" (input)="query.set(q.value)" placeholder="Search by bill number, title, sponsor, or topic…" class="flex-1 border-none outline-none bg-transparent font-sans text-[15px] text-ink py-[13px] px-3.5">
+        @if (query().trim()) {
+          <div (click)="clear()" class="py-0 px-3 cursor-pointer text-text-4 flex items-center"><span class="material-icons text-lg">close</span></div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- LEGISLATION TILES -->
+  <div class="wrap pt-12 pb-16">
+    <div class="flex items-end justify-between border-b-2 border-ink pb-3.5 mb-8">
+      <h2 class="font-serif font-bold text-[26px] m-0 tracking-[-.01em] text-ink">Active Legislation</h2>
+      <div class="text-[13.5px] text-text-3"><span class="font-bold text-ink font-mono">{{ bills().length }}</span> bills tracked</div>
+    </div>
+    <div class="grid grid-cols-2 gap-5">
+      @for (b of bills(); track b.ref) {
+        <div routerLink="/bills/hr6644-119"
+             class="border border-border bg-surface rounded-[2px] p-6 cursor-pointer flex flex-col h-full"
+             [style.border-top]="b.featured ? '3px solid var(--accent)' : null">
+          <div class="flex items-center justify-between mb-3.5">
+            <div class="flex items-center gap-[9px]">
+              <span class="material-icons text-lg text-accent">{{ b.chamber === 'Senate' ? 'gavel' : 'account_balance' }}</span>
+              <span class="font-mono text-[13px] font-semibold text-ink">{{ b.ref }}</span>
+              <span class="text-xs text-text-4">· {{ b.congress }}</span>
+            </div>
+            <span class="inline-flex items-center py-1 px-[11px] rounded-[2px] text-[11px] font-bold whitespace-nowrap"
+                  [style.background]="statusStyle[b.statusKey].bg" [style.color]="statusStyle[b.statusKey].color">{{ b.status }}</span>
+          </div>
+          <h3 class="font-serif font-semibold text-[20px] leading-[1.22] m-0 mb-2.5 text-ink">{{ b.title }}</h3>
+          <p class="text-[13.5px] leading-[1.6] text-text-2 m-0 mb-[18px] flex-1">{{ b.summary }}</p>
+          <div class="flex items-center justify-between border-t border-border-3 pt-3.5">
+            <div class="flex items-center gap-2.5">
+              <span class="text-[11px] font-semibold text-accent bg-accent-soft py-[3px] px-2.5 rounded-xl">{{ b.category }}</span>
+              <span class="text-[12.5px] text-text-3">{{ b.sponsor }}</span>
+            </div>
+            <span class="text-[11.5px] text-text-4 font-mono">{{ b.updated }}</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- EMPTY STATE -->
+    @if (query().trim() && !bills().length) {
+      <div class="text-center py-14 px-5 text-text-3">
+        <span class="material-icons text-[34px] text-text-4">search_off</span>
+        <div class="text-[15px] mt-3">No tracked legislation matches your search.</div>
+        <div (click)="clear()" class="text-[13.5px] font-semibold text-accent mt-2.5 cursor-pointer">Clear search</div>
+      </div>
+    }
+
+    <!-- SOURCE NOTE -->
+    <div class="mt-9 bg-surface-2 border border-border rounded-[2px] py-[18px] px-[22px] flex gap-[13px] items-start">
+      <span class="material-icons text-[19px] text-gold">info</span>
+      <p class="m-0 text-[13.5px] leading-[1.6] text-text-2">Status reflects our last synchronization with Congress.gov. Bills we have published a full review for link through to that analysis; others are tracked pending review. <a href="https://www.congress.gov" target="_blank" rel="noopener" class="text-accent font-semibold no-underline">Browse all federal legislation on Congress.gov →</a></p>
+    </div>
+  </div>
+</div>
