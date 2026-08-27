@@ -198,6 +198,33 @@ CREATE TABLE IF NOT EXISTS sync_state (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- ---------------------------------------------------------------------------
+-- Studies & policy proposals (see Services/StudyService.cs). These are added
+-- manually — there is no upstream API. Metadata + summary live in typed
+-- columns; the extracted document text is stored inline for search/AI use;
+-- the PDF itself lives on disk under Studies:DocumentsDir (a bucket later).
+CREATE TABLE IF NOT EXISTS studies (
+    ref          TEXT PRIMARY KEY,          -- 'CUHPR-2026-0142'
+    doc_type     TEXT NOT NULL DEFAULT 'study',  -- 'study' | 'proposal'
+    title        TEXT NOT NULL,
+    category     TEXT,                      -- research program, e.g. 'Rent Control'
+    authors      TEXT,
+    year         INTEGER,
+    pages        INTEGER,
+    status       TEXT NOT NULL DEFAULT 'Submitted',  -- review pipeline label
+    clarity      NUMERIC(3,1),              -- AI-assessed 0-10, null until scored
+    summary      TEXT,                      -- abstract / excerpt
+    key_findings TEXT[] NOT NULL DEFAULT '{}',
+    methodology  TEXT,
+    text_content TEXT,                      -- extracted plain text of the document
+    pdf_path     TEXT,                      -- relative path under Studies:DocumentsDir
+    display_date TIMESTAMPTZ,               -- public when set and <= now() (same rule as bills)
+    pinned       BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_studies_display ON studies (display_date, year);
+
 -- The Center's authored bill reviews (four-stage analysis rendered at
 -- /bills/{review_id}); JSONB shaped by prototype/data/bill-review.schema.json.
 -- Live legislative status is merged in from `bills` at read time.

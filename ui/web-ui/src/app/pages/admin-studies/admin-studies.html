@@ -1,0 +1,150 @@
+<div>
+  <!-- HEADER -->
+  <div class="bg-surface border-b border-border">
+    <div class="wrap pt-[30px] pb-10">
+      <div routerLink="/admin/dashboard" class="text-[13px] text-text-3 mb-[22px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-base">chevron_left</span>Tracker Dashboard</div>
+      <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-3">Administration</div>
+      <h1 class="font-serif font-bold text-[38px] leading-[1.12] m-0 mb-2 tracking-[-.01em] text-ink">Studies &amp; Policy Proposals</h1>
+      <p class="text-base leading-[1.6] text-text-2 m-0 max-w-[720px]">Add a document to the library by hand: its metadata and summary, the extracted document text (for search and AI use), and the PDF itself. The PDF is stored on disk for now.</p>
+    </div>
+  </div>
+
+  <div class="wrap pt-8 pb-16 grid grid-cols-[1fr_380px] gap-10 items-start">
+    <!-- ADD FORM -->
+    <div class="border border-border bg-surface rounded-[2px]">
+      <div class="py-4 px-6 border-b border-border flex items-center gap-2.5">
+        <span class="material-icons text-[20px] text-accent">post_add</span>
+        <span class="font-serif font-semibold text-[18px] text-ink">Add a Document</span>
+      </div>
+      <form #f class="p-6" (submit)="$event.preventDefault(); submit(f)">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <label class="block">
+            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Reference *</span>
+            <input name="ref" placeholder="CUHPR-2026-0502" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none font-mono">
+          </label>
+          <label class="block">
+            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Type</span>
+            <select name="docType" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+              <option value="study">Study</option>
+              <option value="proposal">Policy Proposal</option>
+            </select>
+          </label>
+        </div>
+        <label class="block mb-4">
+          <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Title *</span>
+          <input name="title" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+        </label>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <label class="block">
+            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Category</span>
+            <select name="category" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+              @for (c of categories; track c) { <option [value]="c">{{ c }}</option> }
+            </select>
+          </label>
+          <label class="block">
+            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Authors / Institution</span>
+            <input name="authors" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+          </label>
+        </div>
+        <div class="grid grid-cols-4 gap-4 mb-4">
+          <label class="block">
+            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Year</span>
+            <input name="year" type="number" min="1900" max="2100" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+          </label>
+          <label class="block">
+            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Pages</span>
+            <input name="pages" type="number" min="1" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+          </label>
+          <label class="block">
+            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Status</span>
+            <select name="status" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+              @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
+            </select>
+          </label>
+          <label class="block">
+            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Clarity (0–10)</span>
+            <input name="clarity" type="number" step="0.1" min="0" max="10" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+          </label>
+        </div>
+        <label class="block mb-4">
+          <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Summary / Abstract</span>
+          <textarea name="summary" rows="3" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none resize-y"></textarea>
+        </label>
+        <label class="block mb-4">
+          <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Key Findings (one per line)</span>
+          <textarea name="keyFindings" rows="3" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none resize-y"></textarea>
+        </label>
+        <label class="block mb-4">
+          <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Methodology</span>
+          <textarea name="methodology" rows="2" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none resize-y"></textarea>
+        </label>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <label class="block">
+            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Document PDF</span>
+            <input name="pdf" type="file" accept="application/pdf" class="mt-1.5 w-full text-[13px] text-text-2">
+            <span class="text-[11px] text-text-4">Stored on disk for now; up to 25 MB.</span>
+          </label>
+          <label class="block">
+            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Document Text (.txt)</span>
+            <input name="textFile" type="file" accept=".txt,text/plain" class="mt-1.5 w-full text-[13px] text-text-2">
+            <span class="text-[11px] text-text-4">Extracted text, for search and the assistant.</span>
+          </label>
+        </div>
+        <label class="block mb-5">
+          <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">…or paste the document text</span>
+          <textarea name="textContent" rows="4" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-[13px] font-mono text-ink bg-surface-2 outline-none resize-y"></textarea>
+        </label>
+
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+          <label class="flex items-center gap-2.5 text-[13.5px] text-text-2 cursor-pointer">
+            <input name="display" type="checkbox" value="true" checked class="w-4 h-4 accent-[var(--accent-fill)]">
+            Display in the public library immediately
+          </label>
+          <button type="submit" class="bg-accent-fill text-white text-sm font-semibold py-3 px-7 rounded-[2px] cursor-pointer border-none inline-flex items-center gap-2" [class.opacity-60]="saving()">
+            <span class="material-icons text-[17px]" [class.animate-spin]="saving()">{{ saving() ? 'progress_activity' : 'library_add' }}</span>
+            {{ saving() ? 'Saving…' : 'Add Document' }}
+          </button>
+        </div>
+        @if (result()) {
+          <div class="mt-4 bg-ok-bg rounded-[2px] py-3 px-4 text-[13px] text-ok font-semibold">{{ result() }}</div>
+        }
+        @if (error()) {
+          <div class="mt-4 bg-alert-bg rounded-[2px] py-3 px-4 text-[13px] text-alert font-semibold">{{ error() }}</div>
+        }
+      </form>
+    </div>
+
+    <!-- EXISTING DOCUMENTS -->
+    <div class="sticky top-[90px] border border-border bg-surface rounded-[2px]">
+      <div class="py-4 px-5 border-b border-border text-[11px] font-bold tracking-[.1em] uppercase text-ink">On File</div>
+      <div class="p-5">
+        @for (s of rows(); track s.ref) {
+          <div class="mb-4 pb-4 border-b border-border-3">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="font-mono text-[11px] text-text-4">{{ s.ref }}</span>
+              <span class="inline-flex items-center py-[2px] px-2 rounded-[2px] text-[10px] font-bold"
+                    [style.background]="(studyStatus[s.status] || studyStatus['Submitted']).bg"
+                    [style.color]="(studyStatus[s.status] || studyStatus['Submitted']).color">{{ s.status }}</span>
+              @if (s.doc_type === 'proposal') {
+                <span class="text-[10px] font-bold uppercase tracking-[.05em] text-gold">Proposal</span>
+              }
+              @if (!s.displayed) {
+                <span class="material-icons text-sm text-text-4" title="Not displayed publicly">visibility_off</span>
+              }
+            </div>
+            <a [routerLink]="['/studies', s.ref]" class="font-serif font-semibold text-[14.5px] leading-[1.3] text-ink no-underline hover-accent">{{ s.title }}</a>
+            <div class="text-[11.5px] text-text-4 mt-1 flex items-center gap-2.5">
+              <span>{{ s.year }}</span>
+              @if (s.has_pdf) { <a [href]="pdfUrl(s.ref)" target="_blank" class="text-accent font-semibold no-underline">PDF</a> }
+              @if (s.has_text) { <span class="text-ok">text ✓</span> }
+            </div>
+          </div>
+        }
+        @if (!rows().length) {
+          <div class="text-[13px] text-text-4">No documents in the database yet.</div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

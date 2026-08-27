@@ -14,5 +14,6 @@ export const routes: Routes = [
   { path: 'about', loadComponent: () => import('./pages/about/about').then(m => m.AboutPage) },
   { path: 'admin/dashboard', loadComponent: () => import('./pages/admin-dashboard/admin-dashboard').then(m => m.AdminDashboardPage) },
   { path: 'admin/bills', loadComponent: () => import('./pages/admin-bills/admin-bills').then(m => m.AdminBillsPage) },
+  { path: 'admin/studies', loadComponent: () => import('./pages/admin-studies/admin-studies').then(m => m.AdminStudiesPage) },
   { path: '**', redirectTo: '' },
 ];

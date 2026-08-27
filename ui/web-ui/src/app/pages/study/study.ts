@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { DbStudy, StudiesService } from '../../core/studies.service';
+import { STUDY_STATUS, clarityColor } from '../../core/studies.data';
 
-/* Study detail — the prototype ships one fully-authored study page
-   (Minneapolis 2040, CUHPR-2026-0142) as the visual reference of record.
-   Production drives this from GET /api/studies/{ref}. */
+/* Study / policy-proposal detail. Documents added through the admin page are
+   rendered from the database (with a working PDF download); any other ref
+   falls back to the static demo study (Minneapolis 2040), which remains the
+   visual reference of record for the fully-reviewed layout. */
 
 @Component({
   selector: 'app-study',
@@ -11,6 +14,35 @@ import { RouterLink } from '@angular/router';
   templateUrl: './study.html',
 })
 export class StudyPage {
+  private svc = inject(StudiesService);
+  private route = inject(ActivatedRoute);
+
+  readonly db = signal<DbStudy | null>(null);
+  readonly resolved = signal(false);
+  readonly studyStatus = STUDY_STATUS;
+  readonly clarityColor = clarityColor;
+
+  constructor() {
+    this.route.paramMap.subscribe((p) => {
+      const ref = p.get('ref');
+      this.resolved.set(false);
+      this.db.set(null);
+      if (!ref) { this.resolved.set(true); return; }
+      this.svc.get(ref).subscribe({
+        next: (s) => { this.db.set(s); this.resolved.set(true); },
+        error: () => this.resolved.set(true),
+      });
+    });
+  }
+
+  pdfUrl(ref: string): string {
+    return this.svc.pdfUrl(ref);
+  }
+
+  typeLabel(s: DbStudy): string {
+    return s.doc_type === 'proposal' ? 'Policy Proposal' : 'Study';
+  }
+
   readonly reviewTimeline = [
     { icon: 'check_circle', color: 'var(--ok)', label: 'Intake complete', date: 'Jan 2026' },
     { icon: 'check_circle', color: 'var(--ok)', label: 'AI analysis attached', date: 'Feb 2026' },

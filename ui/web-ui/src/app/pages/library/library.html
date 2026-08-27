@@ -2,8 +2,8 @@
   <div class="bg-surface border-b border-border">
     <div class="wrap py-11">
       <div class="text-xs font-bold tracking-[.12em] uppercase text-accent mb-3">Research Library</div>
-      <h1 class="font-serif font-bold text-[38px] m-0 mb-2.5 tracking-[-.01em]">Studies Under Review</h1>
-      <p class="text-base text-text-2 m-0 max-w-[720px]">Ten landmark studies on housing policy — from federal agencies and leading research institutions — each under structured, multi-reviewer assessment. Filter by topic and review status.</p>
+      <h1 class="font-serif font-bold text-[38px] m-0 mb-2.5 tracking-[-.01em]">Studies &amp; Policy Proposals</h1>
+      <p class="text-base text-text-2 m-0 max-w-[720px]">Landmark studies and model policy proposals on housing policy — from federal agencies, leading research institutions, and the Center's own program — each under structured, multi-reviewer assessment. Filter by topic and review status.</p>
     </div>
   </div>
   <div class="bg-surface-2 border-b border-border">
@@ -51,28 +51,45 @@
           <div>
             <div class="flex items-center gap-3 mb-[9px]">
               <span class="text-[10px] font-bold tracking-[.1em] uppercase text-accent">{{ s.category }}</span>
+              @if (s.docType === 'proposal') {
+                <span class="text-[10px] font-bold tracking-[.1em] uppercase text-gold">Policy Proposal</span>
+              }
               <span class="font-mono text-[11px] text-text-4">{{ s.ref }}</span>
             </div>
             <h3 class="font-serif font-semibold text-[22px] leading-[1.2] m-0 mb-[9px] text-ink">{{ s.title }}</h3>
             <p class="text-sm leading-[1.55] text-text-2 m-0 mb-3 max-w-[680px]">{{ s.excerpt }}</p>
             <div class="flex items-center gap-3 text-[13px] text-text-3 flex-wrap">
               <span class="font-semibold text-ink">{{ s.authors }}</span>
-              <span class="w-[3px] h-[3px] rounded-full bg-dot"></span>
-              <span class="font-mono text-xs">{{ s.pages }} pp</span>
-              <span class="w-[3px] h-[3px] rounded-full bg-dot"></span>
-              <span>{{ s.year }}</span>
-              <span class="inline-flex items-center gap-[5px] text-accent font-semibold"><span class="material-icons text-[15px]">rate_review</span>{{ s.reviews }} reviews</span>
+              @if (s.pages != null) {
+                <span class="w-[3px] h-[3px] rounded-full bg-dot"></span>
+                <span class="font-mono text-xs">{{ s.pages }} pp</span>
+              }
+              @if (s.year != null) {
+                <span class="w-[3px] h-[3px] rounded-full bg-dot"></span>
+                <span>{{ s.year }}</span>
+              }
+              @if (s.reviews != null) {
+                <span class="inline-flex items-center gap-[5px] text-accent font-semibold"><span class="material-icons text-[15px]">rate_review</span>{{ s.reviews }} reviews</span>
+              }
               <span class="inline-flex items-center gap-1.5 py-[3px] px-2.5 rounded-[2px] text-[11px] font-semibold"
-                    [style.background]="studyStatus[s.status].bg" [style.color]="studyStatus[s.status].color">{{ s.status }}</span>
+                    [style.background]="(studyStatus[s.status] || studyStatus['Submitted']).bg"
+                    [style.color]="(studyStatus[s.status] || studyStatus['Submitted']).color">{{ s.status }}</span>
             </div>
           </div>
-          <div class="text-center border border-border rounded-[2px] py-3.5 px-[18px] h-fit min-w-[96px]">
-            <div class="font-serif font-bold text-[30px] leading-none" [style.color]="clarityColor(s.clarity)">{{ s.clarity }}</div>
-            <div class="text-[9.5px] font-bold tracking-[.08em] uppercase text-text-4 mt-1.5">Clarity<br>Score</div>
-          </div>
+          @if (s.clarity != null) {
+            <div class="text-center border border-border rounded-[2px] py-3.5 px-[18px] h-fit min-w-[96px]">
+              <div class="font-serif font-bold text-[30px] leading-none" [style.color]="clarityColor(s.clarity)">{{ s.clarity }}</div>
+              <div class="text-[9.5px] font-bold tracking-[.08em] uppercase text-text-4 mt-1.5">Clarity<br>Score</div>
+            </div>
+          } @else {
+            <div class="text-center border border-border-3 rounded-[2px] py-3.5 px-[18px] h-fit min-w-[96px]">
+              <div class="font-serif font-bold text-[30px] leading-none text-text-4">—</div>
+              <div class="text-[9.5px] font-bold tracking-[.08em] uppercase text-text-4 mt-1.5">Awaiting<br>Score</div>
+            </div>
+          }
         </div>
       }
-      <div class="text-center pt-[30px] pb-2 text-[13px] text-text-4">Showing all 10 studies currently under review.</div>
+      <div class="text-center pt-[30px] pb-2 text-[13px] text-text-4">Showing {{ studies().length }} document{{ studies().length === 1 ? '' : 's' }} currently under review.</div>
     </div>
   </div>
 </div>
