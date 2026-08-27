@@ -19,7 +19,7 @@
         <div class="py-4 px-[18px] border-b border-border text-xs font-bold tracking-[.1em] uppercase text-ink flex items-center justify-between">Filters<span (click)="clearFilters()" class="text-[11px] font-semibold text-accent cursor-pointer normal-case tracking-normal">Clear</span></div>
         <div class="p-[18px]">
           <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mb-3">Topic</div>
-          @for (tf of topicFilters; track tf.label) {
+          @for (tf of topicFilters(); track tf.label) {
             <div (click)="toggleTopic(tf.label)" class="flex items-center gap-2.5 py-1.5 cursor-pointer text-[13.5px] text-ink">
               <div class="w-[18px] h-[18px] border-[1.5px] border-check-border rounded-[2px] flex items-center justify-center shrink-0"
                    [style.background]="selectedTopics().has(tf.label) ? 'var(--accent-fill)' : 'var(--surface)'">

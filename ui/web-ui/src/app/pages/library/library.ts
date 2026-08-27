@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ALL_STUDIES, STATUS_FILTERS, STUDY_STATUS, TOPIC_FILTERS, clarityColor } from '../../core/studies.data';
+import { ALL_STUDIES, STATUS_FILTERS, STUDY_STATUS, clarityColor } from '../../core/studies.data';
 import { StudiesService } from '../../core/studies.service';
 
 /* One row of the library list: database documents (added via the admin page)
@@ -28,15 +28,15 @@ export interface LibStudy {
 export class LibraryPage {
   private db = inject(StudiesService);
 
-  readonly topicFilters = TOPIC_FILTERS;
   readonly statusFilters = STATUS_FILTERS;
   readonly studyStatus = STUDY_STATUS;
   readonly clarityColor = clarityColor;
 
   readonly selectedTopics = signal<Set<string>>(new Set());
 
+  /* The library runs on live database documents. The static demo studies
+     render only when the database has none (API down or empty). */
   private readonly all = computed<LibStudy[]>(() => {
-    const dbRefs = new Set(this.db.studies().map((s) => s.ref));
     const fromDb: LibStudy[] = this.db.studies().map((s) => ({
       ref: s.ref,
       category: s.category ?? 'Uncategorized',
@@ -51,10 +51,19 @@ export class LibraryPage {
       docType: s.doc_type,
       fromDb: true,
     }));
-    const demo: LibStudy[] = ALL_STUDIES
-      .filter((s) => !dbRefs.has(s.ref))
-      .map((s) => ({ ...s, docType: 'study', fromDb: false }));
-    return [...fromDb, ...demo].sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
+    if (fromDb.length) {
+      return fromDb.sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
+    }
+    return ALL_STUDIES.map((s) => ({ ...s, docType: 'study', fromDb: false }));
+  });
+
+  /* Topic filter rows derived from whatever is actually in the library. */
+  readonly topicFilters = computed(() => {
+    const counts = new Map<string, number>();
+    for (const s of this.all()) counts.set(s.category, (counts.get(s.category) ?? 0) + 1);
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([label, count]) => ({ label, count }));
   });
 
   readonly studies = computed(() => {
