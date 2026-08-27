@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS bill_summaries (
     action_date  DATE,
     action_desc  TEXT,
     update_date  TIMESTAMPTZ,
-    text         TEXT,                       -- HTML summary body
+    text         TEXT,                       -- summary body, stored as plain text (HTML stripped)
     PRIMARY KEY (bill_id, version_code)
 );
 

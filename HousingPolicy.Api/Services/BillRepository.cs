@@ -427,7 +427,9 @@ public sealed class BillRepository
                 VALUES (@BillId, @VersionCode, @ActionDate, @ActionDesc, @UpdateDate, @Text)
                 ON CONFLICT (bill_id, version_code) DO NOTHING
                 """,
-                summaries.Select(s => new { BillId = slug, s.VersionCode, s.ActionDate, s.ActionDesc, s.UpdateDate, s.Text }));
+                // Stored stripped of HTML, matching the tracker ingest path
+                // (TrackerService) so bill_summaries.text is uniformly plain text.
+                summaries.Select(s => new { BillId = slug, s.VersionCode, s.ActionDate, s.ActionDesc, s.UpdateDate, Text = TrackerRules.StripHtml(s.Text) }));
 
         if (titles.Count > 0)
             await Exec(
