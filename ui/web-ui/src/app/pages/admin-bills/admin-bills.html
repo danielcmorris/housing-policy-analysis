@@ -1,0 +1,183 @@
+<div>
+  <!-- HEADER -->
+  <div class="bg-surface border-b border-border">
+    <div class="wrap pt-[30px] pb-10">
+      <div routerLink="/admin/dashboard" class="text-[13px] text-text-3 mb-[22px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-base">chevron_left</span>Tracker Dashboard</div>
+      <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-3">Administration</div>
+      <h1 class="font-serif font-bold text-[38px] leading-[1.12] m-0 mb-2 tracking-[-.01em] text-ink">Manage Bill Records</h1>
+      <p class="text-base leading-[1.6] text-text-2 m-0 max-w-[720px]">Search every bill on file. Click a bill to expand its summary and record details. <strong>Tracking</strong> controls data collection (tracked bills carry full text); <strong>Display</strong> controls what appears on the public tracker; <strong>Pin</strong> keeps a displayed bill at the top of the public page.</p>
+    </div>
+  </div>
+
+  <div class="wrap pt-8 pb-16 grid grid-cols-[1fr_300px] gap-10 items-start">
+    <!-- MAIN COLUMN -->
+    <div>
+      <!-- SEARCH + FILTERS -->
+      <div class="flex items-center gap-3 flex-wrap mb-6">
+        <div class="flex-1 min-w-[280px] flex items-center gap-3 border border-border-2 rounded-[2px] py-1 pr-1 pl-[18px] bg-surface">
+          <span class="material-icons text-xl text-text-4">search</span>
+          <input #q [value]="query()" (input)="onQuery(q.value)" placeholder="Search by bill number, title, sponsor, or summary…"
+                 class="flex-1 border-none outline-none bg-transparent font-sans text-[15px] text-ink py-3 px-0">
+        </div>
+        @for (f of filters; track f[0]) {
+          <div (click)="setFilter(f[0])" class="chip" [class.chip-active]="tracking() === f[0]">{{ f[1] }}</div>
+        }
+      </div>
+
+      @if (error()) {
+        <div class="mb-5 bg-alert-bg rounded-[2px] py-3 px-4 text-[13px] text-alert font-semibold">{{ error() }}</div>
+      }
+
+      <div class="flex items-center justify-between border-b-2 border-ink pb-3 mb-1">
+        <div class="text-sm text-text-3"><span class="font-bold text-ink font-mono">{{ rows().length }}</span> bill{{ rows().length === 1 ? '' : 's' }}</div>
+        @if (loading()) {
+          <span class="text-[13px] text-text-3 flex items-center gap-2"><span class="material-icons text-[15px] animate-spin">progress_activity</span>Loading…</span>
+        }
+      </div>
+
+      @for (b of rows(); track b.bill_id) {
+        <div class="border-b border-border">
+          <div class="py-5 grid grid-cols-[auto_1fr_auto] gap-4 items-center">
+            <span class="material-icons text-xl text-text-4 cursor-pointer select-none" (click)="toggleExpand(b)">{{ isExpanded(b) ? 'expand_less' : 'expand_more' }}</span>
+            <div (click)="toggleExpand(b)" class="cursor-pointer">
+              <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
+                @if (b.watch) {
+                  <span class="material-icons text-lg text-gold" title="Potential bill to watch — carries a core housing-policy tag">star</span>
+                }
+                <span class="material-icons text-base text-accent">{{ b.chamber === 'Senate' ? 'gavel' : 'account_balance' }}</span>
+                <span class="font-mono text-[13px] font-semibold text-ink">{{ b.ref }}</span>
+                <span class="text-xs text-text-4">· {{ b.congress }}</span>
+                <span class="inline-flex items-center py-[3px] px-2.5 rounded-[2px] text-[11px] font-bold cursor-help"
+                      [title]="statusDetail[b.status_key] || ''"
+                      [style.background]="(statusStyle[b.status_key] || statusStyle['introduced']).bg"
+                      [style.color]="(statusStyle[b.status_key] || statusStyle['introduced']).color">{{ statusLabel[b.status_key] || b.status_key }}</span>
+                @if (b.tracking_status === 'tracked') {
+                  <span class="inline-flex items-center gap-1 py-[3px] px-2.5 rounded-[2px] text-[11px] font-bold bg-accent-soft text-accent"><span class="material-icons text-[13px]">bookmark</span>Tracked</span>
+                } @else {
+                  <span class="inline-flex items-center gap-1 py-[3px] px-2.5 rounded-[2px] text-[11px] font-bold bg-neutral-bg text-text-3"><span class="material-icons text-[13px]">visibility_off</span>Untracked</span>
+                }
+                @if (b.summary) {
+                  <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-ok" title="A CRS summary is on file for this bill"><span class="material-icons text-[13px]">description</span>summary</span>
+                }
+                @if (b.displayed) {
+                  <span class="inline-flex items-center gap-1 py-[3px] px-2.5 rounded-[2px] text-[11px] font-bold bg-ok-bg text-ok" [title]="'Visible on the public tracker since ' + (b.display_date | date:'MMM d, y HH:mm')"><span class="material-icons text-[13px]">visibility</span>Public</span>
+                }
+                @if (b.pinned) {
+                  <span class="material-icons text-base text-gold" title="Pinned — sorts to the top of the public tracker">push_pin</span>
+                }
+              </div>
+              <div class="font-serif font-semibold text-[17px] leading-[1.25] text-ink mb-1">{{ b.title }}</div>
+              <div class="text-[12.5px] text-text-3 mb-1.5">
+                {{ b.sponsor }}
+                @if (b.updated) { · <span class="font-mono text-text-4">{{ b.updated | date:'MMM d, y' }}</span> }
+              </div>
+              @if (b.tags?.length) {
+                <div class="flex gap-1.5 flex-wrap items-center">
+                  @for (t of b.tags; track t) {
+                    <span class="text-[11px] text-text-3 bg-surface-2 border border-border py-[2px] px-2 rounded-xl">{{ t }}</span>
+                  }
+                  @if (b.tags_source === 'title') {
+                    <span class="text-[10.5px] text-text-4 italic" title="Provisional — scanned from the title; upgraded automatically when the CRS summary is published">provisional</span>
+                  }
+                </div>
+              }
+            </div>
+            <div class="whitespace-nowrap flex items-center gap-2">
+              @if (refreshing()[b.bill_id]) {
+                <span class="w-[38px] h-[38px] flex items-center justify-center"><span class="material-icons text-[17px] text-text-3 animate-spin">progress_activity</span></span>
+              } @else {
+                <div (click)="refreshBill(b)" title="Pull the latest version of this bill from Congress.gov (status, summary, and full text if tracked)"
+                     class="w-[38px] h-[38px] flex items-center justify-center border border-border-2 rounded-[2px] cursor-pointer hover-border-accent">
+                  <span class="material-icons text-[17px] text-text-2">sync</span>
+                </div>
+              }
+              <div (click)="setDisplay(b)"
+                   [title]="b.displayed ? 'Remove from the public tracker (clears the display date)' : 'Display on the public tracker — sets the display date to right now'"
+                   class="w-[38px] h-[38px] flex items-center justify-center border rounded-[2px] cursor-pointer hover-border-accent"
+                   [class.border-border-2]="!b.displayed" [class.border-ok]="b.displayed">
+                <span class="material-icons text-[17px]" [class.text-ok]="b.displayed" [class.text-text-2]="!b.displayed">{{ b.displayed ? 'visibility' : 'visibility_off' }}</span>
+              </div>
+              <div (click)="setPin(b)"
+                   [title]="b.pinned ? 'Unpin from the top of the public tracker' : 'Pin to the top of the public tracker'"
+                   class="w-[38px] h-[38px] flex items-center justify-center border rounded-[2px] cursor-pointer hover-border-accent"
+                   [class.border-border-2]="!b.pinned" [class.border-gold]="b.pinned">
+                <span class="material-icons text-[17px]" [class.text-gold]="b.pinned" [class.text-text-2]="!b.pinned">push_pin</span>
+              </div>
+              @if (busy()[b.bill_id]) {
+                <span class="text-[13px] text-text-3 flex items-center gap-2"><span class="material-icons text-[15px] animate-spin">progress_activity</span>Updating…</span>
+              } @else if (b.tracking_status === 'tracked') {
+                <div (click)="toggle(b)" class="border border-border-2 text-text-2 text-[13px] font-semibold py-2.5 px-4 rounded-[2px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-[15px]">visibility_off</span>Untrack</div>
+              } @else {
+                <div (click)="toggle(b)" class="bg-accent-fill text-white text-[13px] font-semibold py-2.5 px-4 rounded-[2px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-[15px]">bookmark_add</span>Track{{ b.has_text ? '' : ' + full text' }}</div>
+              }
+            </div>
+          </div>
+
+          <!-- EXPANDED DETAIL -->
+          @if (isExpanded(b)) {
+            <div class="mb-5 ml-9 bg-surface-2 border border-border rounded-[2px] p-6 grid grid-cols-[1fr_260px] gap-8 items-start">
+              <div>
+                <div class="text-[11px] font-bold tracking-[.08em] uppercase text-gold mb-2.5">CRS Summary</div>
+                @if (b.summary) {
+                  <p class="m-0 text-[14px] leading-[1.65] text-text-2 whitespace-pre-line">{{ b.summary }}</p>
+                } @else {
+                  <p class="m-0 text-[13.5px] leading-[1.6] text-text-4 italic">No CRS summary has been published for this bill yet. It will be picked up automatically on a future refresh, and the bill's tags will be upgraded from the title scan when it arrives.</p>
+                }
+                <div class="mt-4 pt-4 border-t border-border-3">
+                  <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mb-1.5">Latest Action</div>
+                  <p class="m-0 text-[13.5px] leading-[1.6] text-text-2">{{ b.status_text }} <span class="font-mono text-xs text-text-4">{{ b.updated | date:'MMM d, y' }}</span></p>
+                </div>
+              </div>
+              <div class="text-[13px] leading-[2] text-text-2">
+                <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mb-1.5" style="line-height:1.4;">Record</div>
+                <div class="flex justify-between gap-3"><span class="text-text-4">Bill</span><span class="font-mono font-semibold text-ink">{{ b.ref }}</span></div>
+                <div class="flex justify-between gap-3"><span class="text-text-4">Congress</span><span class="font-semibold">{{ b.congress }}</span></div>
+                <div class="flex justify-between gap-3"><span class="text-text-4">Chamber</span><span class="font-semibold">{{ b.chamber }}</span></div>
+                @if (b.introduced) {
+                  <div class="flex justify-between gap-3"><span class="text-text-4">Introduced</span><span class="font-semibold font-mono text-xs pt-1">{{ b.introduced | date:'MMM d, y' }}</span></div>
+                }
+                <div class="flex justify-between gap-3 items-start"><span class="text-text-4 whitespace-nowrap">Policy area</span><span class="font-semibold text-right leading-[1.5] pt-[5px]">{{ b.category }}</span></div>
+                <div class="flex justify-between gap-3"><span class="text-text-4">Sponsor</span><span class="font-semibold text-right">{{ b.sponsor_party }}-{{ b.sponsor_state }}</span></div>
+                <div class="flex justify-between gap-3"><span class="text-text-4">Full text stored</span><span class="font-semibold" [class.text-ok]="b.has_text">{{ b.has_text ? 'Yes' : 'No' }}</span></div>
+                <div class="flex justify-between gap-3"><span class="text-text-4">Displayed</span><span class="font-semibold" [class.text-ok]="b.displayed">{{ b.displayed ? ((b.display_date | date:'MMM d, y') || 'Yes') : 'No' }}</span></div>
+                <div class="flex justify-between gap-3"><span class="text-text-4">Pinned</span><span class="font-semibold" [class.text-gold]="b.pinned">{{ b.pinned ? 'Yes' : 'No' }}</span></div>
+                @if (b.tags?.length) {
+                  <div class="flex justify-between gap-3"><span class="text-text-4">Tag source</span><span class="font-semibold">{{ b.tags_source === 'summary' ? 'CRS summary' : (b.tags_source === 'title' ? 'Title (provisional)' : (b.tags_source || '—')) }}</span></div>
+                }
+                <a [href]="b.congress_gov_url" target="_blank" rel="noopener" class="mt-3 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-accent no-underline">View on Congress.gov<span class="material-icons text-sm">north_east</span></a>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      @if (!loading() && !rows().length) {
+        <div class="text-center py-12 text-text-3">
+          <span class="material-icons text-[34px] text-text-4">search_off</span>
+          <div class="text-[15px] mt-3">No bills match.</div>
+        </div>
+      }
+    </div>
+
+    <!-- STATUS KEY RAIL -->
+    <div class="sticky top-[90px]">
+      <div class="border border-border bg-surface rounded-[2px]">
+        <div class="py-4 px-5 border-b border-border text-[11px] font-bold tracking-[.1em] uppercase text-ink">Status Key</div>
+        <div class="p-5">
+          @for (s of statusInfo; track s.key) {
+            <div class="flex gap-3 mb-4 cursor-help" [title]="s.detail">
+              <span class="font-mono text-[11px] text-gold pt-[3px] w-3 shrink-0">{{ s.order }}</span>
+              <div>
+                <span class="inline-flex items-center py-[2px] px-2 rounded-[2px] text-[11px] font-bold mb-1"
+                      [style.background]="(statusStyle[s.key] || statusStyle['introduced']).bg"
+                      [style.color]="(statusStyle[s.key] || statusStyle['introduced']).color">{{ s.label }}</span>
+                <div class="text-[12px] leading-[1.5] text-text-3">{{ s.sentence }}</div>
+              </div>
+            </div>
+          }
+          <div class="pt-3 border-t border-border-3 text-[11.5px] leading-[1.5] text-text-4">Stages 1–5 run in order; Failed is terminal and can occur at any point. Hover any stage or status pill for detail.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

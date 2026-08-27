@@ -1,0 +1,153 @@
+<div>
+  <!-- HEADER -->
+  <div class="bg-surface border-b border-border">
+    <div class="wrap pt-[30px] pb-10">
+      <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-3">Administration</div>
+      <div class="flex items-end justify-between gap-6 flex-wrap">
+        <div>
+          <h1 class="font-serif font-bold text-[38px] leading-[1.12] m-0 mb-2 tracking-[-.01em] text-ink">Tracker Dashboard</h1>
+          <p class="text-base leading-[1.6] text-text-2 m-0 max-w-[680px]">Maintain the legislation tracker: refresh the bills already on file from Congress.gov, and review newly filed housing bills for inclusion.</p>
+        </div>
+        <div routerLink="/admin/bills" class="hover-border-accent border border-border bg-surface rounded-[2px] py-[11px] px-5 cursor-pointer flex items-center gap-2 text-sm font-semibold text-accent whitespace-nowrap"><span class="material-icons text-[17px]">manage_search</span>Manage tracked bills</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap pt-10 pb-16">
+
+    <!-- STATS -->
+    @if (stats(); as s) {
+      <div class="grid grid-cols-4 gap-4 mb-10">
+        <div class="border border-border bg-surface rounded-[2px] p-[22px] text-center">
+          <div class="font-serif font-bold text-[40px] leading-none text-ink">{{ s.tracked.bills }}</div>
+          <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mt-2.5">Tracked Bills</div>
+        </div>
+        <div class="border border-border bg-surface rounded-[2px] p-[22px] text-center">
+          <div class="font-serif font-bold text-[40px] leading-none text-ok">{{ s.tracked.with_text }}</div>
+          <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mt-2.5">With Full Text</div>
+        </div>
+        <div class="border border-border bg-surface rounded-[2px] p-[22px] text-center">
+          <div class="font-serif font-bold text-[40px] leading-none text-text-3">{{ s.untracked.bills }}</div>
+          <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mt-2.5">Untracked Bills</div>
+        </div>
+        <div class="border border-border bg-surface rounded-[2px] p-[22px] text-center">
+          <div class="font-mono text-[15px] font-semibold text-ink pt-3">{{ (s.last_refresh_at | date:'MMM d, HH:mm') || '—' }}</div>
+          <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mt-3">Last Refresh</div>
+        </div>
+      </div>
+    } @else {
+      <div class="mb-10 bg-alert-bg border border-border rounded-[2px] py-4 px-5 text-[13.5px] text-alert font-semibold">Tracker API is not reachable at localhost:8000 — start it with <span class="font-mono">bash api/run.sh</span>.</div>
+    }
+
+    <div class="grid grid-cols-2 gap-6 items-start mb-12">
+      <!-- REFRESH CARD -->
+      <div class="border border-border bg-surface rounded-[2px]">
+        <div class="py-4 px-6 border-b border-border flex items-center gap-2.5">
+          <span class="material-icons text-[20px] text-accent">sync</span>
+          <span class="font-serif font-semibold text-[18px] text-ink">Refresh Existing Bills</span>
+        </div>
+        <div class="p-6">
+          <p class="text-sm leading-[1.6] text-text-2 m-0 mb-5">Re-synchronizes every tracked bill from Congress.gov: status, latest action, sponsors, and summaries. Full text is re-pulled for bills whose upstream copy changed or that are missing it.</p>
+          <div (click)="runRefresh()" class="bg-accent-fill text-white text-sm font-semibold py-3 px-6 rounded-[2px] cursor-pointer inline-flex items-center gap-2"
+               [class.opacity-60]="refreshing()">
+            <span class="material-icons text-[17px]" [class.animate-spin]="refreshing()">{{ refreshing() ? 'progress_activity' : 'sync' }}</span>
+            {{ refreshing() ? 'Refreshing…' : 'Refresh from Congress.gov' }}
+          </div>
+          @if (refreshResult(); as r) {
+            <div class="mt-4 bg-ok-bg rounded-[2px] py-3 px-4 text-[13px] text-ok font-semibold">
+              Refreshed {{ r.refreshed }} of {{ r.bills }} tracked bills ({{ r.calls }} API calls). Full text re-pulled for {{ r.texts_pulled.length }} bill{{ r.texts_pulled.length === 1 ? '' : 's' }}.
+            </div>
+          }
+          @if (refreshError()) {
+            <div class="mt-4 bg-alert-bg rounded-[2px] py-3 px-4 text-[13px] text-alert font-semibold">{{ refreshError() }}</div>
+          }
+        </div>
+      </div>
+
+      <!-- DISCOVER CARD -->
+      <div class="border border-border bg-surface rounded-[2px]">
+        <div class="py-4 px-6 border-b border-border flex items-center gap-2.5">
+          <span class="material-icons text-[20px] text-accent">travel_explore</span>
+          <span class="font-serif font-semibold text-[18px] text-ink">Search for New Bills</span>
+        </div>
+        <div class="p-6">
+          <p class="text-sm leading-[1.6] text-text-2 m-0 mb-5">Scans Congress.gov for housing bills filed or updated since the last check that are not yet on file. Nothing is added until you choose, per bill, to track it or record it as untracked.</p>
+          <div class="flex items-center gap-3 flex-wrap">
+            <div (click)="runDiscover()" class="bg-accent-fill text-white text-sm font-semibold py-3 px-6 rounded-[2px] cursor-pointer inline-flex items-center gap-2"
+                 [class.opacity-60]="discovering()">
+              <span class="material-icons text-[17px]" [class.animate-spin]="discovering()">{{ discovering() ? 'progress_activity' : 'travel_explore' }}</span>
+              {{ discovering() ? 'Searching…' : 'Search Congress.gov' }}
+            </div>
+            <label class="flex items-center gap-2 text-[13px] text-text-3">Look back
+              <input type="number" min="1" max="365" [value]="discoverDays()" (input)="discoverDays.set(+day.value || 30)" #day
+                     class="w-[64px] border border-border-2 rounded-[2px] py-2 px-2.5 text-[13px] text-ink bg-surface-2 outline-none text-center">
+              days
+            </label>
+          </div>
+          @if (discoverError()) {
+            <div class="mt-4 bg-alert-bg rounded-[2px] py-3 px-4 text-[13px] text-alert font-semibold">{{ discoverError() }}</div>
+          }
+          @if (stats()?.last_discovery_at; as last) {
+            <div class="mt-4 text-xs text-text-4">Last search: <span class="font-mono">{{ last | date:'MMM d, y HH:mm' }}</span></div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- CANDIDATES -->
+    @if (candidates(); as cs) {
+      <div class="flex items-end justify-between border-b-2 border-ink pb-3 mb-1">
+        <h2 class="font-serif font-bold text-[23px] m-0 text-ink">New Bills Found</h2>
+        <span class="text-[13px] text-text-3 font-mono">{{ cs.length }} candidate{{ cs.length === 1 ? '' : 's' }}</span>
+      </div>
+      <div class="text-xs text-text-4 mb-4 mt-2">{{ discoverMeta() }}</div>
+
+      @if (!cs.length) {
+        <div class="text-center py-12 text-text-3">
+          <span class="material-icons text-[34px] text-text-4">task_alt</span>
+          <div class="text-[15px] mt-3">No new housing bills in this window — your records are current.</div>
+        </div>
+      }
+
+      @for (c of cs; track key(c)) {
+        <div class="py-5 border-b border-border grid grid-cols-[1fr_auto] gap-6 items-center">
+          <div>
+            <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
+              @if (c.watch) {
+                <span class="material-icons text-lg text-gold" title="Potential bill to watch — carries a core housing-policy tag">star</span>
+              }
+              <span class="material-icons text-base text-accent">{{ c.chamber === 'Senate' ? 'gavel' : 'account_balance' }}</span>
+              <span class="font-mono text-[13px] font-semibold text-ink">{{ c.ref }}</span>
+              <span class="inline-flex items-center py-[3px] px-2.5 rounded-[2px] text-[11px] font-bold bg-neutral-bg text-text-3">{{ statusLabel[c.status_key] || c.status_key }}</span>
+              @for (t of c.tags; track t) {
+                <span class="text-[11px] text-text-3 bg-surface-2 border border-border py-[2px] px-2 rounded-xl">{{ t }}</span>
+              }
+            </div>
+            <div class="font-serif font-semibold text-[17px] leading-[1.25] text-ink mb-1">{{ c.title }}</div>
+            <div class="text-[12.5px] text-text-3">{{ c.sponsor }} · {{ c.latest_action_text }} <span class="font-mono text-text-4">{{ c.latest_action_date | date:'MMM d, y' }}</span></div>
+          </div>
+          <div class="flex items-center gap-2.5 whitespace-nowrap">
+            @switch (stateOf(c)) {
+              @case ('') {
+                <div (click)="add(c, true)" class="bg-accent-fill text-white text-[13px] font-semibold py-2.5 px-4 rounded-[2px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-[15px]">bookmark_add</span>Track + full text</div>
+                <div (click)="add(c, false)" class="border border-border-2 text-text-2 text-[13px] font-semibold py-2.5 px-4 rounded-[2px] cursor-pointer">Add untracked</div>
+              }
+              @case ('adding') {
+                <span class="text-[13px] text-text-3 flex items-center gap-2"><span class="material-icons text-[15px] animate-spin">progress_activity</span>Adding…</span>
+              }
+              @case ('tracked') {
+                <span class="inline-flex items-center gap-1.5 py-2 px-3.5 rounded-[2px] text-[12px] font-bold bg-ok-bg text-ok"><span class="material-icons text-[15px]">check_circle</span>Tracked</span>
+              }
+              @case ('untracked') {
+                <span class="inline-flex items-center gap-1.5 py-2 px-3.5 rounded-[2px] text-[12px] font-bold bg-neutral-bg text-text-3"><span class="material-icons text-[15px]">visibility_off</span>Untracked</span>
+              }
+              @default {
+                <span class="text-[12px] text-alert font-semibold">{{ stateOf(c) }}</span>
+              }
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

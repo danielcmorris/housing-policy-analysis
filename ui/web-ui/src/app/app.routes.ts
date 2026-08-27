@@ -12,5 +12,7 @@ export const routes: Routes = [
   { path: 'experts', loadComponent: () => import('./pages/experts/experts').then(m => m.ExpertsPage) },
   { path: 'resources', loadComponent: () => import('./pages/resources/resources').then(m => m.ResourcesPage) },
   { path: 'about', loadComponent: () => import('./pages/about/about').then(m => m.AboutPage) },
+  { path: 'admin/dashboard', loadComponent: () => import('./pages/admin-dashboard/admin-dashboard').then(m => m.AdminDashboardPage) },
+  { path: 'admin/bills', loadComponent: () => import('./pages/admin-bills/admin-bills').then(m => m.AdminBillsPage) },
   { path: '**', redirectTo: '' },
 ];

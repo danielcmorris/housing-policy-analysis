@@ -23,26 +23,32 @@
     </div>
     <div class="grid grid-cols-2 gap-5">
       @for (b of bills(); track b.ref) {
-        <div routerLink="/bills/hr6644-119"
+        <div (click)="open(b)"
              class="border border-border bg-surface rounded-[2px] p-6 cursor-pointer flex flex-col h-full"
-             [style.border-top]="b.featured ? '3px solid var(--accent)' : null">
+             [style.border-top]="isFeatured(b) ? '3px solid var(--accent)' : null">
           <div class="flex items-center justify-between mb-3.5">
             <div class="flex items-center gap-[9px]">
+              @if (b.pinned) {
+                <span class="material-icons text-base text-gold" title="Pinned by our review board">push_pin</span>
+              }
               <span class="material-icons text-lg text-accent">{{ b.chamber === 'Senate' ? 'gavel' : 'account_balance' }}</span>
               <span class="font-mono text-[13px] font-semibold text-ink">{{ b.ref }}</span>
               <span class="text-xs text-text-4">· {{ b.congress }}</span>
             </div>
             <span class="inline-flex items-center py-1 px-[11px] rounded-[2px] text-[11px] font-bold whitespace-nowrap"
-                  [style.background]="statusStyle[b.statusKey].bg" [style.color]="statusStyle[b.statusKey].color">{{ b.status }}</span>
+                  [style.background]="(statusStyle[b.status_key] || statusStyle['introduced']).bg"
+                  [style.color]="(statusStyle[b.status_key] || statusStyle['introduced']).color">{{ statusLabel[b.status_key] || b.status_key }}</span>
           </div>
           <h3 class="font-serif font-semibold text-[20px] leading-[1.22] m-0 mb-2.5 text-ink">{{ b.title }}</h3>
-          <p class="text-[13.5px] leading-[1.6] text-text-2 m-0 mb-[18px] flex-1">{{ b.summary }}</p>
-          <div class="flex items-center justify-between border-t border-border-3 pt-3.5">
-            <div class="flex items-center gap-2.5">
-              <span class="text-[11px] font-semibold text-accent bg-accent-soft py-[3px] px-2.5 rounded-xl">{{ b.category }}</span>
-              <span class="text-[12.5px] text-text-3">{{ b.sponsor }}</span>
+          <p class="text-[13.5px] leading-[1.6] text-text-2 m-0 mb-[18px] flex-1">{{ excerpt(b) }}</p>
+          <div class="flex items-center justify-between border-t border-border-3 pt-3.5 gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="text-[11px] font-semibold text-accent bg-accent-soft py-[3px] px-2.5 rounded-xl whitespace-nowrap">{{ b.category }}</span>
+              <span class="text-[12.5px] text-text-3 truncate">{{ sponsorLine(b) }}</span>
             </div>
-            <span class="text-[11.5px] text-text-4 font-mono">{{ b.updated }}</span>
+            @if (b.updated) {
+              <span class="text-[11.5px] text-text-4 font-mono whitespace-nowrap">{{ b.updated | date:'MMM d, y' }}</span>
+            }
           </div>
         </div>
       }
@@ -60,7 +66,14 @@
     <!-- SOURCE NOTE -->
     <div class="mt-9 bg-surface-2 border border-border rounded-[2px] py-[18px] px-[22px] flex gap-[13px] items-start">
       <span class="material-icons text-[19px] text-gold">info</span>
-      <p class="m-0 text-[13.5px] leading-[1.6] text-text-2">Status reflects our last synchronization with Congress.gov. Bills we have published a full review for link through to that analysis; others are tracked pending review. <a href="https://www.congress.gov" target="_blank" rel="noopener" class="text-accent font-semibold no-underline">Browse all federal legislation on Congress.gov →</a></p>
+      <p class="m-0 text-[13.5px] leading-[1.6] text-text-2">
+        @if (live()) {
+          Live data: status, sponsors, and summaries are synchronized from Congress.gov into the Center's policy database. Bills we have published a full review for link through to that analysis; others link to their Congress.gov record.
+        } @else {
+          Showing sample data — the tracker API is not reachable. Status reflects our last synchronization with Congress.gov.
+        }
+        <a href="https://www.congress.gov" target="_blank" rel="noopener" class="text-accent font-semibold no-underline">Browse all federal legislation on Congress.gov →</a>
+      </p>
     </div>
   </div>
 </div>
