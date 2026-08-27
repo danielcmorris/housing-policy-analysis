@@ -2,8 +2,21 @@
   <!-- CHAT -->
   <div class="border border-border bg-surface rounded-[2px] flex flex-col h-full overflow-hidden">
     <div class="py-[18px] px-6 border-b border-border flex items-center gap-3 bg-inverse">
-      <div class="w-9 h-9 rounded-full bg-accent-fill flex items-center justify-center"><span class="material-icons text-[20px] text-on-inverse">smart_toy</span></div>
-      <div><div class="text-[15px] font-semibold text-on-inverse font-serif">Research Assistant</div><div class="text-xs text-text-4">Reading the full text of 10 studies</div></div>
+      <div class="w-9 h-9 rounded-full bg-accent-fill flex items-center justify-center shrink-0"><span class="material-icons text-[20px] text-on-inverse">smart_toy</span></div>
+      @if (doc(); as d) {
+        <div class="min-w-0">
+          <div class="text-[15px] font-semibold text-on-inverse font-serif truncate">Research Assistant ·
+            @if (d.link_kind === 'internal') {
+              <a [routerLink]="d.link_href" class="text-gold no-underline hover:underline">{{ shortTitle(d.title) }}</a>
+            } @else {
+              <a [href]="d.link_href" target="_blank" rel="noopener" class="text-gold no-underline hover:underline">{{ shortTitle(d.title) }}</a>
+            }
+          </div>
+          <div class="text-xs text-text-4">Ask any question you'd like about this {{ d.kind }}.</div>
+        </div>
+      } @else {
+        <div><div class="text-[15px] font-semibold text-on-inverse font-serif">Research Assistant</div><div class="text-xs text-text-4">Reading the full text of 10 studies</div></div>
+      }
     </div>
     <div #chatBox class="flex-1 overflow-y-auto py-[26px] px-6 flex flex-col gap-5">
       @for (m of messages(); track $index) {
@@ -29,6 +42,15 @@
           <span class="w-[7px] h-[7px] rounded-full bg-accent-fill animate-[dotPulse_1.2s_infinite_.2s]"></span>
           <span class="w-[7px] h-[7px] rounded-full bg-accent-fill animate-[dotPulse_1.2s_infinite_.4s]"></span>
         </div>
+      }
+      @if (chatError()) {
+        <div class="bg-alert-bg rounded-[2px] py-3 px-4 text-[13px] text-alert font-semibold w-fit">{{ chatError() }}</div>
+      }
+      @if (docError()) {
+        <div class="bg-warn-bg rounded-[2px] py-3 px-4 text-[13px] text-warn font-semibold w-fit">{{ docError() }}</div>
+      }
+      @if (doc() && !messages().length && !typing()) {
+        <div class="text-[13.5px] text-text-3 py-6 text-center">The full text of this {{ doc()!.kind }} is loaded (≈{{ (doc()!.token_estimate / 1000).toFixed(0) }}k tokens). Ask away.</div>
       }
     </div>
     <div class="py-4 px-6 border-t border-border">

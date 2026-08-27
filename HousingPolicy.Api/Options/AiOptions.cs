@@ -62,4 +62,11 @@ public sealed class GeminiOptions
 
     /// <summary>Most retrieved chunks ever handed to the model.</summary>
     public int MaxContextChunks { get; set; } = 8;
+
+    /// <summary>
+    /// Hard cap for document-scoped chat, where the ENTIRE document text
+    /// rides in the context window (well within Gemini's window; documents
+    /// beyond this are truncated with a visible marker).
+    /// </summary>
+    public int MaxChatInputTokens { get; set; } = 250000;
 }

@@ -16,6 +16,12 @@ export class BillReviewPage {
 
   private id = toSignal(this.route.paramMap.pipe(map((p) => p.get('id') ?? 'hr6644-119')), { initialValue: 'hr6644-119' });
 
+  /** Registry slug for the underlying bill: 'hr6644-119' -> '119-hr-6644'. */
+  readonly billSlug = computed(() => {
+    const m = this.id().match(/^([a-z]+)(\d+)-(\d+)$/);
+    return m ? `${m[3]}-${m[1]}-${m[2]}` : this.id();
+  });
+
   readonly vm = computed(() => {
     const data = this.bills.content(this.id());
     if (!data) return null;

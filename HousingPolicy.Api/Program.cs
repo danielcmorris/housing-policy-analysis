@@ -66,6 +66,7 @@ builder.Services.AddHttpClient<GeminiClient>(c => c.Timeout = TimeSpan.FromSecon
 builder.Services.AddHttpClient<VertexEmbedClient>(c => c.Timeout = TimeSpan.FromSeconds(120));
 builder.Services.AddScoped<SearchService>();
 builder.Services.AddScoped<EmbeddingService>();
+builder.Services.AddScoped<AssistantService>();
 
 // Angular front end (dev + house origins).
 builder.Services.AddCors(options =>

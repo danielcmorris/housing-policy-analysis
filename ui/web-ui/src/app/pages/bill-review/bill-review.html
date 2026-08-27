@@ -18,7 +18,7 @@
       </div>
       <div class="flex gap-2.5 mt-[26px] flex-wrap">
         <a [href]="v.meta.sourceUrl" target="_blank" rel="noopener" class="bg-accent-fill text-white text-sm font-semibold py-[11px] px-5 rounded-[2px] cursor-pointer flex items-center gap-[7px] no-underline"><span class="material-icons text-[17px]">north_east</span>View full text on Congress.gov</a>
-        <div routerLink="/assistant" class="bg-surface text-ink text-sm font-semibold py-[11px] px-5 border border-ink rounded-[2px] cursor-pointer flex items-center gap-[7px]"><span class="material-icons text-[17px]">smart_toy</span>Ask the AI about this bill</div>
+        <div routerLink="/assistant" [queryParams]="{ type: 'federal_bill', id: billSlug() }" class="bg-surface text-ink text-sm font-semibold py-[11px] px-5 border border-ink rounded-[2px] cursor-pointer flex items-center gap-[7px]"><span class="material-icons text-[17px]">smart_toy</span>Ask the AI about this bill</div>
         <div routerLink="/commons" class="bg-surface text-ink text-sm font-semibold py-[11px] px-5 border border-border-2 rounded-[2px] cursor-pointer flex items-center gap-[7px]"><span class="material-icons text-[17px]">database</span>Source Data</div>
       </div>
     </div>

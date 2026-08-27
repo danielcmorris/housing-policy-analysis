@@ -29,7 +29,12 @@ public sealed class GeminiClient
 
     public bool IsConfigured => _credentialsPath is not null;
 
-    public async Task<GeminiResult> GenerateAsync(string systemInstruction, string userPrompt, CancellationToken ct)
+    public Task<GeminiResult> GenerateAsync(string systemInstruction, string userPrompt, CancellationToken ct) =>
+        GenerateChatAsync(systemInstruction, new[] { ("user", userPrompt) }, ct);
+
+    /// <summary>Multi-turn generation. Roles are 'user' or 'model'.</summary>
+    public async Task<GeminiResult> GenerateChatAsync(
+        string systemInstruction, IReadOnlyList<(string Role, string Text)> turns, CancellationToken ct)
     {
         if (_credentialsPath is null)
             throw new InvalidOperationException(
@@ -45,8 +50,19 @@ public sealed class GeminiClient
         var body = JsonSerializer.Serialize(new
         {
             systemInstruction = new { parts = new[] { new { text = systemInstruction } } },
-            contents = new[] { new { role = "user", parts = new[] { new { text = userPrompt } } } },
-            generationConfig = new { maxOutputTokens = _opt.MaxOutputTokens, temperature = 0.2 },
+            contents = turns.Select(t => new
+            {
+                role = t.Role == "model" ? "model" : "user",
+                parts = new[] { new { text = t.Text } },
+            }),
+            // thinkingBudget 0: on Gemini 2.5, thinking tokens count against
+            // maxOutputTokens and can starve the visible answer.
+            generationConfig = new
+            {
+                maxOutputTokens = _opt.MaxOutputTokens,
+                temperature = 0.2,
+                thinkingConfig = new { thinkingBudget = 0 },
+            },
         });
 
         using var req = new HttpRequestMessage(HttpMethod.Post, url)
