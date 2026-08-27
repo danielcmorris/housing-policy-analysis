@@ -13,6 +13,7 @@ export const routes: Routes = [
   { path: 'experts/:slug', loadComponent: () => import('./pages/expert-profile/expert-profile').then(m => m.ExpertProfilePage) },
   { path: 'resources', loadComponent: () => import('./pages/resources/resources').then(m => m.ResourcesPage) },
   { path: 'about', loadComponent: () => import('./pages/about/about').then(m => m.AboutPage) },
+  { path: 'search', loadComponent: () => import('./pages/search/search').then(m => m.SearchPage) },
   { path: 'admin/dashboard', loadComponent: () => import('./pages/admin-dashboard/admin-dashboard').then(m => m.AdminDashboardPage) },
   { path: 'admin/bills', loadComponent: () => import('./pages/admin-bills/admin-bills').then(m => m.AdminBillsPage) },
   { path: 'admin/studies', loadComponent: () => import('./pages/admin-studies/admin-studies').then(m => m.AdminStudiesPage) },

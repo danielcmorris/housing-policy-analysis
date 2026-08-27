@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { ThemeService } from './core/theme.service';
 import { FOOTER_COLS } from './core/site.data';
 
@@ -11,7 +11,15 @@ import { FOOTER_COLS } from './core/site.data';
 })
 export class App {
   readonly theme = inject(ThemeService);
+  private router = inject(Router);
   readonly footerCols = FOOTER_COLS;
+
+  search(value: string, input: HTMLInputElement): void {
+    const q = value.trim();
+    if (!q) return;
+    input.value = '';
+    this.router.navigate(['/search'], { queryParams: { q } });
+  }
 
   readonly navItems = [
     { label: 'Home', path: '/', exact: true },

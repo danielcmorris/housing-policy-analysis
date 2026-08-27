@@ -1,0 +1,72 @@
+<div>
+  <!-- SEARCH HEADER -->
+  <div class="bg-surface border-b border-border">
+    <div class="wrap pt-10 pb-9">
+      <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-3">Search</div>
+      <h1 class="font-serif font-bold text-[32px] leading-[1.12] m-0 mb-5 tracking-[-.01em] text-ink">Studies &amp; Legislation</h1>
+      <div class="flex items-center gap-3 border border-border-2 rounded-[2px] py-1 pr-1 pl-[18px] bg-surface-2 max-w-[720px]">
+        <span class="material-icons text-xl text-text-4">search</span>
+        <input #q [value]="query()" (keydown.enter)="submit(q.value)"
+               placeholder="Search studies and legislation"
+               class="flex-1 border-none outline-none bg-transparent font-sans text-[15px] text-ink py-3 px-0">
+        <div (click)="submit(q.value)" class="bg-accent-fill text-white text-sm font-semibold py-[11px] px-[22px] rounded-[2px] cursor-pointer">Search</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap pt-8 pb-16 max-w-[924px]">
+    @if (loading()) {
+      <div class="flex items-center gap-2.5 text-text-3 text-sm py-8">
+        <span class="material-icons text-lg animate-spin">progress_activity</span>
+        Searching the policy corpus…
+      </div>
+    } @else if (error()) {
+      <div class="bg-alert-bg rounded-[2px] py-3 px-4 text-[13px] text-alert font-semibold">{{ error() }}</div>
+    } @else if (response(); as r) {
+      <div class="flex items-center justify-between border-b-2 border-ink pb-3 mb-2">
+        <div class="text-sm text-text-3"><span class="font-bold text-ink font-mono">{{ r.documents.length }}</span> document{{ r.documents.length === 1 ? '' : 's' }} for “{{ r.query }}”</div>
+        @if (r.mode === 'keyword') {
+          <span class="text-[11.5px] text-text-4" title="The embedding service was unavailable; results are ranked by keyword relevance instead of semantic similarity.">keyword match</span>
+        }
+      </div>
+
+      @for (d of r.documents; track d.document_id) {
+        <div class="py-6 border-b border-border">
+          <div class="flex items-center gap-2.5 mb-1 flex-wrap">
+            <span class="text-[10.5px] font-bold tracking-[.08em] uppercase" [style.color]="sourceColor(d)">{{ sourceLabel(d) }}</span>
+            <span class="font-mono text-[11.5px] text-text-4">{{ byline(d) }}</span>
+            @if (d.chunk_matches > 1) {
+              <span class="text-[11px] text-text-4">· {{ d.chunk_matches }} matching passages</span>
+            }
+          </div>
+          @if (d.link.kind === 'internal') {
+            <a [routerLink]="d.link.href" class="font-serif font-semibold text-[20px] leading-[1.25] text-ink no-underline hover-accent line-clamp-2 block">{{ d.title }}</a>
+          } @else {
+            <a [href]="d.link.href" target="_blank" rel="noopener" class="font-serif font-semibold text-[20px] leading-[1.25] text-ink no-underline hover-accent line-clamp-2 block">{{ d.title }} <span class="material-icons text-sm text-text-4">north_east</span></a>
+          }
+          <p class="text-[13.5px] leading-[1.6] text-text-2 m-0 mt-2 mb-2.5">{{ d.snippet }}</p>
+          <div class="flex gap-1.5 flex-wrap items-center">
+            @for (t of d.tags; track t) {
+              <span class="text-[11px] text-text-3 bg-surface-2 border border-border py-[2px] px-2 rounded-xl">{{ t }}</span>
+            }
+            <span class="text-[10.5px] text-text-4 font-mono ml-auto" title="Semantic similarity to your query">{{ (d.score * 100).toFixed(0) }}% match</span>
+          </div>
+        </div>
+      }
+
+      @if (!r.documents.length) {
+        <div class="text-center py-14 text-text-3">
+          <span class="material-icons text-[34px] text-text-4">search_off</span>
+          <div class="text-[15px] mt-3">Nothing in the corpus matches with enough certainty.</div>
+          <div class="text-[13px] text-text-4 mt-1.5">Try broader terms — the search spans federal bills, city legislation, and studies.</div>
+        </div>
+      }
+    } @else {
+      <div class="text-center py-14 text-text-3">
+        <span class="material-icons text-[34px] text-text-4">manage_search</span>
+        <div class="text-[15px] mt-3">Search across every document in the Center's corpus.</div>
+        <div class="text-[13px] text-text-4 mt-1.5">Federal bills, city legislation, and reviewed studies — ranked by semantic similarity.</div>
+      </div>
+    }
+  </div>
+</div>

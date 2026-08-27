@@ -19,7 +19,7 @@ public sealed class SearchController : ControllerBase
     public sealed record SearchForm(
         string Query, string[]? SourceTypes = null, string[]? Tags = null,
         string? Jurisdiction = null, int? YearFrom = null, int? YearTo = null,
-        int TopK = 8, bool Synthesize = false);
+        int TopK = 8, bool Synthesize = false, double MinScore = 0);
 
     [HttpPost]
     public async Task<IActionResult> Search([FromBody] SearchForm form, CancellationToken ct)
@@ -28,6 +28,6 @@ public sealed class SearchController : ControllerBase
             return BadRequest(new { detail = "query is required" });
         return Ok(await _search.SearchAsync(new SearchService.SearchRequest(
             form.Query.Trim(), form.SourceTypes, form.Tags, form.Jurisdiction,
-            form.YearFrom, form.YearTo, form.TopK, form.Synthesize), ct));
+            form.YearFrom, form.YearTo, form.TopK, form.Synthesize, form.MinScore), ct));
     }
 }

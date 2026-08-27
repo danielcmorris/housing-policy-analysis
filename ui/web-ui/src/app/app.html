@@ -33,9 +33,11 @@
         <div (click)="theme.toggle()" title="Toggle light / dark" class="w-[38px] h-[38px] flex items-center justify-center border border-border-2 rounded-[2px] cursor-pointer">
           <span class="material-icons text-[19px] text-ink">{{ theme.dark() ? 'light_mode' : 'dark_mode' }}</span>
         </div>
-        <div class="flex items-center gap-2 border border-border-2 rounded-[2px] py-[9px] px-3.5 bg-surface-2 min-w-[240px]">
+        <div class="flex items-center gap-2 border border-border-2 rounded-[2px] py-[3px] px-3.5 bg-surface-2 min-w-[260px]">
           <span class="material-icons text-lg text-text-4">search</span>
-          <span class="text-[13px] text-text-4">Search studies, authors, topics…</span>
+          <input #mastheadSearch (keydown.enter)="search(mastheadSearch.value, mastheadSearch)"
+                 placeholder="Search studies and legislation"
+                 class="flex-1 border-none outline-none bg-transparent font-sans text-[13px] text-ink py-1.5 px-0 placeholder:text-text-4">
         </div>
       </div>
     </div>

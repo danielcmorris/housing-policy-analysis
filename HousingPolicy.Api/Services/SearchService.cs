@@ -48,7 +48,8 @@ public sealed class SearchService
 
     public sealed record SearchRequest(
         string Query, string[]? SourceTypes, string[]? Tags, string? Jurisdiction,
-        int? YearFrom, int? YearTo, int TopK = 8, bool Synthesize = false);
+        int? YearFrom, int? YearTo, int TopK = 8, bool Synthesize = false,
+        double MinScore = 0);
 
     public sealed class Hit
     {
@@ -61,15 +62,45 @@ public sealed class SearchService
         public int? DocYear { get; set; }
         public string Content { get; set; } = "";
         public double Score { get; set; }
+        public string[]? Tags { get; set; }
+        public string? ReviewId { get; set; }
+        public int? CityMatterId { get; set; }
+        public string? CityClient { get; set; }
+    }
+
+    /// <summary>Where a search result should send the user.</summary>
+    private static object Link(Hit h) => h.SourceType switch
+    {
+        "study" => new { kind = "internal", href = $"/studies/{h.SourceKey}" },
+        "federal_bill" when h.ReviewId is not null =>
+            new { kind = "internal", href = $"/bills/{h.ReviewId}" },
+        "federal_bill" => new { kind = "external", href = FederalUrl(h.SourceKey) },
+        "city_matter" when h is { CityClient: not null, CityMatterId: not null } =>
+            new { kind = "external", href = $"https://{h.CityClient}.legistar.com/gateway.aspx?m=l&id={h.CityMatterId}" },
+        _ => new { kind = "external", href = "https://www.congress.gov" },
+    };
+
+    private static string FederalUrl(string sourceKey)
+    {
+        // '119-hr-6644' -> congress.gov bill URL
+        var parts = sourceKey.Split('-');
+        return parts.Length == 3 && int.TryParse(parts[0], out var congress) && int.TryParse(parts[2], out var number)
+            ? TrackerRules.CongressGovUrl(congress, parts[1], number)
+            : "https://www.congress.gov";
     }
 
     public async Task<object> SearchAsync(SearchRequest req, CancellationToken ct)
     {
-        var topK = Math.Clamp(req.TopK, 1, 25);
+        var topK = Math.Clamp(req.TopK, 1, 40);
         var vector = await EmbedQueryAsync(req.Query, ct);
         var (hits, mode) = vector is not null
             ? (await VectorSearchAsync(req, vector, topK), "vector")
             : (await KeywordSearchAsync(req, topK), "keyword");
+
+        // Certainty floor applies to vector similarity only (keyword ts_rank
+        // is on a different scale).
+        if (mode == "vector" && req.MinScore > 0)
+            hits = hits.Where(h => h.Score >= req.MinScore).ToList();
 
         object? answer = null;
         string? synthesisError = null;
@@ -84,6 +115,13 @@ public sealed class SearchService
                 synthesisError = ex.Message;
             }
         }
+
+        // One row per document for result lists (best-scoring chunk wins,
+        // order preserved); chunk-level hits still feed synthesis above.
+        var documents = hits
+            .GroupBy(h => h.DocumentId)
+            .Select(g => new { Best = g.First(), ChunkMatches = g.Count() })
+            .ToList();
 
         return new
         {
@@ -101,6 +139,20 @@ public sealed class SearchService
                 snippet = h.Content.Length > 400 ? h.Content[..400] + "…" : h.Content,
                 score = Math.Round(h.Score, 4),
             }),
+            documents = documents.Select(x => new
+            {
+                document_id = x.Best.DocumentId,
+                source_type = x.Best.SourceType,
+                source_key = x.Best.SourceKey,
+                title = x.Best.Title,
+                jurisdiction = x.Best.Jurisdiction,
+                doc_year = x.Best.DocYear,
+                tags = x.Best.Tags ?? Array.Empty<string>(),
+                snippet = x.Best.Content.Length > 320 ? x.Best.Content[..320] + "…" : x.Best.Content,
+                score = Math.Round(x.Best.Score, 4),
+                chunk_matches = x.ChunkMatches,
+                link = Link(x.Best),
+            }),
             answer,
             synthesis_error = synthesisError,
         };
@@ -108,7 +160,15 @@ public sealed class SearchService
 
     private const string HitColumns = """
         c.chunk_id, d.document_id, d.source_type, d.source_key, d.title,
-        d.jurisdiction, d.doc_year, c.content
+        d.jurisdiction, d.doc_year, c.content,
+        ARRAY(SELECT t.name FROM document_tags dt JOIN tags t ON t.tag_id = dt.tag_id
+              WHERE dt.document_id = d.document_id ORDER BY t.name) AS tags,
+        br.review_id, cm.matter_id AS city_matter_id, cm.client AS city_client
+        """;
+
+    private const string HitJoins = """
+        LEFT JOIN bill_reviews br ON d.source_type = 'federal_bill' AND br.bill_id = d.source_key
+        LEFT JOIN city_matters cm ON d.source_type = 'city_matter' AND cm.city_matter_id = d.source_key
         """;
 
     private static string Filters(SearchRequest req, DynamicParameters p)
@@ -145,6 +205,7 @@ public sealed class SearchService
             SELECT {HitColumns}, 1 - (c.embedding <=> @Query::vector) AS score
             FROM document_chunks c
             JOIN documents d ON d.document_id = c.document_id
+            {HitJoins}
             WHERE c.embedding IS NOT NULL AND c.embedding_model = @EmbedModel
             """ + Filters(req, p) +
             " ORDER BY c.embedding <=> @Query::vector LIMIT @TopK";
@@ -184,6 +245,7 @@ public sealed class SearchService
                    ts_rank(to_tsvector('english', c.content), {fn}('english', @Q)) AS score
             FROM document_chunks c
             JOIN documents d ON d.document_id = c.document_id
+            {HitJoins}
             WHERE to_tsvector('english', c.content) @@ {fn}('english', @Q)
             """ + Filters(req, p) +
             " ORDER BY score DESC LIMIT @TopK";
