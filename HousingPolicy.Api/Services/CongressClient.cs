@@ -120,6 +120,28 @@ public sealed class CongressClient
         return await resp.Content.ReadAsStringAsync(ct);
     }
 
+    /// <summary>
+    /// One page of /bill/{congress}, newest updates first. Not disk-cached:
+    /// list pages change continuously and the tracker sync decides freshness
+    /// from congress.gov's own updateDate.
+    /// </summary>
+    public async Task<string> FetchBillListPageAsync(
+        int congress, int offset, int limit, string? fromDateTime, CancellationToken ct)
+    {
+        var query = new List<(string, string)>
+        {
+            ("format", "json"), ("offset", offset.ToString()), ("limit", limit.ToString()),
+            ("sort", "updateDate desc"),
+        };
+        if (!string.IsNullOrEmpty(fromDateTime))
+            query.Add(("fromDateTime", fromDateTime));
+
+        var qs = string.Join("&", query.Select(kv => $"{kv.Item1}={Uri.EscapeDataString(kv.Item2)}"));
+        var full = $"{_baseUrl}/bill/{congress}?{qs}&api_key={Uri.EscapeDataString(_opt.ApiKey)}";
+        using var resp = await RequestAsync(full, ct);
+        return await resp.Content.ReadAsStringAsync(ct);
+    }
+
     // --- JSON endpoints with raw-zone disk cache -----------------------------
 
     private async Task<string> GetJsonAsync(

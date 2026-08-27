@@ -169,3 +169,42 @@ CREATE TABLE IF NOT EXISTS bill_related_bills (
 
 CREATE INDEX IF NOT EXISTS idx_cosponsors_member ON bill_cosponsors (bioguide_id);
 CREATE INDEX IF NOT EXISTS idx_subjects_name ON bill_subjects (name);
+
+-- ---------------------------------------------------------------------------
+-- Legislation tracker curation (see Services/TrackerService.cs).
+
+-- 'tracked' bills carry full text; 'untracked' are known but not followed.
+ALTER TABLE bills ADD COLUMN IF NOT EXISTS tracking_status TEXT NOT NULL DEFAULT 'tracked';
+
+-- Topic tags, auto-derived by scanning the CRS summary the first time it is
+-- ingested (TrackerRules.DeriveTags). tags_source records provenance:
+-- 'summary' (final), 'title' (provisional, upgraded when a summary arrives),
+-- or 'manual'. Summary scans only ever replace NULL/'title' tags.
+ALTER TABLE bills ADD COLUMN IF NOT EXISTS tags TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE bills ADD COLUMN IF NOT EXISTS tags_source TEXT;
+
+-- Public visibility is decided by display_date, NOT tracking_status: a bill
+-- appears on the public tracker when display_date IS NOT NULL and <= now()
+-- (future dates enable scheduling). Pinned bills sort to the top.
+ALTER TABLE bills ADD COLUMN IF NOT EXISTS display_date TIMESTAMPTZ;
+ALTER TABLE bills ADD COLUMN IF NOT EXISTS pinned BOOLEAN NOT NULL DEFAULT FALSE;
+
+CREATE INDEX IF NOT EXISTS idx_bills_policy_area ON bills (policy_area, latest_action_date);
+
+-- Small key/value state for sync bookkeeping (last refresh / discovery run).
+CREATE TABLE IF NOT EXISTS sync_state (
+    key        TEXT PRIMARY KEY,
+    value      TEXT,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- The Center's authored bill reviews (four-stage analysis rendered at
+-- /bills/{review_id}); JSONB shaped by prototype/data/bill-review.schema.json.
+-- Live legislative status is merged in from `bills` at read time.
+CREATE TABLE IF NOT EXISTS bill_reviews (
+    review_id  TEXT PRIMARY KEY,          -- front-end route id, e.g. 'hr6644-119'
+    bill_id    TEXT UNIQUE REFERENCES bills(bill_id) ON DELETE CASCADE,
+    review     JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

@@ -26,10 +26,13 @@ if (credsPath is not null)
 }
 
 builder.Services.Configure<CongressOptions>(builder.Configuration.GetSection(CongressOptions.SectionName));
+builder.Services.Configure<TrackerOptions>(builder.Configuration.GetSection(TrackerOptions.SectionName));
 
 builder.Services.AddScoped<DataLayerBase>();
 builder.Services.AddScoped<BillRepository>();
 builder.Services.AddScoped<SchemaInitializer>();
+builder.Services.AddScoped<TrackerService>();
+builder.Services.AddScoped<ReviewService>();
 
 // Typed congress.gov client over HttpClientFactory-managed handlers.
 var congressOpt = builder.Configuration.GetSection(CongressOptions.SectionName).Get<CongressOptions>() ?? new CongressOptions();
@@ -48,7 +51,12 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-builder.Services.AddControllers();
+// snake_case JSON to match the Postgres columns and the Angular client's
+// existing payload shapes (bill_id, tracking_status, status_key, ...).
+builder.Services.AddControllers().AddJsonOptions(o =>
+{
+    o.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

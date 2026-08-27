@@ -1,0 +1,6 @@
+# Dependencies for the Python maintenance CLIs (sync_legislation, seed_reviews).
+# The HTTP API lives in HousingPolicy.Api (C# / ASP.NET Core) — per project
+# convention, anything with an API endpoint is C#; Python is scripts only.
+httpx>=0.27
+psycopg[binary,pool]>=3.2
+pydantic-settings>=2.3
