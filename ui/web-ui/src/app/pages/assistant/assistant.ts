@@ -1,15 +1,22 @@
-import { Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
+import { Component, ElementRef, ViewChild, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { marked } from 'marked';
 import { AI_CAPABILITIES, ChatMessage, INITIAL_MESSAGES, aiReply } from '../../core/site.data';
-import { AssistantDocContext, AssistantService } from '../../core/assistant.service';
+import {
+  AssistantDocContext, AssistantRelatedDoc, AssistantService,
+} from '../../core/assistant.service';
+import { SearchService } from '../../core/search.service';
 
 marked.use({ gfm: true, breaks: true });
 
 /* The Research Assistant. Two modes:
    - Document-scoped (?type=…&id=…): the full text of that bill/study/matter
-     is in Gemini's context; answers are constrained to the document.
+     is in Gemini's context; answers are constrained to the document. Up to
+     4 comparison documents can ride along (full text while the token budget
+     allows, question-relevant excerpts beyond that).
    - General (no params): the original corpus demo with canned replies. */
+
+const MAX_COMPARE = 4;
 
 @Component({
   selector: 'app-assistant',
@@ -18,6 +25,7 @@ marked.use({ gfm: true, breaks: true });
 })
 export class AssistantPage {
   private svc = inject(AssistantService);
+  private search = inject(SearchService);
   private route = inject(ActivatedRoute);
 
   readonly capabilities = AI_CAPABILITIES;
@@ -27,8 +35,23 @@ export class AssistantPage {
   readonly docError = signal('');
   readonly chatError = signal('');
 
+  // Comparison rail (session-only, scoped mode)
+  readonly compare = signal<AssistantRelatedDoc[]>([]);
+  readonly related = signal<AssistantRelatedDoc[]>([]);
+  /** 'type/key' -> how the doc rode in the LAST answer ('full' | 'excerpts'). */
+  readonly compareModes = signal<Record<string, string>>({});
+  readonly pickerResults = signal<AssistantRelatedDoc[]>([]);
+  readonly pickerBusy = signal(false);
+  private pickerTimer: ReturnType<typeof setTimeout> | null = null;
+
+  readonly compareTokens = computed(() =>
+    this.compare().reduce((sum, c) => sum + (c.token_estimate || 0), 0));
+  readonly anyExcerpts = computed(() =>
+    Object.values(this.compareModes()).includes('excerpts'));
+
   @ViewChild('chatBox') chatBox?: ElementRef<HTMLDivElement>;
   @ViewChild('input') input?: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('picker') picker?: ElementRef<HTMLInputElement>;
 
   constructor() {
     this.route.queryParamMap.subscribe((p) => {
@@ -37,10 +60,20 @@ export class AssistantPage {
       this.doc.set(null);
       this.docError.set('');
       this.chatError.set('');
+      this.compare.set([]);
+      this.related.set([]);
+      this.compareModes.set({});
+      this.pickerResults.set([]);
       if (type && id) {
         this.messages.set([]);
         this.svc.getContext(type, id).subscribe({
-          next: (ctx) => this.doc.set(ctx),
+          next: (ctx) => {
+            this.doc.set(ctx);
+            this.svc.getRelated(type, id).subscribe({
+              next: (r) => this.related.set(r.related),
+              error: () => this.related.set([]),
+            });
+          },
           error: () => this.docError.set('Could not load that document — showing the general assistant instead.'),
         });
       } else {
@@ -56,9 +89,71 @@ export class AssistantPage {
   }
 
   /** First ~10 words of the document title, with an ellipsis. */
-  shortTitle(title: string): string {
-    const words = title.split(/\s+/);
-    return words.length <= 10 ? title : words.slice(0, 10).join(' ') + '…';
+  shortTitle(title: string | null, words = 10): string {
+    const parts = (title || '').split(/\s+/);
+    return parts.length <= words ? (title || '') : parts.slice(0, words).join(' ') + '…';
+  }
+
+  key(d: { source_type: string; source_key: string }): string {
+    return `${d.source_type}/${d.source_key}`;
+  }
+
+  relationLabel(d: AssistantRelatedDoc): string {
+    if (d.relation === 'similar')
+      return d.similarity != null ? `${Math.round(d.similarity * 100)}% similar` : 'similar';
+    return d.relation;
+  }
+
+  isSelected(d: { source_type: string; source_key: string }): boolean {
+    const primary = this.doc();
+    if (primary && primary.source_type === d.source_type && primary.source_key === d.source_key) return true;
+    return this.compare().some((c) => c.source_type === d.source_type && c.source_key === d.source_key);
+  }
+
+  addCompare(d: AssistantRelatedDoc): void {
+    if (this.compare().length >= MAX_COMPARE || this.isSelected(d)) return;
+    this.compare.update((c) => [...c, d]);
+  }
+
+  removeCompare(d: AssistantRelatedDoc): void {
+    this.compare.update((c) => c.filter(
+      (x) => !(x.source_type === d.source_type && x.source_key === d.source_key)));
+    this.compareModes.update((m) => {
+      const next = { ...m };
+      delete next[this.key(d)];
+      return next;
+    });
+  }
+
+  onPickerInput(): void {
+    const q = (this.picker?.nativeElement.value || '').trim();
+    if (this.pickerTimer) clearTimeout(this.pickerTimer);
+    if (q.length < 3) {
+      this.pickerResults.set([]);
+      return;
+    }
+    this.pickerTimer = setTimeout(() => {
+      this.pickerBusy.set(true);
+      this.search.search(q).subscribe({
+        next: (r) => {
+          this.pickerBusy.set(false);
+          this.pickerResults.set(r.documents.slice(0, 6).map((d) => ({
+            source_type: d.source_type,
+            source_key: d.source_key,
+            title: d.title,
+            jurisdiction: d.jurisdiction,
+            doc_year: d.doc_year,
+            relation: 'search',
+            similarity: null,
+            token_estimate: 0,
+          })));
+        },
+        error: () => {
+          this.pickerBusy.set(false);
+          this.pickerResults.set([]);
+        },
+      });
+    }, 350);
   }
 
   readonly generalPrompts = [
@@ -73,8 +168,14 @@ export class AssistantPage {
     { label: 'What deadlines, funding, or programs does it create?', text: 'What deadlines, funding amounts, or new programs does this document establish?' },
   ];
 
+  readonly comparePrompts = [
+    { label: 'How do these documents differ?', text: 'How does this document differ from the comparison documents? Ground the comparison in the texts.' },
+    { label: 'Where do they agree?', text: 'Where do this document and the comparison documents agree or reinforce each other?' },
+  ];
+
   get prompts() {
-    return this.doc() ? this.docPrompts : this.generalPrompts;
+    if (!this.doc()) return this.generalPrompts;
+    return this.compare().length ? [...this.comparePrompts, ...this.docPrompts.slice(0, 1)] : this.docPrompts;
   }
 
   send(text: string): void {
@@ -88,12 +189,18 @@ export class AssistantPage {
     const doc = this.doc();
     if (doc) {
       const history = this.messages().map((m) => ({ role: m.role, text: m.text }));
-      this.svc.chat(doc.source_type, doc.source_key, history).subscribe({
+      const compare = this.compare().map((c) => ({
+        source_type: c.source_type, source_key: c.source_key,
+      }));
+      this.svc.chat(doc.source_type, doc.source_key, history, compare).subscribe({
         next: (r) => {
           this.typing.set(false);
           const note = r.document_truncated
             ? '\n\n(Note: this document was truncated to fit the context limit.)' : '';
           this.messages.update((m) => [...m, { role: 'ai', text: r.text + note }]);
+          const modes: Record<string, string> = {};
+          for (const cd of r.context_docs || []) modes[this.key(cd)] = cd.mode;
+          this.compareModes.set(modes);
           this.scrollChat();
         },
         error: (e) => {

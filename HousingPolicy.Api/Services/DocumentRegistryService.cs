@@ -167,6 +167,43 @@ public sealed class DocumentRegistryService
         await tx.CommitAsync(ct);
     }
 
+    // --- curated relations ---------------------------------------------------
+
+    /// <summary>
+    /// Seed document_relations from the structured sources we already hold:
+    /// congress.gov related-bill data (federal↔federal) and the editorial
+    /// precedentRefs inside bill_reviews (bill→study). Idempotent; 'manual'
+    /// rows are never touched.
+    /// </summary>
+    public async Task<int> SeedRelationsAsync(CancellationToken ct = default)
+    {
+        var fromCongress = await _dl.ExecuteAsync(
+            """
+            INSERT INTO document_relations (from_document_id, to_document_id, relation, source)
+            SELECT df.document_id, dt.document_id, 'related', 'congress_gov'
+            FROM bill_related_bills rb
+            JOIN documents df ON df.source_type = 'federal_bill' AND df.source_key = rb.bill_id
+            JOIN documents dt ON dt.source_type = 'federal_bill'
+                 AND dt.source_key = rb.related_congress || '-' || lower(rb.related_type) || '-' || rb.related_number
+            WHERE df.document_id <> dt.document_id
+            ON CONFLICT DO NOTHING
+            """);
+
+        var fromEditorial = await _dl.ExecuteAsync(
+            """
+            INSERT INTO document_relations (from_document_id, to_document_id, relation, source)
+            SELECT db.document_id, ds.document_id, 'precedent', 'editorial'
+            FROM bill_reviews br
+            CROSS JOIN LATERAL jsonb_array_elements_text(br.review #> '{meta,precedentRefs}') AS pr(ref)
+            JOIN documents db ON db.source_type = 'federal_bill' AND db.source_key = br.bill_id
+            JOIN documents ds ON ds.source_type = 'study' AND ds.source_key = pr.ref
+            WHERE jsonb_typeof(br.review #> '{meta,precedentRefs}') = 'array'
+            ON CONFLICT DO NOTHING
+            """);
+
+        return fromCongress + fromEditorial;
+    }
+
     // --- full rebuild --------------------------------------------------------
 
     /// <summary>Rebuild the registry from every corpus. Idempotent; safe to re-run.</summary>
@@ -181,17 +218,21 @@ public sealed class DocumentRegistryService
         var studies = (await _dl.QueryAsync<string>("SELECT ref FROM studies")).ToList();
         foreach (var s in studies) await UpsertStudyAsync(s, ct);
 
-        var stats = await _dl.QuerySingleOrDefaultAsync<(long Docs, long Chunks, long Tags, long Links)>(
+        var newRelations = await SeedRelationsAsync(ct);
+
+        var stats = await _dl.QuerySingleOrDefaultAsync<(long Docs, long Chunks, long Tags, long Links, long Relations)>(
             """
             SELECT (SELECT count(*) FROM documents),
                    (SELECT count(*) FROM document_chunks),
                    (SELECT count(*) FROM tags),
-                   (SELECT count(*) FROM document_tags)
+                   (SELECT count(*) FROM document_tags),
+                   (SELECT count(*) FROM document_relations)
             """);
         return new
         {
             federal_bills = bills.Count, city_matters = matters.Count, studies = studies.Count,
             documents = stats.Docs, chunks = stats.Chunks, tags = stats.Tags, tag_links = stats.Links,
+            relations = stats.Relations, relations_added = newRelations,
         };
     }
 

@@ -81,4 +81,9 @@ public sealed class CityController : ControllerBase
     [HttpPost("api/admin/registry/rebuild")]
     public async Task<IActionResult> RegistryRebuild(CancellationToken ct = default) =>
         Ok(await _registry.RebuildAsync(ct));
+
+    /// <summary>Seed document_relations only — no re-chunk, embeddings untouched.</summary>
+    [HttpPost("api/admin/registry/relations")]
+    public async Task<IActionResult> SeedRelations(CancellationToken ct = default) =>
+        Ok(new { relations_added = await _registry.SeedRelationsAsync(ct) });
 }

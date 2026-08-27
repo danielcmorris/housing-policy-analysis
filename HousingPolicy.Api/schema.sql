@@ -324,6 +324,22 @@ END $$;
 CREATE INDEX IF NOT EXISTS idx_document_chunks_embedding
     ON document_chunks USING hnsw (embedding vector_cosine_ops);
 
+-- Curated cross-corpus relationships between registry documents. Seeded by
+-- DocumentRegistryService.RebuildAsync from congress.gov related-bill data
+-- and the editorial precedentRefs inside bill_reviews; 'manual' rows come
+-- from future admin linking. Queried in BOTH directions (a row links its
+-- pair symmetrically). Embedding similarity is computed live and never
+-- stored here.
+CREATE TABLE IF NOT EXISTS document_relations (
+    from_document_id BIGINT NOT NULL REFERENCES documents(document_id) ON DELETE CASCADE,
+    to_document_id   BIGINT NOT NULL REFERENCES documents(document_id) ON DELETE CASCADE,
+    relation         TEXT NOT NULL,   -- 'related' | 'companion' | 'precedent' | 'analyzes' | ...
+    source           TEXT NOT NULL,   -- 'congress_gov' | 'editorial' | 'manual'
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (from_document_id, to_document_id, relation)
+);
+CREATE INDEX IF NOT EXISTS idx_document_relations_to ON document_relations (to_document_id);
+
 -- Usage ledger for every metered AI call (token tracking per project rules).
 CREATE TABLE IF NOT EXISTS ai_usage (
     id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
