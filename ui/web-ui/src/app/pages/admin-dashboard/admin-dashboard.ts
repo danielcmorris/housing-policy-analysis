@@ -1,9 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
   AdminStats, BillCandidate, LegislationService, RefreshResult, STATUS_LABEL,
 } from '../../core/legislation.service';
+import { CityMatter, CityService, CitySyncResult } from '../../core/city.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -28,8 +29,36 @@ export class AdminDashboardPage {
   /* candidate key -> 'adding' | 'tracked' | 'untracked' | error message */
   readonly candidateState = signal<Record<string, string>>({});
 
+  private citySvc = inject(CityService);
+
+  readonly cities = this.citySvc.cities;
+  readonly citySyncing = signal(false);
+  readonly citySyncDays = signal(90);
+  readonly citySyncResult = signal<CitySyncResult | null>(null);
+  readonly citySyncError = signal('');
+  readonly cityMatters = signal<CityMatter[]>([]);
+  /* city_matter_id -> 'setting' | 'published' | error message */
+  readonly matterState = signal<Record<string, string>>({});
+
+  readonly cityStats = computed(() => {
+    const ms = this.cityMatters();
+    return {
+      total: ms.length,
+      withText: ms.filter((m) => m.has_text).length,
+      published: ms.filter((m) => m.display_date).length,
+    };
+  });
+
+  /* Matters awaiting publication, plus ones just acted on this session so
+     their state chip stays visible (same behavior as the bill candidates). */
+  readonly unpublished = computed(() => {
+    const state = this.matterState();
+    return this.cityMatters().filter((m) => !m.display_date || m.city_matter_id in state);
+  });
+
   constructor() {
     this.loadStats();
+    this.loadCityMatters();
   }
 
   loadStats(): void {
@@ -37,6 +66,53 @@ export class AdminDashboardPage {
       next: (s) => this.stats.set(s),
       error: () => this.stats.set(null),
     });
+  }
+
+  loadCityMatters(): void {
+    this.citySvc.adminList().subscribe({
+      next: (ms) => this.cityMatters.set(ms ?? []),
+      error: () => this.cityMatters.set([]),
+    });
+  }
+
+  runCitySync(client: string): void {
+    if (this.citySyncing()) return;
+    this.citySyncing.set(true);
+    this.citySyncError.set('');
+    this.citySyncResult.set(null);
+    this.citySvc.sync(client, this.citySyncDays()).subscribe({
+      next: (r) => {
+        this.citySyncing.set(false);
+        this.citySyncResult.set(r);
+        this.loadCityMatters();
+      },
+      error: (e) => {
+        this.citySyncing.set(false);
+        this.citySyncError.set(e?.error?.detail || 'Sync failed — is the API running?');
+      },
+    });
+  }
+
+  publish(m: CityMatter): void {
+    const id = m.city_matter_id;
+    if (['setting', 'published'].includes(this.matterState()[id])) return;
+    this.matterState.update((s) => ({ ...s, [id]: 'setting' }));
+    this.citySvc.setDisplay(id, true).subscribe({
+      next: () => {
+        this.matterState.update((s) => ({ ...s, [id]: 'published' }));
+        this.cityMatters.update((ms) =>
+          ms.map((x) => x.city_matter_id === id ? { ...x, display_date: new Date().toISOString() } : x),
+        );
+        this.citySvc.reload();
+      },
+      error: (e) => {
+        this.matterState.update((s) => ({ ...s, [id]: e?.error?.detail || 'failed' }));
+      },
+    });
+  }
+
+  matterStateOf(m: CityMatter): string {
+    return this.matterState()[m.city_matter_id] || '';
   }
 
   runRefresh(): void {

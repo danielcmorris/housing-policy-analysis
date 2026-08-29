@@ -238,7 +238,7 @@ CREATE TABLE IF NOT EXISTS city_matters (
     city_matter_id  TEXT PRIMARY KEY,        -- '{client}-{matter_id}', e.g. 'sfgov-34028'
     client          TEXT NOT NULL,           -- legistar client key ('sfgov')
     city_name       TEXT,                    -- display name ('San Francisco')
-    matter_id       INTEGER NOT NULL,        -- Legistar MatterId (internal key)
+    matter_id       INTEGER NOT NULL,        -- Legistar MatterId (internal key; gateway.aspx?M=L&ID={matter_id} is the public link)
     matter_file     TEXT,                    -- human file number ('181159')
     matter_type     TEXT,                    -- Ordinance | Resolution | ...
     title           TEXT,                    -- MatterTitle (long descriptive title)

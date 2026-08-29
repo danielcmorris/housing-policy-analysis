@@ -1,0 +1,103 @@
+<div>
+  <!-- HERO -->
+  <div class="bg-inverse text-on-inverse">
+    <div class="wrap pt-14 pb-14">
+      <div class="text-xs font-bold tracking-[.14em] uppercase text-gold mb-4">
+        Municipal Legislation ·
+        @for (c of cities(); track c.key; let last = $last) {{{ c.jurisdiction }}@if (!last) {, }}
+      </div>
+      <h1 class="font-serif font-bold text-[42px] leading-[1.1] m-0 mb-[18px] max-w-[760px] tracking-[-.015em]">City Legislation Tracker</h1>
+      <p class="text-[17px] leading-[1.6] text-on-inverse-2 m-0 mb-7 max-w-[660px]">Follow housing-relevant ordinances, resolutions, and motions before city legislative bodies, synchronized from each city's official Legistar record.</p>
+      <div class="flex items-center gap-0 bg-surface rounded-[2px] max-w-[640px] py-1 pr-1 pl-[18px]">
+        <span class="material-icons text-[20px] text-text-4">search</span>
+        <input #q [value]="query()" (input)="query.set(q.value)" placeholder="Search by file number, title, committee, or topic…" class="flex-1 border-none outline-none bg-transparent font-sans text-[15px] text-ink py-[13px] px-3.5">
+        @if (query().trim()) {
+          <div (click)="clear()" class="py-0 px-3 cursor-pointer text-text-4 flex items-center"><span class="material-icons text-lg">close</span></div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- MATTER TILES -->
+  <div class="wrap pt-12 pb-16">
+    <div class="flex items-end justify-between border-b-2 border-ink pb-3.5 mb-8">
+      <h2 class="font-serif font-bold text-[26px] m-0 tracking-[-.01em] text-ink">Active Matters</h2>
+      <div class="flex items-center gap-5">
+        <div class="flex items-center gap-1.5">
+          <div (click)="typeFilter.set('')"
+               class="text-xs font-semibold py-1 px-2.5 rounded-[2px] cursor-pointer"
+               [class]="!typeFilter() ? 'bg-inverse text-on-inverse' : 'bg-surface-2 text-text-3 border border-border'">All</div>
+          @for (t of matterTypes(); track t) {
+            <div (click)="typeFilter.set(t)"
+                 class="text-xs font-semibold py-1 px-2.5 rounded-[2px] cursor-pointer"
+                 [class]="typeFilter() === t ? 'bg-inverse text-on-inverse' : 'bg-surface-2 text-text-3 border border-border'">{{ t }}s</div>
+          }
+        </div>
+        <div class="text-[13.5px] text-text-3"><span class="font-bold text-ink font-mono">{{ matters().length }}</span> matters tracked</div>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-5">
+      @for (m of matters(); track m.city_matter_id) {
+        <div class="border border-border bg-surface rounded-[2px] p-6 flex flex-col h-full">
+          <div class="flex items-center justify-between mb-3.5">
+            <div class="flex items-center gap-[9px]">
+              @if (m.pinned) {
+                <span class="material-icons text-base text-gold" title="Pinned by our review board">push_pin</span>
+              }
+              <span class="material-icons text-lg text-accent">location_city</span>
+              <span class="font-mono text-[13px] font-semibold text-ink">File {{ m.matter_file }}</span>
+              <span class="text-xs text-text-4">· {{ m.city_name }}</span>
+            </div>
+            @if (m.status) {
+              <span class="inline-flex items-center py-1 px-[11px] rounded-[2px] text-[11px] font-bold whitespace-nowrap"
+                    [style.background]="pillStyle(m).bg"
+                    [style.color]="pillStyle(m).color">{{ m.status }}</span>
+            }
+          </div>
+          <h3 [routerLink]="['/city', m.city_matter_id]" class="font-serif font-semibold text-[20px] leading-[1.22] m-0 mb-2.5 text-ink cursor-pointer hover:text-accent">{{ heading(m) }}</h3>
+          <p class="text-[13.5px] leading-[1.6] text-text-2 m-0 mb-[18px] flex-1">{{ excerpt(m) }}</p>
+          <div class="flex items-center justify-between border-t border-border-3 pt-3.5 gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="text-[11px] font-semibold text-accent bg-accent-soft py-[3px] px-2.5 rounded-xl whitespace-nowrap">{{ m.matter_type }}</span>
+              @for (t of m.tags ?? []; track t) {
+                <span class="text-[11px] font-semibold text-text-3 bg-surface-2 border border-border py-[3px] px-2.5 rounded-xl whitespace-nowrap">{{ t }}</span>
+              }
+              @if (m.body_name) {
+                <span class="text-[12.5px] text-text-3 truncate">{{ m.body_name }}</span>
+              }
+            </div>
+            @if (m.passed_date || m.intro_date) {
+              <span class="text-[11.5px] text-text-4 font-mono whitespace-nowrap">{{ (m.passed_date || m.intro_date) | date:'MMM d, y' }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- EMPTY STATE -->
+    @if (!matters().length) {
+      <div class="text-center py-14 px-5 text-text-3">
+        <span class="material-icons text-[34px] text-text-4">search_off</span>
+        @if (query().trim() || typeFilter()) {
+          <div class="text-[15px] mt-3">No tracked matters match your search.</div>
+          <div (click)="clear(); typeFilter.set('')" class="text-[13.5px] font-semibold text-accent mt-2.5 cursor-pointer">Clear search</div>
+        } @else {
+          <div class="text-[15px] mt-3">No city matters have been published yet.</div>
+        }
+      </div>
+    }
+
+    <!-- SOURCE NOTE -->
+    <div class="mt-9 bg-surface-2 border border-border rounded-[2px] py-[18px] px-[22px] flex gap-[13px] items-start">
+      <span class="material-icons text-[19px] text-gold">info</span>
+      <p class="m-0 text-[13.5px] leading-[1.6] text-text-2">
+        @if (live()) {
+          Live data: titles, statuses, and committee assignments are synchronized from each city's Granicus Legistar system into the Center's policy database. Matters are filtered to those relevant to housing policy.
+        } @else {
+          The municipal tracker API is not reachable. Status reflects our last synchronization with each city's Legistar record.
+        }
+        <a href="https://sfgov.legistar.com" target="_blank" rel="noopener" class="text-accent font-semibold no-underline">Browse all San Francisco legislation on Legistar →</a>
+      </p>
+    </div>
+  </div>
+</div>

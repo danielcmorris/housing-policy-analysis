@@ -41,6 +41,17 @@ public sealed class CityController : ControllerBase
         return Ok(await _cities.ListAsync(view, client, q, Math.Clamp(limit, 1, 500)));
     }
 
+    [HttpGet("api/city-matters/{cityMatterId}")]
+    public async Task<IActionResult> Get(string cityMatterId, string view = "public")
+    {
+        if (view is not ("public" or "admin"))
+            return BadRequest(new { detail = "view must be 'public' or 'admin'" });
+        var row = await _cities.GetAsync(cityMatterId, view);
+        return row is null
+            ? NotFound(new { detail = $"unknown city_matter_id '{cityMatterId}'" })
+            : Ok(row);
+    }
+
     [HttpPost("api/admin/cities/{client}/sync")]
     public async Task<IActionResult> Sync(string client, int days = 90, CancellationToken ct = default)
     {
@@ -56,6 +67,26 @@ public sealed class CityController : ControllerBase
             _log.LogWarning(ex, "legistar error for {Client}", client);
             return StatusCode(StatusCodes.Status502BadGateway, new { detail = $"legistar error: {ex.Message}" });
         }
+    }
+
+    [HttpPost("api/admin/cities/matters/{cityMatterId}/display")]
+    public async Task<IActionResult> SetDisplay(string cityMatterId,
+                                                [FromBody] AdminController.DisplayRequest body)
+    {
+        var result = await _cities.SetDisplayAsync(cityMatterId, body.Displayed);
+        return result is null
+            ? NotFound(new { detail = $"unknown city_matter_id '{cityMatterId}'" })
+            : Ok(result);
+    }
+
+    [HttpPost("api/admin/cities/matters/{cityMatterId}/pin")]
+    public async Task<IActionResult> SetPin(string cityMatterId,
+                                            [FromBody] AdminController.PinRequest body)
+    {
+        var result = await _cities.SetPinnedAsync(cityMatterId, body.Pinned);
+        return result is null
+            ? NotFound(new { detail = $"unknown city_matter_id '{cityMatterId}'" })
+            : Ok(result);
     }
 
     [HttpGet("api/admin/registry/stats")]

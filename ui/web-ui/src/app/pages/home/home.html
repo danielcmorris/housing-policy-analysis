@@ -112,8 +112,8 @@
   </div>
 
   <!-- COMMENTARY -->
-  <div class="wrap py-16 grid grid-cols-[1.6fr_1fr] gap-14">
-    <div>
+  <div class="wrap py-16">
+    <div class="max-w-[860px]">
       <h2 class="font-serif font-bold text-[28px] m-0 mb-7 border-b-2 border-ink pb-3.5">Commentary &amp; Analysis</h2>
       @for (c of commentary; track c.title) {
         <div class="flex gap-5 py-[22px] border-b border-border cursor-pointer">
@@ -125,14 +125,6 @@
           </div>
         </div>
       }
-    </div>
-    <div>
-      <div class="bg-inverse text-on-inverse p-[34px] rounded-[2px]">
-        <span class="material-icons text-[30px] text-gold">smart_toy</span>
-        <h3 class="font-serif font-semibold text-[23px] mt-4 mb-3">Query the evidence directly</h3>
-        <p class="text-sm leading-[1.6] text-on-inverse-2 m-0 mb-[22px]">Our research assistant reads the full text of all ten studies under review. Ask it to summarize findings, critique a methodology, or surface cross-cutting evidence.</p>
-        <div routerLink="/assistant" class="bg-accent-fill text-on-inverse text-sm font-semibold py-[13px] text-center rounded-[2px] cursor-pointer">Open the Research Assistant</div>
-      </div>
     </div>
   </div>
 </div>

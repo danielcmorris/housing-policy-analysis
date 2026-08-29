@@ -1,0 +1,93 @@
+@if (matter(); as m) {
+<div>
+  <!-- HERO -->
+  <div class="bg-surface border-b border-border">
+    <div class="wrap pt-[30px] pb-10">
+      <div routerLink="/city" class="text-[13px] text-text-3 mb-[22px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-base">chevron_left</span>City Legislation Tracker / {{ m.city_name }}</div>
+      <div class="flex items-center gap-3.5 mb-3.5 flex-wrap">
+        @if (m.pinned) {
+          <span class="material-icons text-base text-gold" title="Pinned by our review board">push_pin</span>
+        }
+        <span class="text-[11px] font-bold tracking-[.1em] uppercase text-accent">{{ m.matter_type }}</span>
+        <span class="font-mono text-xs text-text-4">File {{ m.matter_file }}</span>
+        @if (m.status) {
+          <span class="inline-flex items-center gap-1.5 py-[3px] px-2.5 rounded-[2px] text-[11px] font-semibold" [style.background]="pillStyle(m).bg" [style.color]="pillStyle(m).color">{{ m.status }}</span>
+        }
+      </div>
+      <h1 class="font-serif font-bold text-[32px] leading-[1.18] m-0 mb-[18px] max-w-[880px] tracking-[-.01em] text-ink">{{ m.title }}</h1>
+      <div class="flex items-center gap-3.5 text-sm text-text-2 flex-wrap">
+        <span class="font-semibold text-ink">{{ m.city_name }}</span>
+        @if (m.body_name) {
+          <span class="w-[3px] h-[3px] rounded-full bg-dot"></span>
+          <span>{{ m.body_name }}</span>
+        }
+        @if (m.intro_date) {
+          <span class="w-[3px] h-[3px] rounded-full bg-dot"></span>
+          <span>Introduced {{ m.intro_date | date:'MMM d, y' }}</span>
+        }
+      </div>
+      <div class="flex gap-2.5 mt-[26px] flex-wrap">
+        <a [href]="legistarUrl(m)" target="_blank" rel="noopener" class="bg-accent-fill text-white text-sm font-semibold py-[11px] px-5 rounded-[2px] cursor-pointer flex items-center gap-[7px] no-underline"><span class="material-icons text-[17px]">north_east</span>Browse on Legistar</a>
+        @if (m.has_text) {
+          <div routerLink="/assistant" [queryParams]="{ type: 'city_matter', id: m.city_matter_id }" class="bg-surface text-ink text-sm font-semibold py-[11px] px-5 border border-ink rounded-[2px] cursor-pointer flex items-center gap-[7px]"><span class="material-icons text-[17px]">smart_toy</span>Ask the AI about this matter</div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap pt-12 pb-12 grid grid-cols-[1fr_320px] gap-14 items-start">
+    <!-- ARTICLE -->
+    <div class="text-base leading-[1.7] text-text">
+      @if (m.matter_name && m.matter_name !== m.title) {
+        <h2 class="font-serif font-bold text-[15px] tracking-[.06em] uppercase text-accent m-0 mb-3.5">Matter Name</h2>
+        <p class="m-0 mb-9 text-[17px] leading-[1.7] text-text">{{ m.matter_name }}</p>
+      }
+
+      <div class="flex items-baseline gap-3 border-b-2 border-ink pb-3 mb-5">
+        <h2 class="font-serif font-bold text-[23px] m-0 text-ink">Full Text</h2>
+      </div>
+      @if (m.text_content) {
+        <div class="border border-border bg-surface rounded-[2px] py-[26px] px-[30px] mb-10 text-[15px] leading-[1.75] text-text whitespace-pre-wrap font-serif">{{ m.text_content }}</div>
+      } @else {
+        <div class="bg-surface-2 border border-border rounded-[2px] py-[18px] px-[22px] flex gap-[13px] items-start mb-10">
+          <span class="material-icons text-[19px] text-gold">info</span>
+          <p class="m-0 text-[13.5px] leading-[1.6] text-text-2">The full text of this matter has not yet been synchronized from the city's Legistar record. <a [href]="legistarUrl(m)" target="_blank" rel="noopener" class="text-accent font-semibold no-underline">View it on Legistar →</a></p>
+        </div>
+      }
+    </div>
+
+    <!-- RAIL -->
+    <div class="sticky top-[90px] flex flex-col gap-[18px]">
+      <div class="border border-border bg-surface rounded-[2px] p-[22px]">
+        <div class="text-[11px] font-bold tracking-[.08em] uppercase text-ink mb-3.5">Key Facts</div>
+        <div class="text-[13px] leading-[1.4] text-text-2">
+          @for (f of facts(m); track f.k) {
+            <div class="flex justify-between gap-3 py-1.5 border-b border-border-3"><span class="text-text-4">{{ f.k }}</span><span class="font-semibold text-right text-ink">{{ f.v }}</span></div>
+          }
+        </div>
+      </div>
+      @if (m.tags?.length) {
+        <div class="border border-border bg-surface rounded-[2px] p-[22px]">
+          <div class="text-[11px] font-bold tracking-[.08em] uppercase text-ink mb-3.5">Housing Policy Topics</div>
+          <div class="flex flex-wrap gap-2">
+            @for (t of m.tags; track t) {
+              <span class="text-[11px] font-semibold text-text-3 bg-surface-2 border border-border py-[3px] px-2.5 rounded-xl whitespace-nowrap">{{ t }}</span>
+            }
+          </div>
+        </div>
+      }
+      <div class="border border-border bg-surface rounded-[2px] p-[22px]">
+        <div class="text-[11px] font-bold tracking-[.08em] uppercase text-ink mb-3">Source</div>
+        <p class="m-0 text-[13px] leading-[1.55] text-text-2">Synchronized from {{ m.city_name }}'s official Granicus Legistar record into the Center's policy database.</p>
+      </div>
+    </div>
+  </div>
+</div>
+} @else if (resolved()) {
+  <!-- NOT FOUND -->
+  <div class="wrap pt-16 pb-16 text-center text-text-3">
+    <span class="material-icons text-[34px] text-text-4">search_off</span>
+    <div class="text-[15px] mt-3">This city matter is not available.</div>
+    <div routerLink="/city" class="text-[13.5px] font-semibold text-accent mt-2.5 cursor-pointer">Back to the City Legislation Tracker</div>
+  </div>
+}

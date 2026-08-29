@@ -127,11 +127,12 @@ public sealed class CityService
             });
     }
 
-    public sealed class CityMatterRow
+    public class CityMatterRow
     {
         public string CityMatterId { get; set; } = "";
         public string Client { get; set; } = "";
         public string? CityName { get; set; }
+        public int MatterId { get; set; }
         public string? MatterFile { get; set; }
         public string? MatterType { get; set; }
         public string? Title { get; set; }
@@ -146,10 +147,58 @@ public sealed class CityService
         public bool HasText { get; set; }
     }
 
+    public sealed class CityMatterDetailRow : CityMatterRow
+    {
+        public string? MatterName { get; set; }
+        public DateOnly? AgendaDate { get; set; }
+        public string? EnactmentNumber { get; set; }
+        public DateTime? LastModified { get; set; }
+        public string? TextContent { get; set; }
+    }
+
+    public async Task<CityMatterDetailRow?> GetAsync(string cityMatterId, string view)
+    {
+        var sql = """
+            SELECT city_matter_id, client, city_name, matter_id, matter_file,
+                   matter_type, title, matter_name,
+                   status, body_name, intro_date, agenda_date, passed_date, enactment_number,
+                   last_modified, tracking_status, tags, display_date, pinned,
+                   (text_content IS NOT NULL) AS has_text, text_content
+            FROM city_matters WHERE city_matter_id = @Id
+            """;
+        if (view == "public")
+            sql += " AND display_date IS NOT NULL AND display_date <= now()";
+        return await _dl.QuerySingleOrDefaultAsync<CityMatterDetailRow>(sql, new { Id = cityMatterId });
+    }
+
+    /// <summary>Publish or unpublish a matter — display_date gates the public view, same as bills.</summary>
+    public async Task<object?> SetDisplayAsync(string cityMatterId, bool displayed)
+    {
+        var date = await _dl.QuerySingleOrDefaultAsync<DateTime?>(
+            """
+            UPDATE city_matters SET display_date = CASE WHEN @Displayed THEN now() ELSE NULL END
+            WHERE city_matter_id = @Id RETURNING display_date
+            """, new { Displayed = displayed, Id = cityMatterId });
+        var exists = await _dl.QuerySingleOrDefaultAsync<bool>(
+            "SELECT EXISTS (SELECT 1 FROM city_matters WHERE city_matter_id = @Id)", new { Id = cityMatterId });
+        if (!exists) return null;
+        return new { city_matter_id = cityMatterId, display_date = date?.ToString("o") };
+    }
+
+    public async Task<object?> SetPinnedAsync(string cityMatterId, bool pinned)
+    {
+        var updated = await _dl.ExecuteAsync(
+            "UPDATE city_matters SET pinned = @Pinned WHERE city_matter_id = @Id",
+            new { Pinned = pinned, Id = cityMatterId });
+        if (updated == 0) return null;
+        return new { city_matter_id = cityMatterId, pinned };
+    }
+
     public async Task<List<CityMatterRow>> ListAsync(string view, string? client, string? q, int limit)
     {
         var sql = """
-            SELECT city_matter_id, client, city_name, matter_file, matter_type, title, status,
+            SELECT city_matter_id, client, city_name, matter_id, matter_file,
+                   matter_type, title, status,
                    body_name, intro_date, passed_date, tracking_status, tags, display_date,
                    pinned, (text_content IS NOT NULL) AS has_text
             FROM city_matters WHERE TRUE

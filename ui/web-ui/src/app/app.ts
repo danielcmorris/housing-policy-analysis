@@ -24,9 +24,9 @@ export class App {
   readonly navItems = [
     { label: 'Home', path: '/', exact: true },
     { label: 'Studies Library', path: '/studies', exact: false },
-    { label: 'Research Assistant', path: '/assistant', exact: false },
     { label: 'Data Commons', path: '/commons', exact: false },
     { label: 'US Congress', path: '/congress', exact: false },
+    { label: 'City Legislation', path: '/city', exact: false },
     { label: 'Resources', path: '/resources', exact: false },
     { label: 'About', path: '/about', exact: false },
   ];

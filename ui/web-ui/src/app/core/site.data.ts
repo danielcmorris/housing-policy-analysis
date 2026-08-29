@@ -63,7 +63,7 @@ export const RESOURCE_GROUPS = [
 
 export const FOOTER_COLS = [
   { head: 'Research', links: ['Studies Library', 'Working Papers', 'Research Programs', 'Data & Replication'] },
-  { head: 'Tools', links: ['Research Assistant', 'Data Commons', 'Clarity Scores', 'Citation Index'] },
+  { head: 'Tools', links: ['Data Commons', 'Clarity Scores', 'Citation Index'] },
   { head: 'Institute', links: ['About', 'Fellows', 'Research Standards', 'Contact'] },
 ];
 

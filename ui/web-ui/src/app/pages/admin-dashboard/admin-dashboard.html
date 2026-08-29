@@ -10,6 +10,7 @@
         </div>
         <div class="flex items-center gap-3 flex-wrap">
           <div routerLink="/admin/bills" class="hover-border-accent border border-border bg-surface rounded-[2px] py-[11px] px-5 cursor-pointer flex items-center gap-2 text-sm font-semibold text-accent whitespace-nowrap"><span class="material-icons text-[17px]">manage_search</span>Manage tracked bills</div>
+          <div routerLink="/admin/cities" class="hover-border-accent border border-border bg-surface rounded-[2px] py-[11px] px-5 cursor-pointer flex items-center gap-2 text-sm font-semibold text-accent whitespace-nowrap"><span class="material-icons text-[17px]">location_city</span>City matters</div>
           <div routerLink="/admin/studies" class="hover-border-accent border border-border bg-surface rounded-[2px] py-[11px] px-5 cursor-pointer flex items-center gap-2 text-sm font-semibold text-accent whitespace-nowrap"><span class="material-icons text-[17px]">post_add</span>Studies &amp; proposals</div>
           <div routerLink="/admin/experts" class="hover-border-accent border border-border bg-surface rounded-[2px] py-[11px] px-5 cursor-pointer flex items-center gap-2 text-sm font-semibold text-accent whitespace-nowrap"><span class="material-icons text-[17px]">groups</span>Experts &amp; reviewers</div>
         </div>
@@ -152,6 +153,122 @@
           </div>
         </div>
       }
+    }
+
+    <!-- CITY LEGISLATION -->
+    <div class="flex items-end justify-between border-b-2 border-ink pb-3 mb-8 mt-12">
+      <h2 class="font-serif font-bold text-[23px] m-0 text-ink">City Legislation</h2>
+      <div class="flex items-center gap-4">
+        <div routerLink="/admin/cities" class="text-[13px] font-semibold text-accent cursor-pointer flex items-center gap-1">Manage all city matters<span class="material-icons text-base">chevron_right</span></div>
+        <span class="text-[13px] text-text-3 font-mono">{{ cityStats().total }} matters on file</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6 items-start mb-12">
+      <!-- CITY SYNC CARD -->
+      <div class="border border-border bg-surface rounded-[2px]">
+        <div class="py-4 px-6 border-b border-border flex items-center gap-2.5">
+          <span class="material-icons text-[20px] text-accent">location_city</span>
+          <span class="font-serif font-semibold text-[18px] text-ink">Sync City Matters</span>
+        </div>
+        <div class="p-6">
+          <p class="text-sm leading-[1.6] text-text-2 m-0 mb-5">Walks each city's Legistar record for recently-modified ordinances, resolutions, and motions, and stores the housing-relevant ones. New matters arrive unpublished — review them below before they appear on the public tracker.</p>
+          <div class="flex items-center gap-3 flex-wrap">
+            @for (c of cities(); track c.key) {
+              <div (click)="runCitySync(c.key)" class="bg-accent-fill text-white text-sm font-semibold py-3 px-6 rounded-[2px] cursor-pointer inline-flex items-center gap-2"
+                   [class.opacity-60]="citySyncing()">
+                <span class="material-icons text-[17px]" [class.animate-spin]="citySyncing()">{{ citySyncing() ? 'progress_activity' : 'sync' }}</span>
+                {{ citySyncing() ? 'Syncing…' : 'Sync ' + c.name }}
+              </div>
+            }
+            <label class="flex items-center gap-2 text-[13px] text-text-3">Look back
+              <input type="number" min="1" max="3650" [value]="citySyncDays()" (input)="citySyncDays.set(+cityDay.value || 90)" #cityDay
+                     class="w-[64px] border border-border-2 rounded-[2px] py-2 px-2.5 text-[13px] text-ink bg-surface-2 outline-none text-center">
+              days
+            </label>
+          </div>
+          @if (citySyncResult(); as r) {
+            <div class="mt-4 bg-ok-bg rounded-[2px] py-3 px-4 text-[13px] text-ok font-semibold">
+              Scanned {{ r.listed }} recently-modified matters; stored {{ r.stored }} housing-relevant matter{{ r.stored === 1 ? '' : 's' }} ({{ r.texts_pulled }} with full text).
+            </div>
+          }
+          @if (citySyncError()) {
+            <div class="mt-4 bg-alert-bg rounded-[2px] py-3 px-4 text-[13px] text-alert font-semibold">{{ citySyncError() }}</div>
+          }
+        </div>
+      </div>
+
+      <!-- CITY STATS CARD -->
+      <div class="border border-border bg-surface rounded-[2px]">
+        <div class="py-4 px-6 border-b border-border flex items-center gap-2.5">
+          <span class="material-icons text-[20px] text-accent">monitoring</span>
+          <span class="font-serif font-semibold text-[18px] text-ink">Matters on File</span>
+        </div>
+        <div class="p-6 grid grid-cols-3 gap-4">
+          <div class="text-center">
+            <div class="font-serif font-bold text-[36px] leading-none text-ink">{{ cityStats().total }}</div>
+            <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mt-2.5">Matters</div>
+          </div>
+          <div class="text-center">
+            <div class="font-serif font-bold text-[36px] leading-none text-ok">{{ cityStats().withText }}</div>
+            <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mt-2.5">With Full Text</div>
+          </div>
+          <div class="text-center">
+            <div class="font-serif font-bold text-[36px] leading-none text-accent">{{ cityStats().published }}</div>
+            <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mt-2.5">Published</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNPUBLISHED MATTERS -->
+    <div class="flex items-end justify-between border-b-2 border-ink pb-3 mb-1">
+      <h2 class="font-serif font-bold text-[23px] m-0 text-ink">Matters Awaiting Publication</h2>
+      <span class="text-[13px] text-text-3 font-mono">{{ unpublished().length }} matter{{ unpublished().length === 1 ? '' : 's' }}</span>
+    </div>
+    <div class="text-xs text-text-4 mb-4 mt-2">Newly synced matters are held here until published to the public City Legislation tracker.</div>
+
+    @if (!unpublished().length) {
+      <div class="text-center py-12 text-text-3">
+        <span class="material-icons text-[34px] text-text-4">task_alt</span>
+        <div class="text-[15px] mt-3">No matters awaiting publication — the public tracker is current.</div>
+      </div>
+    }
+
+    @for (m of unpublished(); track m.city_matter_id) {
+      <div class="py-5 border-b border-border grid grid-cols-[1fr_auto] gap-6 items-center">
+        <div>
+          <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
+            <span class="material-icons text-base text-accent">location_city</span>
+            <span class="font-mono text-[13px] font-semibold text-ink">File {{ m.matter_file }}</span>
+            <span class="text-xs text-text-4">· {{ m.city_name }}</span>
+            @if (m.status) {
+              <span class="inline-flex items-center py-[3px] px-2.5 rounded-[2px] text-[11px] font-bold bg-neutral-bg text-text-3">{{ m.status }}</span>
+            }
+            @for (t of m.tags ?? []; track t) {
+              <span class="text-[11px] text-text-3 bg-surface-2 border border-border py-[2px] px-2 rounded-xl">{{ t }}</span>
+            }
+          </div>
+          <div class="font-serif font-semibold text-[17px] leading-[1.25] text-ink mb-1">{{ m.title }}</div>
+          <div class="text-[12.5px] text-text-3">{{ m.matter_type }}@if (m.body_name) { · {{ m.body_name }}} <span class="font-mono text-text-4">{{ (m.passed_date || m.intro_date) | date:'MMM d, y' }}</span></div>
+        </div>
+        <div class="flex items-center gap-2.5 whitespace-nowrap">
+          @switch (matterStateOf(m)) {
+            @case ('') {
+              <div (click)="publish(m)" class="bg-accent-fill text-white text-[13px] font-semibold py-2.5 px-4 rounded-[2px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-[15px]">publish</span>Publish</div>
+            }
+            @case ('setting') {
+              <span class="text-[13px] text-text-3 flex items-center gap-2"><span class="material-icons text-[15px] animate-spin">progress_activity</span>Publishing…</span>
+            }
+            @case ('published') {
+              <span class="inline-flex items-center gap-1.5 py-2 px-3.5 rounded-[2px] text-[12px] font-bold bg-ok-bg text-ok"><span class="material-icons text-[15px]">check_circle</span>Published</span>
+            }
+            @default {
+              <span class="text-[12px] text-alert font-semibold">{{ matterStateOf(m) }}</span>
+            }
+          }
+        </div>
+      </div>
     }
   </div>
 </div>
