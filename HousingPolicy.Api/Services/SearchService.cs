@@ -207,6 +207,7 @@ public sealed class SearchService
             JOIN documents d ON d.document_id = c.document_id
             {HitJoins}
             WHERE c.embedding IS NOT NULL AND c.embedding_model = @EmbedModel
+              AND {DocumentRegistryService.PublishedOnly}
             """ + Filters(req, p) +
             " ORDER BY c.embedding <=> @Query::vector LIMIT @TopK";
         p.Add("TopK", topK);
@@ -247,6 +248,7 @@ public sealed class SearchService
             JOIN documents d ON d.document_id = c.document_id
             {HitJoins}
             WHERE to_tsvector('english', c.content) @@ {fn}('english', @Q)
+              AND {DocumentRegistryService.PublishedOnly}
             """ + Filters(req, p) +
             " ORDER BY score DESC LIMIT @TopK";
         p.Add("TopK", topK);

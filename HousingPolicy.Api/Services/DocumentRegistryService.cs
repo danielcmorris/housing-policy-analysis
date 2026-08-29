@@ -24,6 +24,28 @@ public sealed class DocumentRegistryService
 
     public DocumentRegistryService(DataLayerBase dl) => _dl = dl;
 
+    /// <summary>
+    /// SQL predicate (against a `documents d` alias) limiting rows to documents
+    /// whose source record is published — display_date set and arrived, the
+    /// same gate every public list uses. The registry itself indexes all
+    /// content at sync time, so public retrieval (search, assistant) must
+    /// apply this; admin-side tooling may query without it.
+    /// </summary>
+    public const string PublishedOnly = """
+        CASE d.source_type
+            WHEN 'federal_bill' THEN EXISTS (
+                SELECT 1 FROM bills pb WHERE pb.bill_id = d.source_key
+                AND pb.display_date IS NOT NULL AND pb.display_date <= now())
+            WHEN 'city_matter' THEN EXISTS (
+                SELECT 1 FROM city_matters pcm WHERE pcm.city_matter_id = d.source_key
+                AND pcm.display_date IS NOT NULL AND pcm.display_date <= now())
+            WHEN 'study' THEN EXISTS (
+                SELECT 1 FROM studies ps WHERE ps.ref = d.source_key
+                AND ps.display_date IS NOT NULL AND ps.display_date <= now())
+            ELSE FALSE
+        END
+        """;
+
     // --- chunking ------------------------------------------------------------
 
     /// <summary>Split text into overlapping chunks on paragraph/sentence-friendly boundaries.</summary>

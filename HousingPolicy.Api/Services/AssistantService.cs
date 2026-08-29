@@ -112,6 +112,7 @@ public sealed class AssistantService
             JOIN documents d ON d.document_id =
                  CASE WHEN r.from_document_id = @Id THEN r.to_document_id ELSE r.from_document_id END
             WHERE @Id IN (r.from_document_id, r.to_document_id)
+              AND {DocumentRegistryService.PublishedOnly}
             ORDER BY r.relation, d.title
             LIMIT @TopK
             """, new { Id = docId, TopK = topK })).ToList();
@@ -136,6 +137,7 @@ public sealed class AssistantService
                   AND d.document_id <> @Id
                   AND (d.source_type || '/' || d.source_key) <> ALL(@Seen)
                   AND (SELECT v FROM centroid) IS NOT NULL
+                  AND {DocumentRegistryService.PublishedOnly}
                 GROUP BY d.document_id, d.source_type, d.source_key, d.title, d.jurisdiction, d.doc_year
                 ORDER BY similarity DESC
                 LIMIT @TopK
@@ -285,12 +287,13 @@ public sealed class AssistantService
         p.Add("Model", ActiveEmbedModel);
         p.Add("K", ExcerptChunks);
         return (await _dl.QueryAsync<string>(
-            """
+            $"""
             SELECT c.content
             FROM document_chunks c
             JOIN documents d ON d.document_id = c.document_id
             WHERE d.source_type = @St AND d.source_key = @Sk
               AND c.embedding IS NOT NULL AND c.embedding_model = @Model
+              AND {DocumentRegistryService.PublishedOnly}
             ORDER BY c.embedding <=> @Query::vector
             LIMIT @K
             """, p)).ToList();
@@ -302,6 +305,8 @@ public sealed class AssistantService
     private string ActiveEmbedModel =>
         _embedOpt.Provider == "ollama" ? "nomic-embed-text" : _vertex.Model;
 
+    /// <summary>Published documents only — the assistant is a public surface,
+    /// so an unpublished source key resolves like it doesn't exist.</summary>
     private async Task<DocText?> LoadAsync(string sourceType, string sourceKey) => sourceType switch
     {
         "federal_bill" => await _dl.QuerySingleOrDefaultAsync<DocText>(
@@ -314,18 +319,21 @@ public sealed class AssistantService
             FROM bills b
             LEFT JOIN bill_reviews br ON br.bill_id = b.bill_id
             WHERE b.bill_id = @Key
+              AND b.display_date IS NOT NULL AND b.display_date <= now()
             """, new { Key = sourceKey }),
         "study" => await _dl.QuerySingleOrDefaultAsync<DocText>(
             """
             SELECT title, text_content AS text, NULL AS review_id,
                    NULL::int AS city_matter_id, NULL AS city_client
             FROM studies WHERE ref = @Key
+              AND display_date IS NOT NULL AND display_date <= now()
             """, new { Key = sourceKey }),
         "city_matter" => await _dl.QuerySingleOrDefaultAsync<DocText>(
             """
             SELECT title, text_content AS text, NULL AS review_id,
                    matter_id AS city_matter_id, client AS city_client
             FROM city_matters WHERE city_matter_id = @Key
+              AND display_date IS NOT NULL AND display_date <= now()
             """, new { Key = sourceKey }),
         _ => null,
     };
