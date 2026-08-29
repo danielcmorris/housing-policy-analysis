@@ -7,8 +7,12 @@ import { CONGRESS_BILLS } from './congress.data';
    sync. Falls back to the static demo tiles if the API is unreachable. */
 
 /* HousingPolicy.Api (ASP.NET Core) — run with:
-   dotnet run --project HousingPolicy.Api --urls http://localhost:5000 */
-export const API_BASE = 'http://localhost:5000/api';
+   dotnet run --project HousingPolicy.Api --urls http://localhost:5000
+   Under ng serve (:4200) the API is a separate local process; in deployment
+   Kestrel serves this build itself, so the API is same-origin. */
+export const API_BASE = location.port === '4200'
+  ? 'http://localhost:5000/api'
+  : '/api';
 
 export interface TrackerBill {
   bill_id: string;

@@ -102,7 +102,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+
+// Deployment hosting: serve the Angular build from wwwroot when present,
+// with an SPA fallback so deep links land on index.html. No-ops in dev,
+// where there is no wwwroot and ng serve owns the front end.
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.MapControllers();
+if (File.Exists(Path.Combine(app.Environment.WebRootPath ?? "", "index.html")))
+    app.MapFallbackToFile("index.html");
 
 app.Run();
 
