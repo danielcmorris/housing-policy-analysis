@@ -66,6 +66,14 @@ public sealed class AssistantService
                               !string.IsNullOrEmpty(doc.Text), (doc.Text?.Length ?? 0) / 4);
     }
 
+    /// <summary>The document's stored text for the reader/preview window.
+    /// Same published-only gate as every assistant surface.</summary>
+    public async Task<(string Title, string? Text)?> GetTextAsync(string sourceType, string sourceKey)
+    {
+        var doc = await LoadAsync(sourceType, sourceKey);
+        return doc is null ? null : (doc.Title, doc.Text);
+    }
+
     private static string Kind(string sourceType) => sourceType switch
     {
         "study" => "study",

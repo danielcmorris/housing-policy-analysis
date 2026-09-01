@@ -1,0 +1,228 @@
+<div>
+  <!-- HEADER -->
+  <div class="bg-surface border-b border-border">
+    <div class="wrap pt-[30px] pb-10">
+      <div routerLink="/admin/studies" class="text-[13px] text-text-3 mb-[22px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-base">chevron_left</span>Studies &amp; Proposals</div>
+      <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-3">Administration</div>
+      <h1 class="font-serif font-bold text-[38px] leading-[1.12] m-0 mb-2 tracking-[-.01em] text-ink">Edit Document</h1>
+      <p class="text-base leading-[1.6] text-text-2 m-0 max-w-[720px] font-mono text-[15px]">{{ ref() }}</p>
+    </div>
+  </div>
+
+  @if (notFound()) {
+    <div class="wrap pt-10 pb-16">
+      <div class="bg-alert-bg rounded-[2px] py-4 px-5 text-sm text-alert font-semibold">No document '{{ ref() }}' is on file.</div>
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <form #f (submit)="$event.preventDefault(); save(f)">
+      <div class="wrap pt-8 pb-16 grid grid-cols-[1fr_340px] gap-10 items-start">
+        <!-- EDIT FORM -->
+        <div>
+          <div class="border border-border bg-surface rounded-[2px] mb-8">
+            <div class="py-4 px-6 border-b border-border flex items-center gap-2.5">
+              <span class="material-icons text-[20px] text-accent">edit_document</span>
+              <span class="font-serif font-semibold text-[18px] text-ink">Properties</span>
+            </div>
+            <div class="p-6">
+              <div class="grid grid-cols-2 gap-4 mb-4">
+                <label class="block">
+                  <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Reference</span>
+                  <input [value]="d.study.ref" disabled class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-text-3 bg-surface-2 outline-none font-mono opacity-70">
+                </label>
+                <label class="block">
+                  <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Type</span>
+                  <select name="docType" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+                    <option value="study" [selected]="d.study.doc_type !== 'proposal'">Study</option>
+                    <option value="proposal" [selected]="d.study.doc_type === 'proposal'">Policy Proposal</option>
+                  </select>
+                </label>
+              </div>
+              <label class="block mb-4">
+                <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Title *</span>
+                <input name="title" [value]="d.study.title" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+              </label>
+              <div class="grid grid-cols-2 gap-4 mb-4">
+                <label class="block">
+                  <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Category</span>
+                  <select name="category" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+                    @for (c of categories; track c) { <option [value]="c" [selected]="d.study.category === c">{{ c }}</option> }
+                  </select>
+                </label>
+                <label class="block">
+                  <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Authors / Institution</span>
+                  <input name="authors" [value]="d.study.authors ?? ''" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+                </label>
+              </div>
+              <div class="grid grid-cols-4 gap-4 mb-4">
+                <label class="block">
+                  <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Year</span>
+                  <input name="year" type="number" min="1900" max="2100" [value]="d.study.year ?? ''" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+                </label>
+                <label class="block">
+                  <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Pages</span>
+                  <input name="pages" type="number" min="1" [value]="d.study.pages ?? ''" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+                </label>
+                <label class="block">
+                  <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Status</span>
+                  <select name="status" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+                    @for (s of statuses; track s) { <option [value]="s" [selected]="d.study.status === s">{{ s }}</option> }
+                  </select>
+                </label>
+                <label class="block">
+                  <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Clarity (0–10)</span>
+                  <input name="clarity" type="number" step="0.1" min="0" max="10" [value]="d.study.clarity ?? ''" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
+                </label>
+              </div>
+              <label class="block mb-4">
+                <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Summary / Abstract</span>
+                <textarea name="summary" rows="3" [value]="d.study.summary ?? ''" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none resize-y"></textarea>
+              </label>
+              <label class="block mb-4">
+                <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Key Findings (one per line)</span>
+                <textarea name="keyFindings" rows="3" [value]="keyFindingsText()" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none resize-y"></textarea>
+              </label>
+              <label class="block mb-1">
+                <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Methodology</span>
+                <textarea name="methodology" rows="2" [value]="d.study.methodology ?? ''" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none resize-y"></textarea>
+              </label>
+            </div>
+          </div>
+
+          <!-- DOCUMENT TEXT -->
+          <div class="border border-border bg-surface rounded-[2px] mb-8">
+            <div class="py-4 px-6 border-b border-border flex items-center justify-between gap-3 flex-wrap">
+              <div class="flex items-center gap-2.5">
+                <span class="material-icons text-[20px] text-accent">subject</span>
+                <span class="font-serif font-semibold text-[18px] text-ink">Document Text</span>
+              </div>
+              <div class="flex items-center gap-3 relative">
+                @if (textDirty()) {
+                  <span class="text-[11px] font-bold uppercase tracking-[.05em] text-warn">edited — will replace stored text on save</span>
+                }
+                <button type="button" (click)="preview(f)"
+                        class="bg-surface text-accent border border-accent text-[13px] font-semibold py-2 px-4 rounded-[2px] cursor-pointer inline-flex items-center gap-1.5"
+                        title="Open the current editor text rendered as Markdown in a new window">
+                  <span class="material-icons text-[15px]">open_in_new</span>
+                  Preview
+                </button>
+                <button type="button" (click)="parsePdf()" [class.opacity-60]="parsing() || converting()"
+                        class="bg-surface text-accent border border-accent text-[13px] font-semibold py-2 px-4 rounded-[2px] cursor-pointer inline-flex items-center gap-1.5"
+                        title="Extract the text from the stored PDF (PdfPig, runs locally) and place it in the editor below">
+                  <span class="material-icons text-[15px]" [class.animate-spin]="parsing()">{{ parsing() ? 'progress_activity' : 'picture_as_pdf' }}</span>
+                  {{ parsing() ? 'Parsing…' : 'Parse PDF' }}
+                </button>
+                <button type="button" (click)="convertMarkdown()" [class.opacity-60]="parsing() || converting()"
+                        class="bg-surface text-accent border border-accent text-[13px] font-semibold py-2 px-4 rounded-[2px] cursor-pointer inline-flex items-center gap-1.5"
+                        title="Convert the stored PDF to Markdown with Gemini flash-lite (calls Vertex AI — ~2¢ per document worst case; usage is logged to the AI usage ledger)">
+                  <span class="material-icons text-[15px]" [class.animate-spin]="converting()">{{ converting() ? 'progress_activity' : 'auto_awesome' }}</span>
+                  {{ converting() ? 'Converting…' : 'Convert to Markdown' }}
+                </button>
+                @if (noPdfDialog()) {
+                  <div class="absolute right-0 top-full mt-2 w-[300px] bg-surface border border-border-2 rounded-[2px] shadow-lg p-4 z-20">
+                    <div class="flex items-start gap-2.5">
+                      <span class="material-icons text-[19px] text-alert">picture_as_pdf</span>
+                      <div class="text-[12.5px] leading-[1.55] text-text-2">
+                        <strong class="text-ink">No PDF on file.</strong>
+                        You need a PDF uploaded first — add one in the PDF section below, save, then parse.
+                      </div>
+                    </div>
+                    <div class="mt-3 text-right">
+                      <button type="button" (click)="noPdfDialog.set(false)"
+                              class="bg-accent-fill text-white text-[12px] font-semibold py-1.5 px-4 rounded-[2px] cursor-pointer border-none">OK</button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="p-6">
+              <textarea name="textContent" rows="16" [value]="d.text_content ?? ''" (input)="textDirty.set(true)"
+                        class="w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-[13px] font-mono leading-[1.55] text-ink bg-surface-2 outline-none resize-y"></textarea>
+              <label class="block mt-3">
+                <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">…or replace from a text file (.txt)</span>
+                <input name="textFile" type="file" accept=".txt,text/plain" (change)="textDirty.set(true)" class="mt-1.5 w-full text-[13px] text-text-2">
+              </label>
+              <p class="m-0 mt-3 text-[12px] leading-[1.5] text-text-4">Changing the text re-chunks the document in the RAG registry, which clears its old embeddings — run <strong>Save &amp; Update Vectors</strong> afterwards to re-embed. A save without text edits leaves the vector data untouched.</p>
+            </div>
+          </div>
+
+          <!-- PDF -->
+          <div class="border border-border bg-surface rounded-[2px]">
+            <div class="py-4 px-6 border-b border-border flex items-center gap-2.5">
+              <span class="material-icons text-[20px] text-accent">picture_as_pdf</span>
+              <span class="font-serif font-semibold text-[18px] text-ink">PDF</span>
+            </div>
+            <div class="p-6 grid grid-cols-2 gap-4 items-start">
+              <div class="text-[13px] text-text-2">
+                @if (d.study.has_pdf) {
+                  A PDF is on file — <a [href]="pdfUrl()" target="_blank" class="text-accent font-semibold no-underline">open current PDF</a>
+                } @else {
+                  <span class="text-text-4">No PDF on file.</span>
+                }
+              </div>
+              <label class="block">
+                <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">{{ d.study.has_pdf ? 'Replace the PDF' : 'Upload a PDF' }}</span>
+                <input name="pdf" type="file" accept="application/pdf" class="mt-1.5 w-full text-[13px] text-text-2">
+                <span class="text-[11px] text-text-4">Stored on disk for now; up to 25 MB.</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIDE RAIL: publish + vectors + actions -->
+        <div class="sticky top-[90px]">
+          <div class="border border-border bg-surface rounded-[2px] mb-5">
+            <div class="py-4 px-5 border-b border-border text-[11px] font-bold tracking-[.1em] uppercase text-ink">Publication</div>
+            <div class="p-5">
+              <div class="flex items-center gap-2 flex-wrap mb-3">
+                <span class="inline-flex items-center py-[2px] px-2 rounded-[2px] text-[10px] font-bold"
+                      [style.background]="(studyStatus[d.study.status] || studyStatus['Submitted']).bg"
+                      [style.color]="(studyStatus[d.study.status] || studyStatus['Submitted']).color">{{ d.study.status }}</span>
+                @if (d.study.doc_type === 'proposal') {
+                  <span class="text-[10px] font-bold uppercase tracking-[.05em] text-gold">Proposal</span>
+                }
+              </div>
+              <label class="flex items-center gap-2.5 text-[13.5px] text-text-2 cursor-pointer">
+                <input name="display" type="checkbox" value="true" [checked]="d.study.displayed" class="w-4 h-4 accent-[var(--accent-fill)]">
+                Displayed in the public library
+              </label>
+              <div class="mt-2 text-[12px] text-text-4">
+                <a [routerLink]="['/studies', d.study.ref]" class="text-accent font-semibold no-underline">View public page</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="border border-border bg-surface rounded-[2px] mb-5">
+            <div class="py-4 px-5 border-b border-border text-[11px] font-bold tracking-[.1em] uppercase text-ink">Vector Data</div>
+            <div class="p-5 text-[13px] leading-[2] text-text-2">
+              <div class="flex justify-between gap-3"><span class="text-text-4">Text stored</span><span class="font-semibold" [class.text-ok]="d.study.has_text">{{ d.study.has_text ? 'Yes' : 'No' }}</span></div>
+              <div class="flex justify-between gap-3"><span class="text-text-4">Chunks</span><span class="font-semibold font-mono">{{ d.chunks }}</span></div>
+              <div class="flex justify-between gap-3"><span class="text-text-4">Awaiting embedding</span><span class="font-semibold font-mono" [class.text-warn]="d.chunks_pending > 0" [class.text-ok]="d.chunks_pending === 0">{{ d.chunks_pending }}</span></div>
+              <p class="m-0 mt-2 text-[12px] leading-[1.5] text-text-4">Embedding runs on Vertex AI (text-embedding-004); token usage is logged to the AI usage ledger.</p>
+            </div>
+          </div>
+
+          <button type="submit" [class.opacity-60]="saving() || embedding()"
+                  class="w-full bg-accent-fill text-white text-sm font-semibold py-3 px-7 rounded-[2px] cursor-pointer border-none inline-flex items-center justify-center gap-2 mb-3">
+            <span class="material-icons text-[17px]" [class.animate-spin]="saving()">{{ saving() ? 'progress_activity' : 'save' }}</span>
+            {{ saving() ? 'Saving…' : 'Save Changes' }}
+          </button>
+          <button type="button" (click)="updateVectors(f)" [class.opacity-60]="saving() || embedding()"
+                  class="w-full bg-surface text-accent border border-accent text-sm font-semibold py-3 px-7 rounded-[2px] cursor-pointer inline-flex items-center justify-center gap-2"
+                  title="Save, re-chunk if the text changed, then embed this document's pending chunks with Vertex AI">
+            <span class="material-icons text-[17px]" [class.animate-spin]="embedding()">{{ embedding() ? 'progress_activity' : 'memory' }}</span>
+            {{ embedding() ? 'Embedding…' : 'Save & Update Vectors' }}
+          </button>
+
+          @if (result()) {
+            <div class="mt-4 bg-ok-bg rounded-[2px] py-3 px-4 text-[13px] text-ok font-semibold">{{ result() }}</div>
+          }
+          @if (error()) {
+            <div class="mt-4 bg-alert-bg rounded-[2px] py-3 px-4 text-[13px] text-alert font-semibold">{{ error() }}</div>
+          }
+        </div>
+      </div>
+    </form>
+  }
+</div>

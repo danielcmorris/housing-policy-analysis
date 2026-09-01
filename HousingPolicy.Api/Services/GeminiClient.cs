@@ -33,20 +33,9 @@ public sealed class GeminiClient
         GenerateChatAsync(systemInstruction, new[] { ("user", userPrompt) }, ct);
 
     /// <summary>Multi-turn generation. Roles are 'user' or 'model'.</summary>
-    public async Task<GeminiResult> GenerateChatAsync(
+    public Task<GeminiResult> GenerateChatAsync(
         string systemInstruction, IReadOnlyList<(string Role, string Text)> turns, CancellationToken ct)
     {
-        if (_credentialsPath is null)
-            throw new InvalidOperationException(
-                "Gemini service-account key not found under creds/ — see GeminiOptions.CredentialsFile.");
-
-        var credential = GoogleCredential.FromFile(_credentialsPath)
-            .CreateScoped("https://www.googleapis.com/auth/cloud-platform");
-        var token = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync(cancellationToken: ct);
-
-        var url = $"https://{_opt.Location}-aiplatform.googleapis.com/v1/projects/{_opt.ProjectId}" +
-                  $"/locations/{_opt.Location}/publishers/google/models/{_opt.Model}:generateContent";
-
         var body = JsonSerializer.Serialize(new
         {
             systemInstruction = new { parts = new[] { new { text = systemInstruction } } },
@@ -64,6 +53,62 @@ public sealed class GeminiClient
                 thinkingConfig = new { thinkingBudget = 0 },
             },
         });
+        return CallAsync(_opt.Model, body, ct);
+    }
+
+    /// <summary>
+    /// Convert a PDF to Markdown by sending the document itself (Gemini reads
+    /// PDFs natively, so layout/tables survive). Runs on the cheaper
+    /// PdfMarkdownModel with thinking off; the caller computes and passes the
+    /// output-token cap and does the pre-call page/token assessment.
+    /// </summary>
+    public Task<GeminiResult> ConvertPdfToMarkdownAsync(
+        byte[] pdfBytes, int maxOutputTokens, CancellationToken ct)
+    {
+        var body = JsonSerializer.Serialize(new
+        {
+            contents = new[]
+            {
+                new
+                {
+                    role = "user",
+                    parts = new object[]
+                    {
+                        new { inlineData = new { mimeType = "application/pdf",
+                                                 data = Convert.ToBase64String(pdfBytes) } },
+                        new { text = "Convert this document to clean, well-structured Markdown. " +
+                                     "Use # headings matching the document's structure, bullet/numbered " +
+                                     "lists, and Markdown tables for tabular data. Transcribe the text " +
+                                     "faithfully — fix hyphenation across line breaks. OMIT entirely: " +
+                                     "the table of contents, page headers, page footers, and page " +
+                                     "numbers. Never output dot leaders or any run of repeated filler " +
+                                     "characters (....., -----, etc.). Describe charts/figures in one " +
+                                     "italic line. Output only the Markdown." },
+                    },
+                },
+            },
+            generationConfig = new
+            {
+                maxOutputTokens,
+                temperature = 0.1,
+                thinkingConfig = new { thinkingBudget = 0 },
+            },
+        });
+        return CallAsync(_opt.PdfMarkdownModel, body, ct);
+    }
+
+    private async Task<GeminiResult> CallAsync(string model, string body, CancellationToken ct)
+    {
+        if (_credentialsPath is null)
+            throw new InvalidOperationException(
+                "Gemini service-account key not found under creds/ — see GeminiOptions.CredentialsFile.");
+
+        var credential = GoogleCredential.FromFile(_credentialsPath)
+            .CreateScoped("https://www.googleapis.com/auth/cloud-platform");
+        var token = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync(cancellationToken: ct);
+
+        var url = $"https://{_opt.Location}-aiplatform.googleapis.com/v1/projects/{_opt.ProjectId}" +
+                  $"/locations/{_opt.Location}/publishers/google/models/{model}:generateContent";
 
         using var req = new HttpRequestMessage(HttpMethod.Post, url)
         {

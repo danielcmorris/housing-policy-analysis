@@ -3,148 +3,149 @@
   <div class="bg-surface border-b border-border">
     <div class="wrap pt-[30px] pb-10">
       <div routerLink="/admin/dashboard" class="text-[13px] text-text-3 mb-[22px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-base">chevron_left</span>Tracker Dashboard</div>
-      <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-3">Administration</div>
-      <h1 class="font-serif font-bold text-[38px] leading-[1.12] m-0 mb-2 tracking-[-.01em] text-ink">Studies &amp; Policy Proposals</h1>
-      <p class="text-base leading-[1.6] text-text-2 m-0 max-w-[720px]">Add a document to the library by hand: its metadata and summary, the extracted document text (for search and AI use), and the PDF itself. The PDF is stored on disk for now.</p>
+      <div class="flex items-end justify-between gap-6 flex-wrap">
+        <div>
+          <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-3">Administration</div>
+          <h1 class="font-serif font-bold text-[38px] leading-[1.12] m-0 mb-2 tracking-[-.01em] text-ink">Studies &amp; Policy Proposals</h1>
+          <p class="text-base leading-[1.6] text-text-2 m-0 max-w-[720px]">Every document in the library. Click a row to expand its summary and record details, <strong>Display</strong> controls the public library, <strong>Pin</strong> keeps a document at the top of it, and <strong>Edit</strong> opens the full editor — properties, document text, PDF, and vector data.</p>
+        </div>
+        <a routerLink="/admin/studies/new" class="bg-accent-fill text-white text-sm font-semibold py-3 px-6 rounded-[2px] no-underline inline-flex items-center gap-2 shrink-0">
+          <span class="material-icons text-[17px]">library_add</span>Add Document
+        </a>
+      </div>
     </div>
   </div>
 
-  <div class="wrap pt-8 pb-16 grid grid-cols-[1fr_380px] gap-10 items-start">
-    <!-- ADD FORM -->
-    <div class="border border-border bg-surface rounded-[2px]">
-      <div class="py-4 px-6 border-b border-border flex items-center gap-2.5">
-        <span class="material-icons text-[20px] text-accent">post_add</span>
-        <span class="font-serif font-semibold text-[18px] text-ink">Add a Document</span>
+  <div class="wrap pt-8 pb-16">
+    <!-- SEARCH + FILTERS -->
+    <div class="flex items-center gap-3 flex-wrap mb-6">
+      <div class="flex-1 min-w-[280px] flex items-center gap-3 border border-border-2 rounded-[2px] py-1 pr-1 pl-[18px] bg-surface">
+        <span class="material-icons text-xl text-text-4">search</span>
+        <input #q [value]="query()" (input)="onQuery(q.value)" placeholder="Search by reference, title, authors, or summary…"
+               class="flex-1 border-none outline-none bg-transparent font-sans text-[15px] text-ink py-3 px-0">
       </div>
-      <form #f class="p-6" (submit)="$event.preventDefault(); submit(f)">
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <label class="block">
-            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Reference *</span>
-            <input name="ref" placeholder="CUHPR-2026-0502" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none font-mono">
-          </label>
-          <label class="block">
-            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Type</span>
-            <select name="docType" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
-              <option value="study">Study</option>
-              <option value="proposal">Policy Proposal</option>
-            </select>
-          </label>
-        </div>
-        <label class="block mb-4">
-          <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Title *</span>
-          <input name="title" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
-        </label>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <label class="block">
-            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Category</span>
-            <select name="category" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
-              @for (c of categories; track c) { <option [value]="c">{{ c }}</option> }
-            </select>
-          </label>
-          <label class="block">
-            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Authors / Institution</span>
-            <input name="authors" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
-          </label>
-        </div>
-        <div class="grid grid-cols-4 gap-4 mb-4">
-          <label class="block">
-            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Year</span>
-            <input name="year" type="number" min="1900" max="2100" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
-          </label>
-          <label class="block">
-            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Pages</span>
-            <input name="pages" type="number" min="1" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
-          </label>
-          <label class="block">
-            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Status</span>
-            <select name="status" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
-              @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
-            </select>
-          </label>
-          <label class="block">
-            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Clarity (0–10)</span>
-            <input name="clarity" type="number" step="0.1" min="0" max="10" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none">
-          </label>
-        </div>
-        <label class="block mb-4">
-          <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Summary / Abstract</span>
-          <textarea name="summary" rows="3" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none resize-y"></textarea>
-        </label>
-        <label class="block mb-4">
-          <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Key Findings (one per line)</span>
-          <textarea name="keyFindings" rows="3" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none resize-y"></textarea>
-        </label>
-        <label class="block mb-4">
-          <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Methodology</span>
-          <textarea name="methodology" rows="2" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-sm text-ink bg-surface-2 outline-none resize-y"></textarea>
-        </label>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <label class="block">
-            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Document PDF</span>
-            <input name="pdf" type="file" accept="application/pdf" class="mt-1.5 w-full text-[13px] text-text-2">
-            <span class="text-[11px] text-text-4">Stored on disk for now; up to 25 MB.</span>
-          </label>
-          <label class="block">
-            <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">Document Text (.txt)</span>
-            <input name="textFile" type="file" accept=".txt,text/plain" class="mt-1.5 w-full text-[13px] text-text-2">
-            <span class="text-[11px] text-text-4">Extracted text, for search and the assistant.</span>
-          </label>
-        </div>
-        <label class="block mb-5">
-          <span class="text-[11px] font-bold tracking-[.05em] uppercase text-text-4">…or paste the document text</span>
-          <textarea name="textContent" rows="4" class="mt-1.5 w-full border border-border-2 rounded-[2px] py-2.5 px-3 text-[13px] font-mono text-ink bg-surface-2 outline-none resize-y"></textarea>
-        </label>
-
-        <div class="flex items-center justify-between gap-4 flex-wrap">
-          <label class="flex items-center gap-2.5 text-[13.5px] text-text-2 cursor-pointer">
-            <input name="display" type="checkbox" value="true" checked class="w-4 h-4 accent-[var(--accent-fill)]">
-            Display in the public library immediately
-          </label>
-          <button type="submit" class="bg-accent-fill text-white text-sm font-semibold py-3 px-7 rounded-[2px] cursor-pointer border-none inline-flex items-center gap-2" [class.opacity-60]="saving()">
-            <span class="material-icons text-[17px]" [class.animate-spin]="saving()">{{ saving() ? 'progress_activity' : 'library_add' }}</span>
-            {{ saving() ? 'Saving…' : 'Add Document' }}
-          </button>
-        </div>
-        @if (result()) {
-          <div class="mt-4 bg-ok-bg rounded-[2px] py-3 px-4 text-[13px] text-ok font-semibold">{{ result() }}</div>
-        }
-        @if (error()) {
-          <div class="mt-4 bg-alert-bg rounded-[2px] py-3 px-4 text-[13px] text-alert font-semibold">{{ error() }}</div>
-        }
-      </form>
+      @for (f of filters; track f[0]) {
+        <div (click)="setFilter(f[0])" class="chip" [class.chip-active]="typeFilter() === f[0]">{{ f[1] }}</div>
+      }
     </div>
 
-    <!-- EXISTING DOCUMENTS -->
-    <div class="sticky top-[90px] border border-border bg-surface rounded-[2px]">
-      <div class="py-4 px-5 border-b border-border text-[11px] font-bold tracking-[.1em] uppercase text-ink">On File</div>
-      <div class="p-5">
-        @for (s of rows(); track s.ref) {
-          <div class="mb-4 pb-4 border-b border-border-3">
-            <div class="flex items-center gap-2 flex-wrap mb-1">
-              <span class="font-mono text-[11px] text-text-4">{{ s.ref }}</span>
-              <span class="inline-flex items-center py-[2px] px-2 rounded-[2px] text-[10px] font-bold"
-                    [style.background]="(studyStatus[s.status] || studyStatus['Submitted']).bg"
-                    [style.color]="(studyStatus[s.status] || studyStatus['Submitted']).color">{{ s.status }}</span>
+    @if (error()) {
+      <div class="mb-5 bg-alert-bg rounded-[2px] py-3 px-4 text-[13px] text-alert font-semibold">{{ error() }}</div>
+    }
+
+    <div class="flex items-center justify-between border-b-2 border-ink pb-3 mb-1">
+      <div class="text-sm text-text-3"><span class="font-bold text-ink font-mono">{{ visibleRows().length }}</span> document{{ visibleRows().length === 1 ? '' : 's' }}</div>
+      @if (loading()) {
+        <span class="text-[13px] text-text-3 flex items-center gap-2"><span class="material-icons text-[15px] animate-spin">progress_activity</span>Loading…</span>
+      }
+    </div>
+
+    @for (s of visibleRows(); track s.ref) {
+      <div class="border-b border-border">
+        <div class="py-5 grid grid-cols-[auto_1fr_auto] gap-4 items-center">
+          <span class="material-icons text-xl text-text-4 cursor-pointer select-none" (click)="toggleExpand(s)">{{ isExpanded(s) ? 'expand_less' : 'expand_more' }}</span>
+          <div (click)="toggleExpand(s)" class="cursor-pointer">
+            <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
+              <span class="material-icons text-base text-accent">{{ s.doc_type === 'proposal' ? 'lightbulb' : 'science' }}</span>
+              <span class="font-mono text-[13px] font-semibold text-ink">{{ s.ref }}</span>
               @if (s.doc_type === 'proposal') {
                 <span class="text-[10px] font-bold uppercase tracking-[.05em] text-gold">Proposal</span>
               }
-              @if (!s.displayed) {
-                <span class="material-icons text-sm text-text-4" title="Not displayed publicly">visibility_off</span>
+              <span class="inline-flex items-center py-[3px] px-2.5 rounded-[2px] text-[11px] font-bold"
+                    [style.background]="(studyStatus[s.status] || studyStatus['Submitted']).bg"
+                    [style.color]="(studyStatus[s.status] || studyStatus['Submitted']).color">{{ s.status }}</span>
+              @if (s.has_pdf) {
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-accent" title="A PDF is on file"><span class="material-icons text-[13px]">picture_as_pdf</span>PDF</span>
+              }
+              @if (s.has_text) {
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-ok" title="Extracted document text is on file (search + assistant)"><span class="material-icons text-[13px]">subject</span>text</span>
+              }
+              @if (s.displayed) {
+                <span class="inline-flex items-center gap-1 py-[3px] px-2.5 rounded-[2px] text-[11px] font-bold bg-ok-bg text-ok" [title]="'Visible in the public library since ' + (s.display_date | date:'MMM d, y HH:mm')"><span class="material-icons text-[13px]">visibility</span>Public</span>
+              }
+              @if (s.pinned) {
+                <span class="material-icons text-base text-gold" title="Pinned — sorts to the top of the public library">push_pin</span>
               }
             </div>
-            <a [routerLink]="['/studies', s.ref]" class="font-serif font-semibold text-[14.5px] leading-[1.3] text-ink no-underline hover-accent">{{ s.title }}</a>
-            <div class="text-[11.5px] text-text-4 mt-1 flex items-center gap-2.5">
-              <span>{{ s.year }}</span>
-              @if (s.has_pdf) { <a [href]="pdfUrl(s.ref)" target="_blank" class="text-accent font-semibold no-underline">PDF</a> }
-              @if (s.has_text) { <span class="text-ok">text ✓</span> }
+            <div class="font-serif font-semibold text-[17px] leading-[1.25] text-ink mb-1">{{ s.title }}</div>
+            <div class="text-[12.5px] text-text-3">
+              {{ s.authors || '—' }}
+              @if (s.year) { · <span class="font-mono text-text-4">{{ s.year }}</span> }
+              @if (s.category) { · {{ s.category }} }
+            </div>
+          </div>
+          <div class="whitespace-nowrap flex items-center gap-2">
+            <div (click)="setDisplay(s)"
+                 [title]="s.displayed ? 'Remove from the public library (clears the display date)' : 'Display in the public library — sets the display date to right now'"
+                 class="w-[38px] h-[38px] flex items-center justify-center border rounded-[2px] cursor-pointer hover-border-accent"
+                 [class.border-border-2]="!s.displayed" [class.border-ok]="s.displayed">
+              <span class="material-icons text-[17px]" [class.text-ok]="s.displayed" [class.text-text-2]="!s.displayed">{{ s.displayed ? 'visibility' : 'visibility_off' }}</span>
+            </div>
+            <div (click)="setPin(s)"
+                 [title]="s.pinned ? 'Unpin from the top of the public library' : 'Pin to the top of the public library'"
+                 class="w-[38px] h-[38px] flex items-center justify-center border rounded-[2px] cursor-pointer hover-border-accent"
+                 [class.border-border-2]="!s.pinned" [class.border-gold]="s.pinned">
+              <span class="material-icons text-[17px]" [class.text-gold]="s.pinned" [class.text-text-2]="!s.pinned">push_pin</span>
+            </div>
+            <a [routerLink]="['/admin/studies', s.ref]" class="bg-accent-fill text-white text-[13px] font-semibold py-2.5 px-4 rounded-[2px] no-underline cursor-pointer flex items-center gap-1.5">
+              <span class="material-icons text-[15px]">edit</span>Edit
+            </a>
+          </div>
+        </div>
+
+        <!-- EXPANDED DETAIL -->
+        @if (isExpanded(s)) {
+          <div class="mb-5 ml-9 bg-surface-2 border border-border rounded-[2px] p-6 grid grid-cols-[1fr_260px] gap-8 items-start">
+            <div>
+              <div class="text-[11px] font-bold tracking-[.08em] uppercase text-gold mb-2.5">Summary</div>
+              @if (s.summary) {
+                <p class="m-0 text-[14px] leading-[1.65] text-text-2 whitespace-pre-line">{{ s.summary }}</p>
+              } @else {
+                <p class="m-0 text-[13.5px] leading-[1.6] text-text-4 italic">No summary on file.</p>
+              }
+              @if (s.key_findings.length) {
+                <div class="mt-4 pt-4 border-t border-border-3">
+                  <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mb-1.5">Key Findings</div>
+                  <ul class="m-0 pl-5 text-[13.5px] leading-[1.7] text-text-2">
+                    @for (k of s.key_findings; track k) { <li>{{ k }}</li> }
+                  </ul>
+                </div>
+              }
+            </div>
+            <div class="text-[13px] leading-[2] text-text-2">
+              <div class="text-[11px] font-bold tracking-[.08em] uppercase text-text-4 mb-1.5" style="line-height:1.4;">Record</div>
+              <div class="flex justify-between gap-3"><span class="text-text-4">Reference</span><span class="font-mono font-semibold text-ink">{{ s.ref }}</span></div>
+              <div class="flex justify-between gap-3"><span class="text-text-4">Type</span><span class="font-semibold">{{ s.doc_type === 'proposal' ? 'Policy Proposal' : 'Study' }}</span></div>
+              @if (s.category) {
+                <div class="flex justify-between gap-3 items-start"><span class="text-text-4">Category</span><span class="font-semibold text-right leading-[1.5] pt-[5px]">{{ s.category }}</span></div>
+              }
+              @if (s.pages) {
+                <div class="flex justify-between gap-3"><span class="text-text-4">Pages</span><span class="font-semibold">{{ s.pages }}</span></div>
+              }
+              @if (s.clarity !== null) {
+                <div class="flex justify-between gap-3"><span class="text-text-4">Clarity</span><span class="font-semibold font-mono" [style.color]="clarityColor(s.clarity)">{{ s.clarity }}</span></div>
+              }
+              <div class="flex justify-between gap-3"><span class="text-text-4">Text stored</span><span class="font-semibold" [class.text-ok]="s.has_text">{{ s.has_text ? 'Yes' : 'No' }}</span></div>
+              <div class="flex justify-between gap-3"><span class="text-text-4">PDF stored</span><span class="font-semibold" [class.text-ok]="s.has_pdf">{{ s.has_pdf ? 'Yes' : 'No' }}</span></div>
+              <div class="flex justify-between gap-3"><span class="text-text-4">Displayed</span><span class="font-semibold" [class.text-ok]="s.displayed">{{ s.displayed ? ((s.display_date | date:'MMM d, y') || 'Yes') : 'No' }}</span></div>
+              <div class="flex justify-between gap-3"><span class="text-text-4">Pinned</span><span class="font-semibold" [class.text-gold]="s.pinned">{{ s.pinned ? 'Yes' : 'No' }}</span></div>
+              <div class="mt-3 flex items-center gap-4">
+                @if (s.has_pdf) {
+                  <a [href]="pdfUrl(s.ref)" target="_blank" class="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-accent no-underline">Open PDF<span class="material-icons text-sm">north_east</span></a>
+                }
+                <a [routerLink]="['/studies', s.ref]" class="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-accent no-underline">Public page<span class="material-icons text-sm">north_east</span></a>
+              </div>
             </div>
           </div>
         }
-        @if (!rows().length) {
-          <div class="text-[13px] text-text-4">No documents in the database yet.</div>
-        }
       </div>
-    </div>
+    }
+
+    @if (!loading() && !visibleRows().length) {
+      <div class="text-center py-12 text-text-3">
+        <span class="material-icons text-[34px] text-text-4">search_off</span>
+        <div class="text-[15px] mt-3">No documents match.</div>
+      </div>
+    }
   </div>
 </div>

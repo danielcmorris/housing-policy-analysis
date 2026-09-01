@@ -13,6 +13,11 @@ export const STUDY_STATUS: Record<string, { color: string; bg: string }> = {
   'Submitted':         { color: 'var(--text-3)', bg: 'var(--neutral-bg)' },
 };
 
+/* Shared vocabularies for the admin study forms (new + edit). */
+export const STUDY_STATUSES = ['Submitted', 'In Review', 'Awaiting Response', 'Peer Reviewed'];
+export const STUDY_CATEGORIES = ['Rent Control', 'Building Policies', 'Regulation Reductions',
+  'Filtering', 'Supply-Side Economics', 'Gentrification', 'Costs'];
+
 export function clarityColor(n: number): string {
   return n >= 8.5 ? 'var(--ok)' : (n >= 7.5 ? 'var(--warn)' : 'var(--alert)');
 }

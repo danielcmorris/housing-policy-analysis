@@ -20,6 +20,8 @@ export const routes: Routes = [
   { path: 'admin/bills', loadComponent: () => import('./pages/admin-bills/admin-bills').then(m => m.AdminBillsPage) },
   { path: 'admin/cities', loadComponent: () => import('./pages/admin-cities/admin-cities').then(m => m.AdminCitiesPage) },
   { path: 'admin/studies', loadComponent: () => import('./pages/admin-studies/admin-studies').then(m => m.AdminStudiesPage) },
+  { path: 'admin/studies/new', loadComponent: () => import('./pages/admin-study-new/admin-study-new').then(m => m.AdminStudyNewPage) },
+  { path: 'admin/studies/:ref', loadComponent: () => import('./pages/admin-study-edit/admin-study-edit').then(m => m.AdminStudyEditPage) },
   { path: 'admin/experts', loadComponent: () => import('./pages/admin-experts/admin-experts').then(m => m.AdminExpertsPage) },
   { path: '**', redirectTo: '' },
 ];

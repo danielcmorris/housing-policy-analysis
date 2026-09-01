@@ -109,7 +109,10 @@ public sealed class DocumentRegistryService
                           row.IntroDate?.Year, row.Tags ?? Array.Empty<string>(), row.Text, ct);
     }
 
-    public async Task UpsertStudyAsync(string reference, CancellationToken ct = default)
+    /// <param name="includeText">When false, refresh only title/tags/metadata and
+    /// leave the existing chunks (and their embeddings) untouched — used for
+    /// metadata-only edits so a save doesn't force a re-embedding pass.</param>
+    public async Task UpsertStudyAsync(string reference, bool includeText = true, CancellationToken ct = default)
     {
         var row = await _dl.QuerySingleOrDefaultAsync<(string? Title, string? Authors, string? Category,
                                                        int? Year, string? Summary, string? Text)>(
@@ -122,7 +125,8 @@ public sealed class DocumentRegistryService
         var tags = TrackerRules.DeriveTags((row.Title ?? "") + " " + (row.Summary ?? ""));
         if (!string.IsNullOrEmpty(row.Category) && !tags.Contains(row.Category))
             tags = tags.Append(row.Category).ToArray();
-        await UpsertAsync("study", reference, row.Title, row.Authors, row.Year, tags, row.Text, ct);
+        await UpsertAsync("study", reference, row.Title, row.Authors, row.Year, tags,
+                          includeText ? row.Text : null, ct);
     }
 
     private async Task UpsertAsync(
@@ -238,7 +242,7 @@ public sealed class DocumentRegistryService
         foreach (var m in matters) await UpsertCityMatterAsync(m, ct);
 
         var studies = (await _dl.QueryAsync<string>("SELECT ref FROM studies")).ToList();
-        foreach (var s in studies) await UpsertStudyAsync(s, ct);
+        foreach (var s in studies) await UpsertStudyAsync(s, includeText: true, ct);
 
         var newRelations = await SeedRelationsAsync(ct);
 

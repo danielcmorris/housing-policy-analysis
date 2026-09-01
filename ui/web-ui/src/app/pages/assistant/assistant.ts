@@ -6,6 +6,9 @@ import {
   AssistantDocContext, AssistantRelatedDoc, AssistantService,
 } from '../../core/assistant.service';
 import { SearchService } from '../../core/search.service';
+import {
+  openPreviewWindow, writeMarkdownPreview, writePreviewLoading,
+} from '../../core/markdown-preview';
 
 marked.use({ gfm: true, breaks: true });
 
@@ -64,6 +67,7 @@ export class AssistantPage {
       this.related.set([]);
       this.compareModes.set({});
       this.pickerResults.set([]);
+      this.previewCache = null;
       if (type && id) {
         this.messages.set([]);
         this.svc.getContext(type, id).subscribe({
@@ -86,6 +90,53 @@ export class AssistantPage {
       sanitizes [innerHTML] bindings, so scripts/handlers are stripped). */
   renderMd(text: string): string {
     return marked.parse(text, { async: false }) as string;
+  }
+
+  /** Breadcrumb for the document's corpus (Studies Library, US Congress, …). */
+  corpusCrumb(d: AssistantDocContext): { label: string; link: string } {
+    switch (d.source_type) {
+      case 'study': return { label: 'Studies Library', link: '/studies' };
+      case 'federal_bill': return { label: 'US Congress', link: '/congress' };
+      case 'city_matter': return { label: 'City Legislation', link: '/city' };
+      default: return { label: 'Library', link: '/' };
+    }
+  }
+
+  readonly previewBusy = signal(false);
+  /** Fetched document text, cached per document ('type/key'). */
+  private previewCache: { key: string; title: string; text: string } | null = null;
+
+  /** Open the document rendered as markdown in a new window. The window opens
+      synchronously (popup blockers need the click gesture) and fills in when
+      the text arrives; subsequent previews reuse the fetched text. */
+  preview(): void {
+    const d = this.doc();
+    if (!d || this.previewBusy()) return;
+    const w = openPreviewWindow();
+    if (!w) {
+      this.chatError.set('The browser blocked the preview window — allow pop-ups for this site.');
+      return;
+    }
+    const banner = (title: string) => `Document preview — ${title}`;
+    const cached = this.previewCache;
+    if (cached && cached.key === this.key(d)) {
+      writeMarkdownPreview(w, cached.title, banner(cached.title), cached.text);
+      return;
+    }
+    writePreviewLoading(w, d.title);
+    this.previewBusy.set(true);
+    this.svc.getText(d.source_type, d.source_key).subscribe({
+      next: (r) => {
+        this.previewBusy.set(false);
+        this.previewCache = { key: this.key(d), title: r.title, text: r.text };
+        writeMarkdownPreview(w, r.title, banner(r.title), r.text);
+      },
+      error: () => {
+        this.previewBusy.set(false);
+        w.close();
+        this.chatError.set('Could not load the document text for preview.');
+      },
+    });
   }
 
   /** First ~10 words of the document title, with an ellipsis. */

@@ -37,6 +37,19 @@ public sealed class AssistantController : ControllerBase
             : Ok(ctx);
     }
 
+    /// <summary>The document's stored text, for the client-side markdown
+    /// preview window. Published documents only, like every assistant read.</summary>
+    [HttpGet("text")]
+    public async Task<IActionResult> Text(string source_type, string source_key)
+    {
+        if (!ValidTypes.Contains(source_type))
+            return BadRequest(new { detail = $"unknown source_type '{source_type}'" });
+        var doc = await _assistant.GetTextAsync(source_type, source_key);
+        return doc is null
+            ? NotFound(new { detail = $"no document '{source_type}/{source_key}'" })
+            : Ok(new { title = doc.Value.Title, text = doc.Value.Text ?? "" });
+    }
+
     /// <summary>Candidate comparison documents: curated relations + embedding similarity.</summary>
     [HttpGet("related")]
     public async Task<IActionResult> Related(string source_type, string source_key, int top_k = 5)

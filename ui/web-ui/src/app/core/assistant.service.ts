@@ -57,6 +57,12 @@ export class AssistantService {
     return this.http.get<AssistantDocContext>(`${API_BASE}/assistant/context?${params}`);
   }
 
+  /** The document's stored text (published documents only), for the preview window. */
+  getText(sourceType: string, sourceKey: string) {
+    const params = new URLSearchParams({ source_type: sourceType, source_key: sourceKey });
+    return this.http.get<{ title: string; text: string }>(`${API_BASE}/assistant/text?${params}`);
+  }
+
   getRelated(sourceType: string, sourceKey: string, topK = 5) {
     const params = new URLSearchParams({
       source_type: sourceType, source_key: sourceKey, top_k: String(topK),

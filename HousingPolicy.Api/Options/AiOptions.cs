@@ -69,4 +69,26 @@ public sealed class GeminiOptions
     /// beyond this are truncated with a visible marker).
     /// </summary>
     public int MaxChatInputTokens { get; set; } = 250000;
+
+    // --- PDF → Markdown conversion (admin studies editor) -------------------
+
+    /// <summary>
+    /// Model for PDF→Markdown conversion. Transcription-style work, so the
+    /// lite tier is fine and its output rate is ~6× cheaper than flash
+    /// (output dominates this call's cost ~25:1).
+    /// </summary>
+    public string PdfMarkdownModel { get; set; } = "gemini-2.5-flash-lite";
+
+    /// <summary>Hard cap on PDF pages accepted for a markdown conversion.
+    /// Vertex bills PDF input flat at ~258 tokens/page, so this also caps
+    /// input at ~258 × pages (100 pages ≈ 26k input tokens ≈ $0.003).</summary>
+    public int PdfMarkdownMaxPages { get; set; } = 100;
+
+    /// <summary>Output-token budget granted per PDF page (~800 covers a dense
+    /// text page); pages × this, clamped below, is the run's output cap.</summary>
+    public int PdfMarkdownOutputTokensPerPage { get; set; } = 800;
+
+    /// <summary>Absolute output-token ceiling per conversion run — the worst
+    /// possible bill per document is known in advance (~$0.026 at lite rates).</summary>
+    public int PdfMarkdownMaxOutputTokens { get; set; } = 65000;
 }

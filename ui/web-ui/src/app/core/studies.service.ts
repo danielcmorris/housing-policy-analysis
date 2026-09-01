@@ -22,7 +22,32 @@ export interface DbStudy {
   has_text: boolean;
   has_pdf: boolean;
   displayed: boolean;
+  display_date: string | null;
   pinned: boolean;
+}
+
+/** Admin edit view: the row plus the stored document text and the
+    document's chunk/embedding counts from the RAG registry. */
+export interface AdminStudyDetail {
+  study: DbStudy;
+  text_content: string | null;
+  chunks: number;
+  chunks_pending: number;
+}
+
+export interface StudySaveResult {
+  ref: string;
+  pdf_replaced: boolean;
+  text_replaced: boolean;
+  rechunked: boolean;
+  displayed: boolean;
+}
+
+export interface EmbedResult {
+  model: string;
+  chunks_embedded: number;
+  input_tokens: number;
+  chunks_still_pending: number;
 }
 
 export interface StudyReviewPublic {
@@ -77,5 +102,48 @@ export class StudiesService {
 
   pdfUrl(ref: string): string {
     return `${API_BASE}/studies/${ref}/pdf`;
+  }
+
+  adminGet(ref: string) {
+    return this.http.get<AdminStudyDetail>(`${API_BASE}/admin/studies/${ref}`);
+  }
+
+  update(ref: string, form: FormData) {
+    return this.http.put<StudySaveResult>(`${API_BASE}/admin/studies/${ref}`, form);
+  }
+
+  setDisplay(ref: string, displayed: boolean) {
+    return this.http.post<{ ref: string; display_date: string | null; displayed: boolean }>(
+      `${API_BASE}/admin/studies/${ref}/display`, { displayed },
+    );
+  }
+
+  setPin(ref: string, pinned: boolean) {
+    return this.http.post<{ ref: string; pinned: boolean }>(
+      `${API_BASE}/admin/studies/${ref}/pin`, { pinned },
+    );
+  }
+
+  /** Extract the stored PDF's text with PdfPig (local, nothing is saved). */
+  parsePdf(ref: string) {
+    return this.http.post<{ ref: string; pages: number; characters: number; text: string }>(
+      `${API_BASE}/admin/studies/${ref}/parse-pdf`, {},
+    );
+  }
+
+  /** Convert the stored PDF to Markdown via Gemini flash-lite (calls Vertex
+      AI; page/output caps bound the cost, usage is ledgered; nothing saved). */
+  convertMarkdown(ref: string) {
+    return this.http.post<{ ref: string; pages: number; characters: number;
+                            input_tokens: number; output_tokens: number;
+                            model: string; text: string }>(
+      `${API_BASE}/admin/studies/${ref}/convert-markdown`, {},
+    );
+  }
+
+  /** Embed this study's pending chunks (calls Vertex AI via the API). */
+  embed(ref: string) {
+    return this.http.post<EmbedResult>(`${API_BASE}/admin/registry/embed`,
+      { source_type: 'study', source_key: ref });
   }
 }
