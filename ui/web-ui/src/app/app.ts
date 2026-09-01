@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '@auth0/auth0-angular';
 import { ThemeService } from './core/theme.service';
+import { AccountService } from './core/account.service';
 import { FOOTER_COLS } from './core/site.data';
 
 @Component({
@@ -11,8 +13,17 @@ import { FOOTER_COLS } from './core/site.data';
 })
 export class App {
   readonly theme = inject(ThemeService);
+  readonly account = inject(AccountService);
   private router = inject(Router);
   readonly footerCols = FOOTER_COLS;
+
+  constructor() {
+    // After the Auth0 redirect lands back here, resume the originally
+    // requested URL (the guard stashes it in appState.target before login).
+    inject(AuthService).appState$.subscribe((s) => {
+      if (s?.target) this.router.navigateByUrl(s.target);
+    });
+  }
 
   search(value: string, input: HTMLInputElement): void {
     const q = value.trim();

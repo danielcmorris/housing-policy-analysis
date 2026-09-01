@@ -12,6 +12,22 @@
         <span class="cursor-pointer">Events</span>
         <span routerLink="/experts" class="cursor-pointer">Experts</span>
         <span class="w-px h-[15px] bg-inverse-border"></span>
+        @if (account.enabled()) {
+          @if (account.authenticated()) {
+            <span class="flex items-center gap-2">
+              @if (account.me()?.picture) {
+                <img [src]="account.me()!.picture" alt="" class="w-[22px] h-[22px] rounded-full">
+              } @else {
+                <span class="material-icons text-base text-gold">account_circle</span>
+              }
+              <span class="text-on-inverse font-semibold">{{ account.displayName() }}</span>
+            </span>
+            <span (click)="account.logout()" class="cursor-pointer">Sign Out</span>
+          } @else {
+            <span (click)="account.login()" class="cursor-pointer flex items-center gap-1.5"><span class="material-icons text-sm text-gold">login</span>Sign In</span>
+          }
+          <span class="w-px h-[15px] bg-inverse-border"></span>
+        }
         <span routerLink="/admin/dashboard" class="cursor-pointer font-semibold text-white bg-accent-fill py-[5px] px-[15px] rounded-[2px] tracking-[.02em]">My Dashboard</span>
       </div>
     </div>

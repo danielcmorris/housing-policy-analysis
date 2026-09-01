@@ -1,0 +1,89 @@
+<div>
+  <!-- HEADER -->
+  <div class="bg-surface border-b border-border">
+    <div class="wrap pt-[30px] pb-10">
+      <div routerLink="/admin/dashboard" class="text-[13px] text-text-3 mb-[22px] cursor-pointer flex items-center gap-1.5"><span class="material-icons text-base">chevron_left</span>Tracker Dashboard</div>
+      <div class="text-xs font-bold tracking-[.14em] uppercase text-accent mb-3">Administration</div>
+      <h1 class="font-serif font-bold text-[38px] leading-[1.12] m-0 mb-2 tracking-[-.01em] text-ink">Users</h1>
+      <p class="text-base leading-[1.6] text-text-2 m-0 max-w-[720px]">Every account that has signed in through Auth0. <strong>Role</strong> controls access to this administration area; <strong>Disable</strong> locks an account out entirely. Identity itself (passwords, email, MFA) is managed in the Auth0 dashboard.</p>
+      @if (!account.enabled()) {
+        <div class="mt-4 bg-warn-bg rounded-[2px] py-3 px-4 text-[13px] text-warn font-semibold max-w-[720px]">Authentication is currently disabled (Auth:Enabled=false) — sign-in is not enforced and this list only fills once users log in.</div>
+      }
+    </div>
+  </div>
+
+  <div class="wrap pt-8 pb-16 max-w-[980px]">
+    <!-- SEARCH -->
+    <div class="flex items-center gap-3 mb-6">
+      <div class="flex-1 min-w-[280px] flex items-center gap-3 border border-border-2 rounded-[2px] py-1 pr-1 pl-[18px] bg-surface">
+        <span class="material-icons text-xl text-text-4">search</span>
+        <input #q [value]="query()" (input)="onQuery(q.value)" placeholder="Search by name or email…"
+               class="flex-1 border-none outline-none bg-transparent font-sans text-[15px] text-ink py-3 px-0">
+      </div>
+    </div>
+
+    @if (error()) {
+      <div class="mb-5 bg-alert-bg rounded-[2px] py-3 px-4 text-[13px] text-alert font-semibold">{{ error() }}</div>
+    }
+
+    <div class="flex items-center justify-between border-b-2 border-ink pb-3 mb-1">
+      <div class="text-sm text-text-3"><span class="font-bold text-ink font-mono">{{ rows().length }}</span> user{{ rows().length === 1 ? '' : 's' }}</div>
+      @if (loading()) {
+        <span class="text-[13px] text-text-3 flex items-center gap-2"><span class="material-icons text-[15px] animate-spin">progress_activity</span>Loading…</span>
+      }
+    </div>
+
+    @for (u of rows(); track u.user_id) {
+      <div class="border-b border-border py-4 grid grid-cols-[auto_1fr_auto] gap-4 items-center" [class.opacity-60]="u.disabled">
+        @if (u.picture) {
+          <img [src]="u.picture" alt="" class="w-10 h-10 rounded-full">
+        } @else {
+          <span class="material-icons text-[38px] text-text-4">account_circle</span>
+        }
+        <div class="min-w-0">
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <span class="font-serif font-semibold text-[16px] text-ink">{{ u.name || u.email || u.sub }}</span>
+            @if (u.role === 'admin') {
+              <span class="inline-flex items-center gap-1 py-[2px] px-2 rounded-[2px] text-[10px] font-bold bg-accent-soft text-accent uppercase tracking-[.05em]"><span class="material-icons text-[12px]">shield_person</span>Admin</span>
+            }
+            @if (u.disabled) {
+              <span class="inline-flex items-center py-[2px] px-2 rounded-[2px] text-[10px] font-bold bg-alert-bg text-alert uppercase tracking-[.05em]">Disabled</span>
+            }
+            @if (isSelf(u)) {
+              <span class="text-[10.5px] font-bold uppercase tracking-[.05em] text-gold">You</span>
+            }
+          </div>
+          <div class="text-[12.5px] text-text-3 mt-0.5">
+            {{ u.email || '—' }}
+            <span class="text-text-4"> · first seen {{ u.first_login | date:'MMM d, y' }} · last login {{ u.last_login | date:'MMM d, y HH:mm' }}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 whitespace-nowrap">
+          @if (busy()[u.user_id]) {
+            <span class="material-icons text-[17px] text-text-3 animate-spin">progress_activity</span>
+          }
+          <select #roleSel [value]="u.role" (change)="setRole(u, roleSel.value)" [disabled]="isSelf(u)"
+                  [title]="isSelf(u) ? 'You cannot change your own role' : 'Set this user\'s role'"
+                  class="border border-border-2 rounded-[2px] py-2 px-2.5 text-[13px] text-ink bg-surface-2 outline-none">
+            @for (r of roles; track r) { <option [value]="r" [selected]="u.role === r">{{ r }}</option> }
+          </select>
+          <div (click)="!isSelf(u) && toggleDisabled(u)"
+               [title]="isSelf(u) ? 'You cannot disable your own account' : (u.disabled ? 'Re-enable this account' : 'Disable this account — they can no longer use admin features')"
+               class="w-[38px] h-[38px] flex items-center justify-center border rounded-[2px]"
+               [class.cursor-pointer]="!isSelf(u)" [class.opacity-40]="isSelf(u)"
+               [class.hover-border-accent]="!isSelf(u)"
+               [class.border-border-2]="!u.disabled" [class.border-alert]="u.disabled">
+            <span class="material-icons text-[17px]" [class.text-alert]="u.disabled" [class.text-text-2]="!u.disabled">{{ u.disabled ? 'person_off' : 'person' }}</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (!loading() && !rows().length) {
+      <div class="text-center py-12 text-text-3">
+        <span class="material-icons text-[34px] text-text-4">group_off</span>
+        <div class="text-[15px] mt-3">No users yet — accounts appear here after their first sign-in.</div>
+      </div>
+    }
+  </div>
+</div>

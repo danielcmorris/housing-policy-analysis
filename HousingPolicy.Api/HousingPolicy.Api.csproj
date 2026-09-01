@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Google.Apis.Auth" Version="1.76.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.*" />
     <PackageReference Include="Npgsql" Version="8.0.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
     <PackageReference Include="UglyToad.PdfPig" Version="1.7.0-custom-5" />

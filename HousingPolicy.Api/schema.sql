@@ -421,3 +421,21 @@ CREATE TABLE IF NOT EXISTS expert_bill_reviews (
     UNIQUE (review_id, expert_id)
 );
 CREATE INDEX IF NOT EXISTS idx_expert_bill_reviews_expert ON expert_bill_reviews (expert_id);
+
+-- ---------------------------------------------------------------------------
+-- Users (Auth0-backed). Identity lives in Auth0; this table holds the local
+-- profile + role for authorization ('admin' | 'member'). Rows are upserted on
+-- login from the validated token — never created by hand.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS users (
+    user_id     BIGSERIAL PRIMARY KEY,
+    auth0_sub   TEXT NOT NULL UNIQUE,       -- Auth0 'sub' claim, e.g. 'auth0|abc123'
+    email       TEXT,
+    name        TEXT,
+    picture     TEXT,
+    role        TEXT NOT NULL DEFAULT 'member',
+    disabled    BOOLEAN NOT NULL DEFAULT FALSE,
+    first_login TIMESTAMPTZ NOT NULL DEFAULT now(),
+    last_login  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);

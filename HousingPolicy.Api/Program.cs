@@ -32,6 +32,7 @@ builder.Services.Configure<CityOptions>(builder.Configuration.GetSection(CityOpt
 builder.Services.Configure<OllamaOptions>(builder.Configuration.GetSection(OllamaOptions.SectionName));
 builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection(GeminiOptions.SectionName));
 builder.Services.Configure<EmbeddingOptions>(builder.Configuration.GetSection(EmbeddingOptions.SectionName));
+builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.SectionName));
 
 builder.Services.AddScoped<DataLayerBase>();
 builder.Services.AddScoped<BillRepository>();
@@ -42,6 +43,22 @@ builder.Services.AddScoped<StudyService>();
 builder.Services.AddScoped<ExpertService>();
 builder.Services.AddScoped<CityService>();
 builder.Services.AddScoped<DocumentRegistryService>();
+builder.Services.AddScoped<UserService>();
+
+// Auth0: validate RS256 access tokens against the tenant. Identity lives in
+// Auth0; authorization (role/disabled) lives in the local users table. With
+// Auth:Enabled=false nothing is registered and behavior is exactly pre-auth.
+var authOpt = builder.Configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>() ?? new AuthOptions();
+if (authOpt.Enabled)
+{
+    builder.Services
+        .AddAuthentication(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(o =>
+        {
+            o.Authority = $"https://{authOpt.Domain}/";
+            o.Audience = authOpt.Audience;
+        });
+}
 
 // Typed congress.gov client over HttpClientFactory-managed handlers.
 var congressOpt = builder.Configuration.GetSection(CongressOptions.SectionName).Get<CongressOptions>() ?? new CongressOptions();
@@ -102,6 +119,40 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+
+if (authOpt.Enabled)
+    app.UseAuthentication();
+
+// One gate for the whole admin surface: every /api/admin/* request must carry
+// a valid token whose local users row is role=admin and not disabled. Placed
+// here (not per-attribute) so future admin endpoints can't forget it.
+app.UseWhen(
+    ctx => ctx.Request.Path.StartsWithSegments("/api/admin"),
+    branch => branch.Use(async (ctx, next) =>
+    {
+        if (!authOpt.Enabled)
+        {
+            await next();
+            return;
+        }
+        var sub = ctx.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                  ?? ctx.User.FindFirst("sub")?.Value;
+        if (string.IsNullOrEmpty(sub))
+        {
+            ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await ctx.Response.WriteAsJsonAsync(new { detail = "sign in required" });
+            return;
+        }
+        var users = ctx.RequestServices.GetRequiredService<UserService>();
+        var user = await users.GetBySubAsync(sub);
+        if (user is null || user.Disabled || user.Role != "admin")
+        {
+            ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await ctx.Response.WriteAsJsonAsync(new { detail = "admin access required" });
+            return;
+        }
+        await next();
+    }));
 
 // Deployment hosting: serve the Angular build from wwwroot when present,
 // with an SPA fallback so deep links land on index.html. No-ops in dev,
